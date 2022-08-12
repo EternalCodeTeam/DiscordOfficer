@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Simple discord.js bot for eternalcode discord community",
   "dependencies": {
-    "discord.js": "14.1.2"
+    "discord.js": "14.2.0"
   },
   "devDependencies": {
     "eslint": "8.21.0",
