@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Simple discord.js bot for eternalcode discord community",
   "dependencies": {
-    "discord.js": "14.2.0"
+    "discord-slash-command-handler": "^3.2.3",
+    "discord.js": "^13.5.1",
+    "dotenv": "^16.0.1"
   },
   "devDependencies": {
     "eslint": "8.21.0",
