@@ -1,10 +1,16 @@
-const { Client } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 const { config } = require('dotenv');
 const { Handler } = require('discord-slash-command-handler');
 // Init .env configuration
 config();
 
-const eternalClient = new Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
+const eternalClient = new Client({
+    intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MEMBERS
+    ]
+});
 
 eternalClient.on('ready', () => {
    const slashHandler = new Handler(eternalClient, {
@@ -17,3 +23,5 @@ eternalClient.on('ready', () => {
        notOwnerReply: "Tylko twórcy tego oprogramowania mają możliwość z korzystania z tego polecenia."
    })
 });
+
+eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN).then(r => console.log("[EternalCode] Client logged successfully!"))
