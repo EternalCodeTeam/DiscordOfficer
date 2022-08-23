@@ -10,4 +10,5 @@ module.exports = (client) => {
         table.addRow(event.split('.js')[0], '✅')
     })
     console.log(chalk.blue(table.toString()))
+    console.log(`${chalk.green("[EternalCode.pl]")} ${chalk.yellow("Events was registered")}`)
 };
