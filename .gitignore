@@ -108,6 +108,10 @@ data/
 # DynamoDB Local files
 .dynamodb/
 
+# lock files
+yarn.lock
+package-lock.json
+
 # TernJS port file
 .tern-port
 

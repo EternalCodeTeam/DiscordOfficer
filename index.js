@@ -1,6 +1,6 @@
-const { Client, Collection, Partials } = require('discord.js');
-const { config } = require('dotenv');
-const discordModals = require('discord-modals');
+const { Client, Collection, Partials } = require("discord.js");
+const { config } = require("dotenv");
+const discordModals = require("discord-modals");
 // Init .env configuration
 config();
 
@@ -11,7 +11,7 @@ const eternalClient = new Client({
 discordModals(eternalClient);
 eternalClient.slashCommands = new Collection();
 
-require('./libs/slashCommandHandler.js')(eternalClient, "commands");
-require('./libs/eventsHandler.js')(eternalClient);
+require("./handler/slashCommandHandler.js")(eternalClient, "commands");
+require("./handler/eventsHandler.js")(eternalClient);
 
-eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN)
+eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN);
