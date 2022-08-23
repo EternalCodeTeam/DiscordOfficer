@@ -1,3 +1,4 @@
 module.exports = {
-    banModal: require('./functions/BanModal.js')
+    banModal: require('./functions/BanModal.js'),
+    kickModal: require('./functions/KickModal.js')
 }
