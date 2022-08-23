@@ -2,6 +2,12 @@
   "name": "eternalcode-discord-officer",
   "version": "1.0.0",
   "description": "Simple discord.js bot for eternalcode discord community",
+  "scripts": {
+    "start": "node index.js",
+    "install:yarn": "yarn install",
+    "install:npm": "npm install",
+    "install:pnpm": "pnpm install"
+  },
   "dependencies": {
     "@discordjs/rest": "1.1.0",
     "ascii-table": "0.0.9",
@@ -11,10 +17,5 @@
     "discord.js": "14.3.0",
     "dotenv": "16.0.1",
     "ms": "2.1.3"
-  },
-  "devDependencies": {
-    "eslint": "8.22.0",
-    "eslint-config-airbnb-base": "15.0.0",
-    "eslint-plugin-import": "2.26.0"
   }
 }
