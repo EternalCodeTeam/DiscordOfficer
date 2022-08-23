@@ -13,5 +13,6 @@ eternalClient.slashCommands = new Collection();
 
 require('./libs/slashCommandHandler.js')(eternalClient, "commands");
 require('./libs/eventsHandler.js')(eternalClient);
+require('./events/music/initPlayer.js')(eternalClient);
 
 eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN)
