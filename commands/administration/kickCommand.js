@@ -1,9 +1,9 @@
 const { ApplicationCommandType, GuildMember, PermissionsBitField, EmbedBuilder} = require('discord.js');
 const { Modal, TextInputComponent, showModal} = require('discord-modals');
 module.exports = {
-    name: 'ban',
-    description: "Use ban hammer on user",
-    default_member_permissions: "BanMembers",
+    name: 'kick',
+    description: "Kick user from server",
+    default_member_permissions: "KickMembers",
     type: ApplicationCommandType.ChatInput,
     options: [
         {
@@ -14,31 +14,31 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        if(interaction.options.get('user').member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.options.get('user').member.permissions.has(PermissionsBitField.Flags.BanMembers))
+        if(interaction.options.get('user').member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.options.get('user').member.permissions.has(PermissionsBitField.Flags.KickMembers))
             return interaction.reply({ ephemeral: true, embeds: [
                     new EmbedBuilder()
-                        .setDescription(`🚫 ${interaction.user}, U can't ban \`${interaction.options.get('user').user.username}\`!`)
+                        .setDescription(`🚫 ${interaction.user}, U can't kick \`${interaction.options.get('user').user.username}\`!`)
                         .setColor('Red')
                 ]})
 
-        const banModal = new Modal()
-            .setCustomId('ban-modal')
-            .setTitle('Ban member from this server')
+        const kickModal = new Modal()
+            .setCustomId('kick-modal')
+            .setTitle('Kick member from this server')
             .addComponents(
                 new TextInputComponent()
-                    .setCustomId('user-banned')
+                    .setCustomId('user-kicked')
                     .setStyle('SHORT')
                     .setLabel("Don't modify this input!")
                     .setRequired(true)
                     .setDefaultValue(interaction.options.get('user').user.id),
                 new TextInputComponent()
-                    .setCustomId('ban-reason')
+                    .setCustomId('kick-reason')
                     .setLabel('Reason')
                     .setStyle('LONG')
                     .setRequired(false)
-                    .setPlaceholder('Write here reason of the ban')
+                    .setPlaceholder('Write here reason of the kick')
             )
 
-        await showModal(banModal, {client, interaction});
+        await showModal(kickModal, {client, interaction});
     }
 };
