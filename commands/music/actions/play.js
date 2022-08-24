@@ -14,5 +14,5 @@ module.exports = async (interaction, client) => {
     await showModal(playMusicModal, {
         client,
         interaction
-    });
+    })
 }

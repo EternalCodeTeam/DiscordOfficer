@@ -1,8 +1,8 @@
-const {EmbedBuilder} = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 module.exports = async (interaction, client) => {
     const queue = eternalPlayer.getQueue(interaction.guild.id);
 
-    if(!queue || !queue.playing)
+    if (!queue || !queue.playing)
         return interaction.reply({
             content: `Queue is empty`,
             ephemeral: true
@@ -22,5 +22,4 @@ module.exports = async (interaction, client) => {
         embeds: [embed],
         ephemeral: true,
     })
-
 }

@@ -1,6 +1,6 @@
-const { ApplicationCommandType } = require('discord.js');
+const { ApplicationCommandType } = require("discord.js");
 module.exports = {
-    name: 'music',
+    name: "music",
     description: "Music functions",
     options: [
         {
@@ -14,49 +14,49 @@ module.exports = {
                     "type": 10,
                     "required": true,
                     "min_value": 1,
-                    "max_value": 100,
+                    "max_value": 100
                 }
             ]
         },
         {
             "name": "play",
             "description": "Play ur favorite music",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "stop",
             "description": "Stop current queue",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "back",
             "description": "Play last one song",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "clear",
             "description": "Clear ur queue",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "loop",
             "description": "Loop ur queue",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "nowplaying",
             "description": "Now playing sound",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "queue",
             "description": "List of songs added into queue",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "resume",
             "description": "Resume song from queue",
-            "type": 1,
+            "type": 1
         },
         {
             "name": "search",

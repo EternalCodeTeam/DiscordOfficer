@@ -1,7 +1,6 @@
-const { Client, Collection, IntentsBitField } = require('discord.js');
-const { config } = require('dotenv');
-const discordModals = require('discord-modals');
-// Init .env configuration
+const { Client, Collection, IntentsBitField } = require("discord.js");
+const { config } = require("dotenv");
+const discordModals = require("discord-modals");
 config();
 
 const eternalClient = new Client({
@@ -17,11 +16,12 @@ const eternalClient = new Client({
         IntentsBitField.Flags.GuildVoiceStates,
     ],
 });
+
 discordModals(eternalClient);
 eternalClient.slashCommands = new Collection();
 
-require('./libs/slashCommandHandler.js')(eternalClient, "commands");
-require('./libs/eventsHandler.js')(eternalClient);
-require('./events/music/initPlayer.js')(eternalClient);
+require("./handler/slashCommandHandler.js")(eternalClient, "commands");
+require("./handler/eventsHandler.js")(eternalClient);
+require("./events/music/initPlayer.js")(eternalClient);
 
-eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN)
+eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN);

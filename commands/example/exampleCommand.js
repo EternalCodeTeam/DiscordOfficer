@@ -1,17 +1,17 @@
-const { ApplicationCommandType } = require('discord.js');
+const { ApplicationCommandType } = require("discord.js");
 module.exports = {
-    name: 'example1',
+    name: "example1",
     description: "Example command for Officier",
     options: [
         {
-            name: 'example-argument',
-            description: 'Add role to a user.',
+            name: "example-argument",
+            description: "Add role to a user.",
             type: 3,
-            required: false,
+            required: false
         }
     ],
     type: ApplicationCommandType.ChatInput,
     run: async (client, interaction) => {
-        return interaction.reply({ content: "Example command" })
+        return interaction.reply({ content: "Example command" });
     }
 };

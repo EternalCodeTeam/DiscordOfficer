@@ -2,6 +2,12 @@
   "name": "eternalcode-discord-officer",
   "version": "1.0.0",
   "description": "Simple discord.js bot for eternalcode discord community",
+  "scripts": {
+    "start": "node index.js",
+    "install:npm": "npm install",
+    "install:yarn": "yarn install",
+    "install:pnpm": "pnpm install"
+  },
   "dependencies": {
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "1.1.0",
