@@ -4,7 +4,7 @@ module.exports = {
         kickModal: require('./functions/administration/KickModal.js'),
     },
     music: {
-        play: require('./functions/music/PlayModal.js'),
+        play: require('./functions/music/playModal.js'),
         search: require('./functions/music/searchModal.js')
     }
 }

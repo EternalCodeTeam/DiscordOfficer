@@ -62,6 +62,16 @@ module.exports = {
             "name": "search",
             "description": "Search a song",
             "type": 1
+        },
+        {
+            "name": "skip",
+            "description": "Go to the next song",
+            "type": 1
+        },
+        {
+            "name": "shuffle",
+            "description": "Mix queue",
+            "type": 1
         }
     ],
     type: ApplicationCommandType.ChatInput,
@@ -96,6 +106,12 @@ module.exports = {
                 return;
             case 'search':
                 await require('./actions/search.js')(interaction, client);
+                return;
+            case 'skip':
+                await require('./actions/skip.js')(interaction, client);
+                return;
+            case 'shuffle':
+                await require('./actions/shuffle.js')(interaction, client);
                 return;
             default:
                 interaction.reply({ content: `Selected action was not found! Sorry it's not my problem `, ephemeral: true });

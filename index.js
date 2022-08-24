@@ -1,12 +1,21 @@
-const { Client, Collection, Partials } = require('discord.js');
+const { Client, Collection, IntentsBitField } = require('discord.js');
 const { config } = require('dotenv');
 const discordModals = require('discord-modals');
 // Init .env configuration
 config();
 
 const eternalClient = new Client({
-    intents: 32767,
-    partials: [Partials.Channel, Partials.Message, Partials.User, Partials.GuildMember, Partials.Reaction]
+    intents: [
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.DirectMessages,
+        IntentsBitField.Flags.DirectMessageReactions,
+        IntentsBitField.Flags.MessageContent,
+        IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.GuildMembers,
+        IntentsBitField.Flags.GuildMessageReactions,
+        IntentsBitField.Flags.GuildBans,
+        IntentsBitField.Flags.GuildVoiceStates,
+    ],
 });
 discordModals(eternalClient);
 eternalClient.slashCommands = new Collection();
