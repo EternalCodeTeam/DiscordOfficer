@@ -12,4 +12,4 @@ module.exports = async (interaction, client) => {
         content: queue.setRepeatMode(queue.repeatMode === 0 ? QueueRepeatMode.QUEUE : QueueRepeatMode.OFF) ? `Repeat mode was ${queue.repeatMode === 0 ? "disabled" : "enabled"}` : `Internal application error, try again later`,
         ephemeral: true
     });
-};
+}

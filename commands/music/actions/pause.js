@@ -11,4 +11,4 @@ module.exports = async (interaction, client) => {
         content: queue.setPaused(true) ? `Song: ${queue.current.title} was paused` : `Queue is now paused`,
         ephemeral: true
     });
-};
+}

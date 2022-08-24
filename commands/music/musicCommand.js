@@ -62,46 +62,59 @@ module.exports = {
             "name": "search",
             "description": "Search a song",
             "type": 1
+        },
+        {
+            "name": "skip",
+            "description": "Go to the next song",
+            "type": 1
+        },
+        {
+            "name": "shuffle",
+            "description": "Mix queue",
+            "type": 1
         }
     ],
     type: ApplicationCommandType.ChatInput,
     run: async (client, interaction) => {
         switch (interaction.options._subcommand) {
-            case "volume":
-                await require("./actions/volume.js")(interaction, client);
+            case 'volume':
+                await require('./actions/volume.js')(interaction, client);
                 return;
-            case "play":
-                await require("./actions/play.js")(interaction, client);
+            case 'play':
+                await require('./actions/play.js')(interaction, client);
                 return;
-            case "stop":
-                await require("./actions/stop.js")(interaction, client);
+            case 'stop':
+                await require('./actions/stop.js')(interaction, client);
                 return;
-            case "back":
-                await require("./actions/back.js")(interaction, client);
+            case 'back':
+                await require('./actions/back.js')(interaction, client);
                 return;
-            case "clear":
-                await require("./actions/clear.js")(interaction, client);
+            case 'clear':
+                await require('./actions/clear.js')(interaction, client);
                 return;
-            case "loop":
-                await require("./actions/loop.js")(interaction, client);
+            case 'loop':
+                await require('./actions/loop.js')(interaction, client);
                 return;
-            case "nowplaying":
-                await require("./actions/nowplaying.js")(interaction, client);
+            case 'nowplaying':
+                await require('./actions/nowplaying.js')(interaction, client);
                 return;
-            case "queue":
-                await require("./actions/queue.js")(interaction, client);
+            case 'queue':
+                await require('./actions/queue.js')(interaction, client);
                 return;
-            case "resume":
-                await require("./actions/resume.js")(interaction, client);
+            case 'resume':
+                await require('./actions/resume.js')(interaction, client);
                 return;
-            case "search":
-                await require("./actions/search.js")(interaction, client);
+            case 'search':
+                await require('./actions/search.js')(interaction, client);
+                return;
+            case 'skip':
+                await require('./actions/skip.js')(interaction, client);
+                return;
+            case 'shuffle':
+                await require('./actions/shuffle.js')(interaction, client);
                 return;
             default:
-                interaction.reply({
-                    content: `Selected action was not found! Sorry it's not my problem `,
-                    ephemeral: true
-                });
+                interaction.reply({ content: `Selected action was not found! Sorry it's not my problem `, ephemeral: true });
                 return;
         }
     }
