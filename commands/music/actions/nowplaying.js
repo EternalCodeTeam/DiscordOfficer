@@ -1,4 +1,4 @@
-const {EmbedBuilder} = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 module.exports = async (interaction, client) => {
     const queue = eternalPlayer.getQueue(interaction.guild.id);
 
@@ -22,5 +22,5 @@ module.exports = async (interaction, client) => {
                 \nVolume: **${queue.volume}%**`)
         ],
         ephemeral: true
-    })
-}
+    });
+};

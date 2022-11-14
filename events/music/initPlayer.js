@@ -6,5 +6,5 @@ module.exports = async (client) => {
 
     eternalPlayer.on("trackStart", async (queue, track) => {
         queue.setVolume(eternalPlayerVolume);
-    })
-}
+    });
+};

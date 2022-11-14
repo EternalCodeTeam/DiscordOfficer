@@ -7,9 +7,9 @@ module.exports = async (interaction, client) => {
         });
     }
 
-    queue.destroy(true)
+    queue.destroy(true);
     return interaction.reply({
         content: `Queue was stopped`,
         ephemeral: true
-    })
-}
+    });
+};

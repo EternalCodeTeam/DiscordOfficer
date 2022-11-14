@@ -12,4 +12,4 @@ module.exports = async (interaction, client) => {
         content: `Queue was cleaned`,
         ephemeral: true
     });
-}
+};

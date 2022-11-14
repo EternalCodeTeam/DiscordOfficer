@@ -17,5 +17,5 @@ module.exports = async (interaction, client) => {
     return interaction.reply({
         content: `I launched the last one song`,
         ephemeral: true
-    })
-}
+    });
+};

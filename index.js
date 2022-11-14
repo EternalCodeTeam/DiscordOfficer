@@ -13,8 +13,8 @@ const eternalClient = new Client({
         IntentsBitField.Flags.GuildMembers,
         IntentsBitField.Flags.GuildMessageReactions,
         IntentsBitField.Flags.GuildBans,
-        IntentsBitField.Flags.GuildVoiceStates,
-    ],
+        IntentsBitField.Flags.GuildVoiceStates
+    ]
 });
 
 discordModals(eternalClient);

@@ -21,5 +21,5 @@ module.exports = async (interaction, client) => {
     return interaction.reply({
         content: queue.setVolume(volume) ? `Volume set to **${volume}**%` : `Error with setting volume :cry:`,
         ephemeral: true
-    })
-}
+    });
+};
