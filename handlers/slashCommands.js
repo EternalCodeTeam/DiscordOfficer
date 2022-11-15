@@ -6,21 +6,21 @@ const { Routes } = require("discord-api-types/v9");
 const { REST } = require("@discordjs/rest");
 
 const AsciiTable = require("ascii-table");
-const table = new AsciiTable().setHeading("EternalCode -> Commands", "Loaded?").setBorder("|", "=", "-", "-");
+const table = new AsciiTable().setHeading("Slash Commands", "Stats").setBorder("|", "=", "0", "0");
 
 const TOKEN = process.env.ETERNAL_DISCORD_TOKEN;
 const CLIENT_ID = process.env.ETERNAL_CLIENT_ID;
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
 
-module.exports = (client, directory) => {
+module.exports = (client) => {
     const slashCommands = [];
 
-    fs.readdirSync(`./${directory}`).forEach(async dir => {
-        const files = fs.readdirSync(`./${directory}/${dir}/`).filter(file => file.endsWith(".js"));
+    fs.readdirSync("./slashCommands/").forEach(async dir => {
+        const files = fs.readdirSync(`./slashCommands/${dir}/`).filter(file => file.endsWith(".js"));
 
         for (const file of files) {
-            const slashCommand = require(`../${directory}/${dir}/${file}`);
+            const slashCommand = require(`../slashCommands/${dir}/${file}`);
             slashCommands.push({
                 name: slashCommand.name,
                 description: slashCommand.description,
@@ -39,17 +39,19 @@ module.exports = (client, directory) => {
         }
 
     });
-    console.log(chalk.blue(table.toString()));
+    console.log(chalk.greenBright(table.toString()));
 
     (async () => {
         try {
             await rest.put(
-                Routes.applicationCommands(CLIENT_ID),
+                process.env.ETERNAL_GUILD_ID ?
+                    Routes.applicationGuildCommands(CLIENT_ID, process.env.ETERNAL_GUILD_ID) :
+                    Routes.applicationCommands(CLIENT_ID),
                 { body: slashCommands }
             );
-            console.log(`${chalk.green("[EternalCode.pl]")} ${chalk.yellow("Slash commands was registered")}`);
+            logger.info("Successfully registered application commands.");
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
     })();
 };

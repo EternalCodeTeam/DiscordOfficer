@@ -1,17 +1,30 @@
-const { Client, Collection } = require("discord.js");
+const { Client, GatewayIntentBits, Partials, Collection } = require("discord.js");
+const fs = require("fs");
 const { config } = require("dotenv");
 config();
 
-const eternalClient = new Client({ intents: 32767 });
-
-eternalClient.slashCommands = new Collection();
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.MessageContent
+    ],
+    partials: [Partials.Channel, Partials.Message, Partials.User, Partials.GuildMember, Partials.Reaction]
+});
 
 global.logger = require("./utils/Logger");
+client.aliases = new Collection();
+client.slashCommands = new Collection();
+client.prefix = config.prefix;
 
-require("./handler/slashCommandHandler.js")(eternalClient, "commands");
-require("./handler/eventsHandler.js")(eternalClient);
-require("./events/music/initPlayer.js")(eternalClient);
+module.exports = client;
 
-eternalClient.login(process.env.ETERNAL_DISCORD_TOKEN).then(r => {
-    logger.info("Logged in as " + eternalClient.user.tag);
+fs.readdirSync("./handlers").forEach((handler) => {
+    require(`./handlers/${handler}`)(client);
 });
+
+
+client.login(process.env.ETERNAL_DISCORD_TOKEN);
