@@ -1,12 +1,8 @@
 const fs = require("fs");
-const chalk = require("chalk");
 
 const { PermissionsBitField } = require("discord.js");
 const { Routes } = require("discord-api-types/v9");
 const { REST } = require("@discordjs/rest");
-
-const AsciiTable = require("ascii-table");
-const table = new AsciiTable().setHeading("Slash Commands", "Stats").setBorder("|", "=", "0", "0");
 
 const TOKEN = process.env.ETERNAL_DISCORD_TOKEN;
 const CLIENT_ID = process.env.ETERNAL_CLIENT_ID;
@@ -29,17 +25,9 @@ module.exports = (client) => {
                 default_permission: slashCommand.default_permission ? slashCommand.default_permission : null,
                 default_member_permissions: slashCommand.default_member_permissions ? PermissionsBitField.resolve(slashCommand.default_member_permissions).toString() : null
             });
-
-            if (slashCommand.name) {
-                client.slashCommands.set(slashCommand.name, slashCommand);
-                table.addRow(file.split(".js")[0], "✅");
-            } else {
-                table.addRow(file.split(".js")[0], "⛔");
-            }
         }
 
     });
-    console.log(chalk.greenBright(table.toString()));
 
     (async () => {
         try {

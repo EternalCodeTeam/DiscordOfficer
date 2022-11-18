@@ -1,15 +1,22 @@
 const fs = require("fs");
-const chalk = require("chalk");
-
-const AsciiTable = require("ascii-table");
-const table = new AsciiTable();
-
-table.setHeading("Events", "Stats").setBorder("|", "=", "0", "0");
 
 module.exports = (client) => {
-    fs.readdirSync("./events/").filter((file) => file.endsWith(".js")).forEach((event) => {
-        require(`../events/${event}`);
-        table.addRow(event.split(".js")[0], "✅");
-    });
-    console.log(chalk.greenBright(table.toString()));
+    try {
+        fs.readdirSync("./events/").filter((file) => file.endsWith(".js")).forEach((file) => {
+            const filePath = `../events/${file}`;
+            const event = require(filePath);
+
+            if (event.once) {
+                client.once(event.name, (...args) => event.execute(...args));
+            } else {
+                client.on(event.name, (...args) => event.execute(...args));
+            }
+
+            delete require.cache[require.resolve(filePath)];
+        });
+
+        logger.info("All events successfully loaded.");
+    } catch (error) {
+        logger.error(error);
+    }
 };
