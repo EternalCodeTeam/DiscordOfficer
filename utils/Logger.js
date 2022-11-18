@@ -20,9 +20,7 @@ module.exports = class Logger {
     }
 
     static write(content, { color = "grey", tag = " INFO ", error = false } = {}) {
-        const timestamp = chalk.cyan(
-            `[${moment().format("DD-MM-YYYY kk:mm:ss")}]:`
-        );
+        const timestamp = chalk.cyan(`[${moment().format("DD-MM-YYYY kk:mm:ss")}]:`);
 
         const levelTag = chalk.bold(`[${tag}]`);
         const text = chalk[color](this.clean(content));

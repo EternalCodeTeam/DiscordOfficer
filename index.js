@@ -16,8 +16,7 @@ const client = new Client({
 });
 
 global.logger = require("./utils/Logger");
-client.aliases = new Collection();
-client.slashCommands = new Collection();
+client.commands = new Collection();
 client.prefix = config.prefix;
 
 module.exports = client;

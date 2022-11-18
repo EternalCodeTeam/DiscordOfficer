@@ -4,7 +4,7 @@ const { ActivityType } = require("discord-api-types/v10");
 module.exports = {
     name: Events.ClientReady,
     once: true,
-    execute(client) {
+    async execute(client) {
         const activities = [
             { name: `${client.guilds.cache.size} Servers`, type: ActivityType.Listening },
             { name: `${client.channels.cache.size} Channels`, type: ActivityType.Playing },
