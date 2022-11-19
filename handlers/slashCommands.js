@@ -15,12 +15,12 @@ module.exports = (client) => {
         for (const file of commandFiles) {
             const slashCommand = require(`../slashCommands/${dir}/${file}`);
 
-            if ("data" in slashCommand && "execute" in slashCommand) {
-                slashCommands.push(slashCommand.data.toJSON());
-                client.commands.set(slashCommand.data.name, slashCommand);
-            } else {
+            if (!("data" in slashCommand && "execute" in slashCommand)) {
                 logger.warn(`The command at ${file} is missing a required "data" or "execute" property.`);
             }
+
+            slashCommands.push(slashCommand.data.toJSON());
+            client.commands.set(slashCommand.data.name, slashCommand);
 
             delete require.cache[require.resolve(`../slashCommands/${dir}/${file}`)];
         }
