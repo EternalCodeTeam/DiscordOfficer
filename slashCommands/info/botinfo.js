@@ -5,7 +5,8 @@ const os = require("os");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("botinfo")
-        .setDescription("Display bot's information"), execute: async (interaction) => {
+        .setDescription("Display bot's information"),
+    execute: async (interaction) => {
         const embed = new EmbedBuilder()
             .setTitle(`🤖 ${interaction.client.user.tag} Bot's Information`)
             .setColor("#2f3136")
