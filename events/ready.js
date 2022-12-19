@@ -12,28 +12,30 @@ module.exports = {
             { name: `Discord.js v14`, type: ActivityType.Competing }
         ];
 
-        const status = [
+        const statuses = [
             "online",
             "dnd",
             "idle"
         ];
 
-        let i = 0;
+        let activityIndex = 0;
         setInterval(() => {
-            if (i >= activities.length) {
-                i = 0;
+            if (activityIndex >= activities.length) {
+                activityIndex = 0;
             }
-            client.user.setActivity(activities[i]);
-            i++;
+
+            client.user.setActivity(activities[activityIndex]);
+            activityIndex++;
         }, 5000);
 
-        let s = 0;
+        let statusIndex = 0;
         setInterval(() => {
-            if (s >= activities.length) {
-                s = 0;
+            if (statusIndex >= statuses.length) {
+                statusIndex = 0;
             }
-            client.user.setStatus(status[s]);
-            s++;
+
+            client.user.setStatus(statuses[statusIndex]);
+            statusIndex++;
         }, 30000);
 
         logger.info(`Logged in as ${client.user.tag}`);

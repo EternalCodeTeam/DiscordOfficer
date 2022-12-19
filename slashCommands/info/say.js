@@ -12,7 +12,6 @@ module.exports = {
         const message = interaction.options.getString("message");
         const channel = interaction.options.getChannel("channel") || interaction.channel;
 
-
         interaction.reply({ content: `Message sent in <#${channel.id}>`, ephemeral: true });
         await channel.send(message);
     }

@@ -34,9 +34,10 @@ module.exports = {
                 .setFooter({ text: footer.toString(), iconURL: interaction.user.displayAvatarURL({ dynamic: true, size: 4096 }) });
 
             interaction.reply({ content: `Embed created in ${channel.toString()}`, ephemeral: true });
-            channel.send({ embeds: [embed] });
+            await channel.send({ embeds: [embed] });
         } catch (error) {
             interaction.reply({ content: "Something went wrong!", ephemeral: true });
+            logger.error(`Error creating an embed: ${error}`);
         }
     }
 };

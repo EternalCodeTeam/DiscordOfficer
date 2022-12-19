@@ -9,10 +9,12 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
 
 module.exports = (client) => {
     const slashCommands = [];
-    fs.readdirSync("./slashCommands/").forEach(async dir => {
-        const commandFiles = fs.readdirSync(`./slashCommands/${dir}/`).filter(file => file.endsWith(".js"));
+    fs.readdirSync("./slashCommands/").forEach((dir) => {
+        const commandFiles = fs
+            .readdirSync(`./slashCommands/${dir}/`)
+            .filter((file) => file.endsWith(".js"));
 
-        for (const file of commandFiles) {
+        commandFiles.forEach((file) => {
             const slashCommand = require(`../slashCommands/${dir}/${file}`);
 
             if (!("data" in slashCommand && "execute" in slashCommand)) {
@@ -23,12 +25,15 @@ module.exports = (client) => {
             client.commands.set(slashCommand.data.name, slashCommand);
 
             delete require.cache[require.resolve(`../slashCommands/${dir}/${file}`)];
-        }
+        });
     });
 
     (async () => {
         try {
-            await rest.put(Routes.applicationGuildCommands(CLIENT_ID, process.env.ETERNAL_GUILD_ID), { body: slashCommands });
+            await rest.put(
+                Routes.applicationGuildCommands(CLIENT_ID, process.env.ETERNAL_GUILD_ID),
+                { body: slashCommands }
+            );
             logger.info("Successfully registered application commands.");
         } catch (error) {
             logger.error(error);
