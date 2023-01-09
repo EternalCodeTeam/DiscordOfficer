@@ -17,5 +17,5 @@ yarn start
 ## Or u can use docker image
 U need first create directory and file .env (copy .env.example from repo) and run:
 ```bash
-docker run -d eternalcode/discordofficer:latest -v $(pwd)/eternalcode-discordofficer/.env:/home/eternalcode/.env
+docker run -d -v $(pwd)/eternalcode-discordofficer/enviromentfile:/home/eternalcode/.env eternalcode/discordofficer:latest
 ```
