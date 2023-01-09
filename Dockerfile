@@ -8,6 +8,6 @@ USER eternalcode
 ENV USER=eternalcode HOME=/home/eternalcode
 COPY . /home/eternalcode/
 WORKDIR /home/eternalcode
-
+RUN cp .env.example .env
 RUN npm i
 CMD [ "node", "index.js" ]

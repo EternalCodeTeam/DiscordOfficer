@@ -13,3 +13,8 @@ Yarn (or else)
 yarn install
 yarn start
 ```
+
+## Or u can use docker image
+```bash
+docker run -d eternalcode/discordofficer:latest -v $(pwd)/eternalcode-discordofficer/.env:/home/eternalcode/.env
+```
