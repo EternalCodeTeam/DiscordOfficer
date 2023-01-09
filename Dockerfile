@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:19-alpine
 
 
 LABEL org.opencontainers.image.authors = "EternalCode.pl <mail@eternalcode.pl>"
