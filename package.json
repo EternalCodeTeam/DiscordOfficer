@@ -13,9 +13,9 @@
     "@discordjs/builders": "1.4.0",
     "@discordjs/opus": "0.9.0",
     "@discordjs/rest": "1.5.0",
-    "axios": "1.2.1",
-    "chalk": "2.4.2",
-    "discord-api-types": "0.37.24",
+    "axios": "1.2.6",
+    "chalk": "5.2.0",
+    "discord-api-types": "0.37.30",
     "discord.js": "14.7.1",
     "dotenv": "16.0.3",
     "moment": "2.29.4"
