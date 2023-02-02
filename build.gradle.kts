@@ -39,6 +39,9 @@ tasks.withType<ShadowJar> {
     archiveVersion.set("1.0.0")
     archiveClassifier.set("SNAPSHOT")
 
+    mergeServiceFiles()
+    minimize()
+
     val prefix = "com.eternalcode.discordapp.libs"
 
     listOf(
@@ -48,8 +51,6 @@ tasks.withType<ShadowJar> {
     ).forEach { pack ->
         relocate(pack, "$prefix.$pack")
     }
-    mergeServiceFiles()
-    minimize()
 }
 
 application {

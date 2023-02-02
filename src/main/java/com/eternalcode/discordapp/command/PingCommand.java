@@ -1,19 +1,14 @@
 package com.eternalcode.discordapp.command;
 
 import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
+import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import org.jetbrains.annotations.NotNull;
 
 public class PingCommand extends ApplicationCommand {
 
-    @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
-            name = "ping",
-            description = "Pong!"
-    )
-    public void onSlashCommand(@NotNull GlobalSlashEvent event) {
+    @JDASlashCommand(name = "ping", description = "Pong!")
+    public void onSlashCommand(@NotNull GuildSlashEvent event) {
         event.deferReply().queue();
 
         long gatewayPing = event.getJDA().getGatewayPing();
