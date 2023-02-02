@@ -17,6 +17,9 @@ dependencies {
     implementation("net.dv8tion:JDA:5.0.0-beta.3")
     implementation("io.github.freya022:BotCommands:2.8.2")
 
+    // configs
+    implementation("net.dzikoysk:cdn:1.14.3")
+
     // slf4j setup
     implementation("ch.qos.logback:logback-classic:1.2.8")
 }
