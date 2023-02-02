@@ -13,7 +13,7 @@ public class PingCommand extends ApplicationCommand {
             name = "ping",
             description = "Pong!"
     )
-    public void onPing(@NotNull GlobalSlashEvent event) {
+    public void onSlashCommand(@NotNull GlobalSlashEvent event) {
         event.deferReply().queue();
 
         long gatewayPing = event.getJDA().getGatewayPing();
