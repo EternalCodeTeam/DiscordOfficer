@@ -2,9 +2,7 @@ package com.eternalcode.discordapp.command;
 
 import com.freya02.botcommands.api.annotations.UserPermissions;
 import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -14,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-@UserPermissions(Permission.MANAGE_SERVER)
+@UserPermissions(Permission.MANAGE_CHANNEL)
 public class CooldownCommand extends ApplicationCommand {
 
     @JDASlashCommand(

@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.command;
 
 import com.freya02.botcommands.api.annotations.Optional;
+import com.freya02.botcommands.api.annotations.UserPermissions;
 import com.freya02.botcommands.api.application.ApplicationCommand;
 import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.annotations.AppOption;
@@ -9,12 +10,14 @@ import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import com.freya02.botcommands.api.prefixed.annotations.TextOption;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
+@UserPermissions(Permission.KICK_MEMBERS)
 public class KickCommand extends ApplicationCommand {
 
     @JDASlashCommand(name = "kick", description = "Kicks a user")

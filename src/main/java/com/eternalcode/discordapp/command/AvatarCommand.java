@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 
-@UserPermissions(Permission.MODERATE_MEMBERS)
 public class AvatarCommand extends ApplicationCommand {
 
     @JDASlashCommand(name = "avatar", description = "Shows the avatar of a user")
