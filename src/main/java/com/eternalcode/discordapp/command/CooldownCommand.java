@@ -18,8 +18,8 @@ public class CooldownCommand extends ApplicationCommand {
         event.getChannel().asTextChannel().getManager().setSlowmode(cooldown).queue();
 
         MessageEmbed embeds = new Embeds().success
-                .setTitle("Successfully set the cooldown to " + cooldown + " seconds")
-                .setDescription("This channel's cooldown is now " + cooldown + " seconds")
+                .setTitle("✅ | Success!")
+                .setDescription("ℹ️ | This channel's cooldown is now " + cooldown + " seconds")
                 .build();
 
         event.replyEmbeds(embeds)
