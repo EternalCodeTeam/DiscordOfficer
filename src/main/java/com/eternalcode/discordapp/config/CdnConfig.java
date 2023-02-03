@@ -4,7 +4,7 @@ import net.dzikoysk.cdn.source.Resource;
 
 import java.io.File;
 
-public interface ReloadableConfig {
+public interface CdnConfig {
 
     Resource resource(File folder);
 

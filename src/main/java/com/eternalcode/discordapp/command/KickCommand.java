@@ -22,7 +22,7 @@ public class KickCommand extends ApplicationCommand {
 
             user.openPrivateChannel().queue(privateChannel -> {
                 MessageEmbed embed = new Embeds().error
-                        .setTitle("You have been kicked from " + event.getGuild().getName())
+                        .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
                         .setDescription("Reason: " + kickReason)
                         .build();
 
