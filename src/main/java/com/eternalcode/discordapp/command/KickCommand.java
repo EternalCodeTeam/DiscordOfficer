@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.command;
 
+import com.eternalcode.discordapp.Embeds;
 import com.freya02.botcommands.api.annotations.Optional;
 import com.freya02.botcommands.api.annotations.UserPermissions;
 import com.freya02.botcommands.api.application.ApplicationCommand;
