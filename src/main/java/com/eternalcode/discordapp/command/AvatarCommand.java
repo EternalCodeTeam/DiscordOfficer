@@ -11,10 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class AvatarCommand extends ApplicationCommand {
 
-    @JDASlashCommand(name = "avatar", description = "Shows the avatar of a user")
+    @JDASlashCommand(
+            name = "avatar",
+            description = "Shows the avatar of a user"
+    )
     public void onSlashCommand(@NotNull GuildSlashEvent event, @NotNull @AppOption(name = "user") User user) {
         MessageEmbed embed = new Embeds().success
-                .setTitle("🖼️" + user.getName() + "'s avatar")
+                .setTitle("🖼 |" + user.getName() + "'s avatar")
                 .setImage(user.getEffectiveAvatarUrl() + "?size=2048")
                 .build();
 

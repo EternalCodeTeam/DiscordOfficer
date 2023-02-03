@@ -15,7 +15,10 @@ import org.jetbrains.annotations.NotNull;
 @UserPermissions(Permission.KICK_MEMBERS)
 public class KickCommand extends ApplicationCommand {
 
-    @JDASlashCommand(name = "kick", description = "Kicks a user")
+    @JDASlashCommand(
+            name = "kick",
+            description = "Kicks a user"
+    )
     public void onSlashCommand(@NotNull GuildSlashEvent event, @NotNull @AppOption(name = "user") User user, @Optional @AppOption(name = "reason") String reason) {
         try {
             String kickReason = "Reason: " + (reason != null ? reason : "No reason provided");

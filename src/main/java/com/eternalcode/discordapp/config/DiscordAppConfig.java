@@ -14,10 +14,6 @@ public class DiscordAppConfig implements CdnConfig {
     @Description("# The ID of the owner of the bot")
     public long topOwnerId = 852920601969950760L;
 
-/*    @Description("# Default embed colors")
-    public Color defaultEmbedColor = Color.CYAN;
-    public Color errorEmbedColor = Color.RED;*/
-
     @Override
     public Resource resource(File folder) {
         return Source.of(folder, "config.cdn");

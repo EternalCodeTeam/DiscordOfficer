@@ -9,7 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class BotInfoCommand extends ApplicationCommand {
 
-    @JDASlashCommand(name = "botinfo", description = "Shows information about the bot")
+    @JDASlashCommand(
+            name = "botinfo",
+            description = "Shows information about the bot"
+    )
     public void onSlashCommand(@NotNull GuildSlashEvent event) {
         MessageEmbed build = new Embeds().success
                 .setTitle("ℹ️ | Bot Information")

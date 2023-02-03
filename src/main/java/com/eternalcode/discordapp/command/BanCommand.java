@@ -17,7 +17,10 @@ import java.util.concurrent.TimeUnit;
 @UserPermissions(Permission.BAN_MEMBERS)
 public class BanCommand extends ApplicationCommand {
 
-    @JDASlashCommand(name = "kick", description = "Bans a user")
+    @JDASlashCommand(
+            name = "kick",
+            description = "Bans a user"
+    )
     public void onSlashCommand(@NotNull GuildSlashEvent event,
                                @NotNull @AppOption(name = "user") User user,
                                @AppOption(name = "deletionTimeFrame") int deletionTimeFrame,
@@ -44,7 +47,8 @@ public class BanCommand extends ApplicationCommand {
                     .queue();
 
             event.getGuild().ban(user, deletionTimeFrame, TimeUnit.DAYS).reason(reason).queue();
-        } catch (Exception ignored) {
+        }
+        catch (Exception ignored) {
             MessageEmbed embed = new Embeds().error
                     .setDescription("I do not have the permission to ban this user!")
                     .build();

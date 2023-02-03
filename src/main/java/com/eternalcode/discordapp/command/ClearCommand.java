@@ -13,11 +13,23 @@ import org.jetbrains.annotations.NotNull;
 @UserPermissions(Permission.MESSAGE_MANAGE)
 public class ClearCommand extends ApplicationCommand {
 
-    @JDASlashCommand(name = "clear", description = "Clears a certain amount of messages in the chat.")
+    @JDASlashCommand(
+            name = "clear",
+            description = "Clears a certain amount of messages in the chat."
+    )
     public void onSlashCommand(@NotNull GuildSlashEvent event, @AppOption(name = "amount") int amount) {
-        event.getChannel().getIterableHistory().takeAsync(amount).thenAcceptAsync(messages -> {
-            event.getChannel().purgeMessages(messages);
-        });
+        if (amount > 100) {
+            MessageEmbed embeds = new Embeds().error
+                    .setTitle("❌ | Error!")
+                    .setDescription("The amount can't be higher than 100!")
+                    .build();
+
+            event.replyEmbeds(embeds)
+                    .setEphemeral(true)
+                    .queue();
+        }
+
+        event.getChannel().getIterableHistory().takeAsync(amount).thenAcceptAsync(messages -> event.getChannel().purgeMessages(messages));
 
         MessageEmbed build = new Embeds().success
                 .setTitle("✅ | Success!")
