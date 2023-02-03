@@ -48,6 +48,8 @@ tasks.withType<ShadowJar> {
         "net.dv8tion",
         "io.github.freya022",
         "org.slf4j",
+        "ch.qos.logback",
+        "org.apache.commons"
     ).forEach { pack ->
         relocate(pack, "$prefix.$pack")
     }
