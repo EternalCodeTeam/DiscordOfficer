@@ -42,7 +42,7 @@ public class EmbedCommand extends ApplicationCommand {
             MessageEmbed messageEmbed = embed.build();
 
             MessageEmbed successSend = new Embeds().success
-                    .setDescription("Embed sended sucessfully")
+                    .setDescription("Embed sent successfully")
                     .build();
 
             event.getChannel()
