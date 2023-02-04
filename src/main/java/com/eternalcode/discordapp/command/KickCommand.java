@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.List;
 
 public class KickCommand extends SlashCommand {
@@ -20,10 +21,10 @@ public class KickCommand extends SlashCommand {
     public KickCommand(DiscordAppConfig discordAppConfig) {
         this.name = "kick";
         this.help = "Kicks a user";
-        this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
+        this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
 
         this.options = List.of(
-                new OptionData(OptionType.USER, "user", "select the user").setRequired(false),
+                new OptionData(OptionType.USER, "user", "select the user").setRequired(true),
                 new OptionData(OptionType.STRING, "reason", "provide a reason").setRequired(false)
         );
 
@@ -34,41 +35,58 @@ public class KickCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) {
         try {
             User user = event.getOption("user").getAsUser();
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
 
-            if (user.getId().equalsIgnoreCase(event.getUser().getId())) {
-                event.reply("You can't kick yourself")
+            if (user.isBot()) {
+                MessageEmbed embed = new EmbedBuilder()
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                        .setTitle("❌ | An error occurred while kicking the user")
+                        .setDescription("You can't kick a bot")
+                        .setTimestamp(Instant.now())
+                        .build();
+
+                event.replyEmbeds(embed)
                         .setEphemeral(true)
                         .queue();
 
                 return;
             }
 
-            String kickReason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
-
-            user.openPrivateChannel().queue(privateChannel -> {
+            user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                        .setDescription("Reason: " + kickReason)
+                        .setDescription("Reason: " + reason)
+                        .setTimestamp(Instant.now())
                         .build();
 
-                privateChannel.sendMessageEmbeds(embed).queue();
+                channel.sendMessageEmbeds(embed).submit();
             });
 
-            MessageEmbed build = new EmbedBuilder()
+            MessageEmbed embed = new EmbedBuilder()
                     .setTitle("✅ | Successfully kicked " + user.getAsTag())
+                    .setDescription("Reason: " + reason)
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                    .setDescription("Reason: " + kickReason)
+                    .setTimestamp(Instant.now())
                     .build();
 
-            event.replyEmbeds(build)
+            event.replyEmbeds(embed)
                     .setEphemeral(true)
                     .queue();
 
-            event.getGuild().kick(user).reason(kickReason).queue();
-        } catch (Exception ignored) {
+            event.getGuild().kick(user).reason(reason).queue();
+        }
+        catch (Exception ignored) {
+            MessageEmbed embed = new EmbedBuilder()
+                    .setTitle("❌ | An error occurred while kicking the user")
+                    .setDescription("I can't kick this user, he probably has highest role than me!")
+                    .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                    .setTimestamp(Instant.now())
+                    .build();
 
+            event.replyEmbeds(embed)
+                    .setEphemeral(true)
+                    .queue();
         }
     }
-
 }

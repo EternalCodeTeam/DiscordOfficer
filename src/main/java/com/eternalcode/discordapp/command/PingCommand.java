@@ -1,17 +1,21 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
+import java.time.Instant;
 
 public class PingCommand extends SlashCommand {
 
-    public PingCommand() {
+    private final DiscordAppConfig discordAppConfig;
+
+    public PingCommand(DiscordAppConfig discordAppConfig) {
+        this.discordAppConfig = discordAppConfig;
+
         this.name = "ping";
         this.help = "Performs a ping to see the bot's delay";
     }
@@ -21,10 +25,13 @@ public class PingCommand extends SlashCommand {
         long gatewayPing = event.getJDA().getGatewayPing();
         long restPing = event.getJDA().getRestPing().complete();
 
-        MessageEmbed build = new Embeds().success
+        MessageEmbed build = new EmbedBuilder()
                 .setTitle("🏓 | Pong!")
-                .addField("Gateway Ping", String.valueOf(gatewayPing), true)
-                .addField("Rest Ping", String.valueOf(restPing), true)
+                .addField("Gateway Ping", gatewayPing + "ms", false)
+                .addField("Rest Ping", restPing + "ms", false)
+                .setTimestamp(Instant.now())
+                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .build();
 
         event.replyEmbeds(build)

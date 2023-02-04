@@ -1,26 +1,25 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.time.Instant;
 import java.util.Collections;
 
 public class AvatarCommand extends SlashCommand {
 
-    public AvatarCommand() {
+    private final DiscordAppConfig discordAppConfig;
+
+    public AvatarCommand(DiscordAppConfig discordAppConfig) {
+        this.discordAppConfig = discordAppConfig;
+
         this.name = "avatar";
         this.help = "Shows the avatar of a user";
 
@@ -33,6 +32,7 @@ public class AvatarCommand extends SlashCommand {
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("🖼 | " + user.getName() + "'s avatar")
+                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setImage(user.getEffectiveAvatarUrl() + "?size=2048")
                 .setTimestamp(Instant.now())
                 .build();

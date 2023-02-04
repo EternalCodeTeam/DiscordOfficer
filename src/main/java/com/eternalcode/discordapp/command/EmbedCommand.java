@@ -1,66 +1,68 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.annotations.Optional;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
+import java.time.Instant;
+import java.util.List;
 
-@UserPermissions(Permission.MANAGE_CHANNEL)
-public class EmbedCommand extends ApplicationCommand {
+public class EmbedCommand extends SlashCommand {
 
-    @JDASlashCommand(
-            name = "embed",
-            description = "Send embed message"
-    )
-    public void onSlashCommand(
-            @NotNull GuildSlashEvent event,
-            @NotNull @AppOption(name = "title") String title,
-            @NotNull @AppOption(name = "description") String description,
-            @Optional @AppOption(name = "color") String color,
-            @Optional @AppOption(name = "footer") String footer,
-            @Optional @AppOption(name = "author") String author,
-            @Optional @AppOption(name = "thumbnail-url") String thumbnailImage
-    ) {
-        try {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(title);
-            embed.setDescription(description);
-            embed.setColor(Color.decode(color != null ? color : "#FFFFFF"));
-            embed.setFooter(footer != null ? footer : "");
-            embed.setAuthor(author != null ? author : "");
-            embed.setThumbnail(thumbnailImage);
+    public EmbedCommand() {
+        this.name = "embed";
+        this.help = "Sends an customized embed";
+        this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
 
-            MessageEmbed messageEmbed = embed.build();
+        this.options = List.of(
+                new OptionData(OptionType.STRING, "title", "The title of the embed")
+                        .setRequired(true),
+                new OptionData(OptionType.STRING, "description", "The description of the embed")
+                        .setRequired(true),
+                new OptionData(OptionType.STRING, "color", "The color of the embed")
+                        .setRequired(false),
+                new OptionData(OptionType.STRING, "footer", "The footer of the embed")
+                        .setRequired(false),
+                new OptionData(OptionType.STRING, "author", "The thumbnail of the embed")
+                        .setRequired(false),
+                new OptionData(OptionType.STRING, "image", "The thumbnail of the embed")
+                        .setRequired(false),
+                new OptionData(OptionType.STRING, "thumbnail", "The thumbnail of the embed")
+                        .setRequired(false),
+                new OptionData(OptionType.BOOLEAN, "timestamp", "Do you want to set timestamp in the embed?")
+                        .setRequired(false)
+        );
+    }
 
-            MessageEmbed successSend = new Embeds().success
-                    .setDescription("Embed sent successfully")
-                    .build();
+    @Override
+    public void execute(SlashCommandEvent event) {
+        String title = event.getOption("title").getAsString();
+        String description = event.getOption("description").getAsString();
+        String color = event.getOption("color") != null ? event.getOption("color").getAsString() : "#000000";
+        String footer = event.getOption("footer") != null ? event.getOption("footer").getAsString() : null;
+        String author = event.getOption("author") != null ? event.getOption("author").getAsString() : null;
+        String image = event.getOption("image") != null ? event.getOption("image").getAsString() : null;
+        String thumbnail = event.getOption("thumbnail") != null ? event.getOption("thumbnail").getAsString() : null;
+        boolean timestamp = event.getOption("timestamp") != null && event.getOption("timestamp").getAsBoolean();
 
-            event.getChannel()
-                    .sendMessageEmbeds(messageEmbed)
-                    .queue();
+        MessageEmbed embed = new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setColor(Color.decode(color))
+                .setFooter(footer)
+                .setAuthor(author)
+                .setImage(image)
+                .setThumbnail(thumbnail)
+                .setTimestamp(timestamp ? Instant.now() : null)
+                .build();
 
-            event.replyEmbeds(successSend)
-                    .setEphemeral(true)
-                    .queue();
-        }
-        catch (Exception ignored) {
-            MessageEmbed embed = new Embeds().error
-                    .setDescription("I do not have the permission to ban this user!")
-                    .build();
-
-            event.replyEmbeds(embed)
-                    .setEphemeral(true)
-                    .queue();
-        }
+        event.replyEmbeds(embed)
+                .setEphemeral(true)
+                .queue();
     }
 }

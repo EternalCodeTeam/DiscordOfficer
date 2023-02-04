@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
+import java.time.Instant;
 
 public class ServerCommand extends SlashCommand {
 
@@ -38,6 +39,7 @@ public class ServerCommand extends SlashCommand {
                 .addField("📊 Roles", roles, false)
                 .addField("📊 Channels", channels, false)
                 .addField("📅 Created At", createdAt, false)
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(embeds)

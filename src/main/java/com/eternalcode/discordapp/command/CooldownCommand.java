@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.Collections;
 
 public class CooldownCommand extends SlashCommand {
@@ -21,7 +22,7 @@ public class CooldownCommand extends SlashCommand {
 
         this.name = "cooldown";
         this.help = "Sets the cooldown of a chat channel";
-        this.userPermissions = new Permission[] { Permission.MANAGE_CHANNEL };
+        this.userPermissions = new Permission[]{ Permission.MANAGE_CHANNEL };
         this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, "cooldown", "select the cooldown")
                 .setRequired(true)
                 .setMinValue(1)
@@ -39,11 +40,11 @@ public class CooldownCommand extends SlashCommand {
                 .setTitle("✅ | Success!")
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setDescription("This channel's cooldown is now " + cooldown + " seconds")
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(embeds)
                 .setEphemeral(true)
                 .queue();
     }
-
 }

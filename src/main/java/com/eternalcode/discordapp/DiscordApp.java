@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.command.BanCommand;
 import com.eternalcode.discordapp.command.BotInfoCommand;
 import com.eternalcode.discordapp.command.ClearCommand;
 import com.eternalcode.discordapp.command.CooldownCommand;
+import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
 import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
@@ -13,6 +14,7 @@ import com.eternalcode.discordapp.config.DiscordAppConfigManager;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.File;
@@ -28,26 +30,39 @@ public class DiscordApp {
         configManager.load(config);
 
         CommandClientBuilder builder = new CommandClientBuilder()
-                .addSlashCommand(new AvatarCommand())
-                .addSlashCommand(new PingCommand())
-                .addSlashCommand(new ServerCommand(config))
-                .addSlashCommand(new KickCommand(config))
-                .addSlashCommand(new CooldownCommand(config))
-                .addSlashCommand(new ClearCommand(config))
-                .addSlashCommand(new BotInfoCommand(config))
-                .addSlashCommand(new BanCommand(config))
+                .addSlashCommands(
+                        new AvatarCommand(config),
+                        new PingCommand(config),
+                        new ServerCommand(config),
+                        new KickCommand(config),
+                        new CooldownCommand(config),
+                        new ClearCommand(config),
+                        new BotInfoCommand(config),
+                        new BanCommand(config),
+                        new EmbedCommand())
                 .setOwnerId(config.topOwnerId)
-                .forceGuildOnly(config.guildId);
+                .forceGuildOnly(config.guildId)
+                .setActivity(Activity.playing("IntelliJ IDEA"));
         CommandClient commandClient = builder.build();
 
         JDABuilder.createDefault(getToken())
                 .addEventListeners(commandClient)
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
+                        GatewayIntent.GUILD_BANS,
+                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+                        GatewayIntent.GUILD_WEBHOOKS,
+                        GatewayIntent.GUILD_INVITES,
+                        GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                        GatewayIntent.GUILD_MESSAGE_TYPING,
                         GatewayIntent.DIRECT_MESSAGES,
-                        GatewayIntent.MESSAGE_CONTENT
+                        GatewayIntent.DIRECT_MESSAGE_REACTIONS,
+                        GatewayIntent.DIRECT_MESSAGE_TYPING,
+                        GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.SCHEDULED_EVENTS
                 )
                 .build();
     }

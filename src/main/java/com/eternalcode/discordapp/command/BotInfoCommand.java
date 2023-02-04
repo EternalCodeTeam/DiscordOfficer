@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
+import java.time.Instant;
 
 public class BotInfoCommand extends SlashCommand {
 
@@ -23,17 +24,20 @@ public class BotInfoCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) {
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("ℹ️ | Bot Information")
-                .setImage(event.getGuild().getIconUrl())
+                .setThumbnail(event.getGuild().getIconUrl())
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .addField("Guilds", String.valueOf(event.getJDA().getGuilds().size()), true)
-                .addField("Users", String.valueOf(event.getJDA().getUsers().size()), true)
-                .addField("Gateway Ping", String.valueOf(event.getJDA().getGatewayPing()), true)
-                .addField("Rest Ping", String.valueOf(event.getJDA().getRestPing().complete()), true)
+                .addField("🏰 Guilds", String.valueOf(event.getJDA().getGuilds().size()), false)
+                .addField("👥 Users", String.valueOf(event.getJDA().getUsers().size()), false)
+                .addField("🔖 Channels", String.valueOf(event.getJDA().getTextChannels().size()), false)
+                .addField("💾 OS", System.getProperty("os.name"), false)
+                .addField("🍺 Java", System.getProperty("java.version"), false)
+                .addField("🏓 Gateway Ping", String.valueOf(event.getJDA().getGatewayPing()), false)
+                .addField("🛫 Rest Ping", String.valueOf(event.getJDA().getRestPing().complete()), false)
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(build)
                 .setEphemeral(true)
                 .queue();
     }
-
 }
