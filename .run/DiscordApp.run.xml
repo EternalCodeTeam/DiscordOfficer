@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="DiscordApp" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.eternalcode.discordapp.DiscordApp" />
+    <module name="DiscordOfficer.main" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.eternalcode.discordapp.*" />
