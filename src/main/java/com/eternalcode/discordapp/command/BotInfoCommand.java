@@ -1,22 +1,30 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.NotNull;
 
-public class BotInfoCommand extends ApplicationCommand {
+import java.awt.*;
 
-    @JDASlashCommand(
-            name = "botinfo",
-            description = "Shows information about the bot"
-    )
-    public void onSlashCommand(@NotNull GuildSlashEvent event) {
-        MessageEmbed build = new Embeds().success
+public class BotInfoCommand extends SlashCommand {
+
+    private final DiscordAppConfig discordAppConfig;
+
+    public BotInfoCommand(DiscordAppConfig discordAppConfig) {
+        this.discordAppConfig = discordAppConfig;
+
+        this.name = "botinfo";
+        this.help = "Shows information about the bot";
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
+        MessageEmbed build = new EmbedBuilder()
                 .setTitle("ℹ️ | Bot Information")
                 .setImage(event.getGuild().getIconUrl())
+                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .addField("Guilds", String.valueOf(event.getJDA().getGuilds().size()), true)
                 .addField("Users", String.valueOf(event.getJDA().getUsers().size()), true)
                 .addField("Gateway Ping", String.valueOf(event.getJDA().getGatewayPing()), true)

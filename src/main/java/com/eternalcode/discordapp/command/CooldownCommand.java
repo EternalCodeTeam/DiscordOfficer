@@ -1,28 +1,43 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.application.slash.annotations.LongRange;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-@UserPermissions(Permission.MANAGE_CHANNEL)
-public class CooldownCommand extends ApplicationCommand {
+import java.awt.*;
+import java.util.Collections;
 
-    @JDASlashCommand(
-            name = "cooldown",
-            description = "Sets the cooldown of a command"
-    )
-    public void onSlashCommand(@NotNull GuildSlashEvent event, @AppOption(name = "cooldown") @LongRange(from = 1, to = 21600) int cooldown) {
+public class CooldownCommand extends SlashCommand {
+
+    private final DiscordAppConfig discordAppConfig;
+
+    public CooldownCommand(DiscordAppConfig discordAppConfig) {
+        this.discordAppConfig = discordAppConfig;
+
+        this.name = "cooldown";
+        this.help = "Sets the cooldown of a chat channel";
+        this.userPermissions = new Permission[] { Permission.MANAGE_CHANNEL };
+        this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, "cooldown", "select the cooldown")
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(21600)
+        );
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
+        int cooldown = event.getOption("cooldown").getAsInt();
+
         event.getChannel().asTextChannel().getManager().setSlowmode(cooldown).queue();
 
-        MessageEmbed embeds = new Embeds().success
+        MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("✅ | Success!")
+                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setDescription("This channel's cooldown is now " + cooldown + " seconds")
                 .build();
 
@@ -30,4 +45,5 @@ public class CooldownCommand extends ApplicationCommand {
                 .setEphemeral(true)
                 .queue();
     }
+
 }

@@ -1,32 +1,45 @@
 package com.eternalcode.discordapp.command;
 
 import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.annotations.Optional;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.awt.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@UserPermissions(Permission.BAN_MEMBERS)
-public class BanCommand extends ApplicationCommand {
+public class BanCommand extends SlashCommand {
 
-    @JDASlashCommand(
-            name = "ban",
-            description = "Bans a user"
-    )
-    public void onSlashCommand(@NotNull GuildSlashEvent event,
-                               @NotNull @AppOption(name = "user") User user,
-                               @AppOption(name = "deletion-time") int deletionTimeFrame,
-                               @Optional @AppOption(name = "reason") String reason) {
+    private final DiscordAppConfig discordAppConfig;
+
+    public BanCommand(DiscordAppConfig discordAppConfig) {
+        this.discordAppConfig = discordAppConfig;
+
+        this.name = "ban";
+        this.help = "Ban a user from the server";
+        this.userPermissions = new Permission[] { Permission.BAN_MEMBERS };
+        this.options = List.of(
+                new OptionData(OptionType.USER, "user", "user").setRequired(true),
+                new OptionData(OptionType.INTEGER, "deletion-time", "deletion-time").setRequired(true),
+                new OptionData(OptionType.STRING, "reason", "reason").setRequired(false)
+        );
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
         try {
-            String kickReason = "Reason: " + (reason != null ? reason : "No reason provided");
+            User user = event.getOption("user").getAsUser();
+            int deletionTime = event.getOption("deletion-time").getAsInt();
+            String reason = event.getOption("reason").getAsString();
+
+            String kickReason = "Reason: " + (reason.isEmpty() ? "No reason provided" : reason);
 
             user.openPrivateChannel().queue(privateChannel -> {
                 MessageEmbed embed = new Embeds().error
@@ -37,25 +50,20 @@ public class BanCommand extends ApplicationCommand {
                 privateChannel.sendMessageEmbeds(embed).queue();
             });
 
-            MessageEmbed build = new Embeds().success
+            MessageEmbed build = new EmbedBuilder()
                     .setTitle("✅ | Successfully banned " + user.getAsTag())
                     .setDescription("Reason: " + kickReason)
+                    .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                     .build();
 
             event.replyEmbeds(build)
                     .setEphemeral(true)
                     .queue();
 
-            event.getGuild().ban(user, deletionTimeFrame, TimeUnit.DAYS).reason(reason).queue();
-        }
-        catch (Exception ignored) {
-            MessageEmbed embed = new Embeds().error
-                    .setDescription("I do not have the permission to ban this user!")
-                    .build();
+            event.getGuild().ban(user, deletionTime, TimeUnit.DAYS).reason(reason).queue();
+        } catch (Exception ignored) {
 
-            event.replyEmbeds(embed)
-                    .setEphemeral(true)
-                    .queue();
         }
     }
+
 }

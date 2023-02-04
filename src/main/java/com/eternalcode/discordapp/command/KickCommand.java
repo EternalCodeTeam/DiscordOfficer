@@ -1,39 +1,63 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.Embeds;
-import com.freya02.botcommands.api.annotations.Optional;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-@UserPermissions(Permission.KICK_MEMBERS)
-public class KickCommand extends ApplicationCommand {
+import java.awt.*;
+import java.util.List;
 
-    @JDASlashCommand(
-            name = "kick",
-            description = "Kicks a user"
-    )
-    public void onSlashCommand(@NotNull GuildSlashEvent event, @NotNull @AppOption(name = "user") User user, @Optional @AppOption(name = "reason") String reason) {
+public class KickCommand extends SlashCommand {
+
+    private final DiscordAppConfig discordAppConfig;
+
+    public KickCommand(DiscordAppConfig discordAppConfig) {
+        this.name = "kick";
+        this.help = "Kicks a user";
+        this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
+
+        this.options = List.of(
+                new OptionData(OptionType.USER, "user", "select the user").setRequired(false),
+                new OptionData(OptionType.STRING, "reason", "provide a reason").setRequired(false)
+        );
+
+        this.discordAppConfig = discordAppConfig;
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
         try {
-            String kickReason = "Reason: " + (reason != null ? reason : "No reason provided");
+            User user = event.getOption("user").getAsUser();
+
+            if (user.getId().equalsIgnoreCase(event.getUser().getId())) {
+                event.reply("You can't kick yourself")
+                        .setEphemeral(true)
+                        .queue();
+
+                return;
+            }
+
+            String kickReason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
 
             user.openPrivateChannel().queue(privateChannel -> {
-                MessageEmbed embed = new Embeds().error
+                MessageEmbed embed = new EmbedBuilder()
                         .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                         .setDescription("Reason: " + kickReason)
                         .build();
 
                 privateChannel.sendMessageEmbeds(embed).queue();
             });
 
-            MessageEmbed build = new Embeds().success
+            MessageEmbed build = new EmbedBuilder()
                     .setTitle("✅ | Successfully kicked " + user.getAsTag())
+                    .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                     .setDescription("Reason: " + kickReason)
                     .build();
 
@@ -41,16 +65,10 @@ public class KickCommand extends ApplicationCommand {
                     .setEphemeral(true)
                     .queue();
 
-            event.getGuild().kick(user).reason(reason).queue();
-        }
-        catch (Exception ignored) {
-            MessageEmbed embed = new Embeds().error
-                    .setDescription("I do not have the permission to kick this user!")
-                    .build();
+            event.getGuild().kick(user).reason(kickReason).queue();
+        } catch (Exception ignored) {
 
-            event.replyEmbeds(embed)
-                    .setEphemeral(true)
-                    .queue();
         }
     }
+
 }
