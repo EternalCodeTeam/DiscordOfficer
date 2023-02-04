@@ -26,14 +26,18 @@ public class EmbedCommand extends ApplicationCommand {
             @NotNull @AppOption(name = "title") String title,
             @NotNull @AppOption(name = "description") String description,
             @Optional @AppOption(name = "color") String color,
-            @Optional @AppOption(name = "image-url") String image
+            @Optional @AppOption(name = "footer") String footer,
+            @Optional @AppOption(name = "author") String author,
+            @Optional @AppOption(name = "thumbnail-url") String thumbnailImage
     ) {
         try {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(title);
             embed.setDescription(description);
             embed.setColor(Color.decode(color != null ? color : "#FFFFFF"));
-            embed.setThumbnail(image);
+            embed.setFooter(footer != null ? footer : "");
+            embed.setAuthor(author != null ? author : "");
+            embed.setThumbnail(thumbnailImage);
 
             MessageEmbed messageEmbed = embed.build();
 
@@ -48,7 +52,8 @@ public class EmbedCommand extends ApplicationCommand {
             event.replyEmbeds(successSend)
                     .setEphemeral(true)
                     .queue();
-        } catch (Exception ignored) {
+        }
+        catch (Exception ignored) {
             MessageEmbed embed = new Embeds().error
                     .setDescription("I do not have the permission to ban this user!")
                     .build();
