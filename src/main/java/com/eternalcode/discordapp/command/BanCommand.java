@@ -30,7 +30,7 @@ public class BanCommand extends ApplicationCommand {
 
             user.openPrivateChannel().queue(privateChannel -> {
                 MessageEmbed embed = new Embeds().error
-                        .setTitle("You have been banned from " + event.getGuild().getName())
+                        .setTitle("🔨 | You have been banned from " + event.getGuild().getName())
                         .setDescription("Reason: " + kickReason)
                         .build();
 
