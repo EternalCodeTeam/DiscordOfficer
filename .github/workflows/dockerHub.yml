@@ -22,13 +22,23 @@ jobs:
               uses: docker/setup-buildx-action@v2
               with:
                   platforms: linux/amd64,linux/arm64
-            - name: Build & Push - EternalCode DiscordOfficer
+            - name: Build & Push (Java 17 image) - EternalCode DiscordOfficer
               uses: docker/build-push-action@v3
               with:
                   platforms: linux/amd64,linux/arm64
                   context: .
-                  file: ./Dockerfile
+                  file: ./java17.dockerfile
                   push: true
-                  tags: eternalcode/discordofficer:${{ github.ref_name }} , eternalcode/discordofficer:latest
+                  tags: eternalcode/discordofficer:${{ github.ref_name }}-java17 , eternalcode/discordofficer:latest-java17
                   build-args: |
                       OFFICER_VERSION=${{ github.ref_name }}
+            -   name: Build & Push (Java 19) - EternalCode DiscordOfficer
+                uses: docker/build-push-action@v3
+                with:
+                    platforms: linux/amd64,linux/arm64
+                    context: .
+                    file: ./java19.dockerfile
+                    push: true
+                    tags: eternalcode/discordofficer:${{ github.ref_name }}-java19 , eternalcode/discordofficer:latest
+                    build-args: |
+                        OFFICER_VERSION=${{ github.ref_name }}
