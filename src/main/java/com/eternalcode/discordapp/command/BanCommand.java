@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 public class BanCommand extends ApplicationCommand {
 
     @JDASlashCommand(
-            name = "kick",
+            name = "ban",
             description = "Bans a user"
     )
     public void onSlashCommand(@NotNull GuildSlashEvent event,
                                @NotNull @AppOption(name = "user") User user,
-                               @AppOption(name = "deletionTimeFrame") int deletionTimeFrame,
+                               @AppOption(name = "deletion-time") int deletionTimeFrame,
                                @Optional @AppOption(name = "reason") String reason) {
         try {
             String kickReason = "Reason: " + (reason != null ? reason : "No reason provided");
