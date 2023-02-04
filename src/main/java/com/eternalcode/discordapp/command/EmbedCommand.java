@@ -32,12 +32,22 @@ public class EmbedCommand extends ApplicationCommand {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(title);
             embed.setDescription(description);
-            embed.setColor(Color.decode(color));
+            embed.setColor(Color.decode(color != null ? color : "#FFFFFF"));
             embed.setThumbnail(image);
 
             MessageEmbed messageEmbed = embed.build();
 
-            event.getChannel().sendMessageEmbeds(messageEmbed);
+            MessageEmbed successSend = new Embeds().success
+                    .setDescription("Embed sended sucessfully")
+                    .build();
+
+            event.getChannel()
+                    .sendMessageEmbeds(messageEmbed)
+                    .queue();
+
+            event.replyEmbeds(successSend)
+                    .setEphemeral(true)
+                    .queue();
         } catch (Exception ignored) {
             MessageEmbed embed = new Embeds().error
                     .setDescription("I do not have the permission to ban this user!")
