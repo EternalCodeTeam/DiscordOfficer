@@ -28,7 +28,6 @@ public class ServerCommand extends ApplicationCommand {
                 .addField("📅 Created At", createdAt, false)
                 .build();
 
-
         event.replyEmbeds(embeds)
                 .setEphemeral(true)
                 .queue();

@@ -14,7 +14,6 @@ public class PingCommand extends ApplicationCommand {
             description = "Pong!"
     )
     public void onSlashCommand(@NotNull GuildSlashEvent event) {
-        event.deferReply().queue();
         long gatewayPing = event.getJDA().getGatewayPing();
         long restPing = event.getJDA().getRestPing().complete();
 

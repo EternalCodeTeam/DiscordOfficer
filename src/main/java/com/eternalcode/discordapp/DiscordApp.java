@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class DiscordApp {
 
-    private static final boolean isDeveloperMode = true;
+    private static final boolean IS_DEVELOPER_MODE = true;
     private static DiscordAppConfig config;
 
     public static void main(String... args) throws InterruptedException, IOException {
@@ -29,7 +29,7 @@ public class DiscordApp {
     }
 
     public static String getToken() {
-        if (!isDeveloperMode) {
+        if (!IS_DEVELOPER_MODE) {
             return config.token;
         }
 

@@ -6,9 +6,9 @@ import java.awt.*;
 import java.time.Instant;
 
 public class Embeds {
-    
-    public EmbedBuilder error;
-    public EmbedBuilder success;
+
+    public final EmbedBuilder error;
+    public final EmbedBuilder success;
 
     public Embeds() {
         error = new EmbedBuilder();
