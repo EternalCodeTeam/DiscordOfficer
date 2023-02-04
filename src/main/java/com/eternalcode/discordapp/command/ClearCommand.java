@@ -6,6 +6,7 @@ import com.freya02.botcommands.api.application.ApplicationCommand;
 import com.freya02.botcommands.api.application.annotations.AppOption;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.freya02.botcommands.api.application.slash.annotations.LongRange;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
@@ -17,19 +18,9 @@ public class ClearCommand extends ApplicationCommand {
             name = "clear",
             description = "Clears a certain amount of messages in the chat."
     )
-    public void onSlashCommand(@NotNull GuildSlashEvent event, @AppOption(name = "amount") int amount) {
-        if (amount > 100) {
-            MessageEmbed embeds = new Embeds().error
-                    .setTitle("❌ | Error!")
-                    .setDescription("The amount can't be higher than 100!")
-                    .build();
-
-            event.replyEmbeds(embeds)
-                    .setEphemeral(true)
-                    .queue();
-        }
-
-        event.getChannel().getIterableHistory().takeAsync(amount).thenAcceptAsync(messages -> event.getChannel().purgeMessages(messages));
+    public void onSlashCommand(@NotNull GuildSlashEvent event, @AppOption(name = "amount") @LongRange(from = 1, to = 100) int amount) {
+        event.getChannel().getIterableHistory().takeAsync(amount)
+                .thenAcceptAsync(messages -> event.getChannel().purgeMessages(messages));
 
         MessageEmbed build = new Embeds().success
                 .setTitle("✅ | Success!")
