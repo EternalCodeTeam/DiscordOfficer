@@ -12,7 +12,6 @@ import java.io.IOException;
 public class DiscordApp {
 
     private static final boolean isDeveloperMode = true;
-    private static DiscordAppConfigManager configManager;
     private static DiscordAppConfig config;
 
     public static void main(String... args) throws InterruptedException, IOException {
@@ -21,7 +20,7 @@ public class DiscordApp {
 
         jda.awaitReady();
 
-        configManager = new DiscordAppConfigManager(new File("config"));
+        DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
         config = new DiscordAppConfig();
         configManager.load(config);
 

@@ -12,20 +12,25 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 
-@UserPermissions(Permission.KICK_MEMBERS)
-public class KickCommand extends ApplicationCommand {
+import java.util.concurrent.TimeUnit;
+
+@UserPermissions(Permission.BAN_MEMBERS)
+public class BanCommand extends ApplicationCommand {
 
     @JDASlashCommand(
-            name = "kick",
-            description = "Kicks a user"
+            name = "ban",
+            description = "Bans a user"
     )
-    public void onSlashCommand(@NotNull GuildSlashEvent event, @NotNull @AppOption(name = "user") User user, @Optional @AppOption(name = "reason") String reason) {
+    public void onSlashCommand(@NotNull GuildSlashEvent event,
+                               @NotNull @AppOption(name = "user") User user,
+                               @AppOption(name = "deletion-time") int deletionTimeFrame,
+                               @Optional @AppOption(name = "reason") String reason) {
         try {
             String kickReason = "Reason: " + (reason != null ? reason : "No reason provided");
 
             user.openPrivateChannel().queue(privateChannel -> {
                 MessageEmbed embed = new Embeds().error
-                        .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
+                        .setTitle("You have been banned from " + event.getGuild().getName())
                         .setDescription("Reason: " + kickReason)
                         .build();
 
@@ -33,7 +38,7 @@ public class KickCommand extends ApplicationCommand {
             });
 
             MessageEmbed build = new Embeds().success
-                    .setTitle("✅ | Successfully kicked " + user.getAsTag())
+                    .setTitle("✅ | Successfully banned " + user.getAsTag())
                     .setDescription("Reason: " + kickReason)
                     .build();
 
@@ -41,11 +46,11 @@ public class KickCommand extends ApplicationCommand {
                     .setEphemeral(true)
                     .queue();
 
-            event.getGuild().kick(user).reason(reason).queue();
+            event.getGuild().ban(user, deletionTimeFrame, TimeUnit.DAYS).reason(reason).queue();
         }
         catch (Exception ignored) {
             MessageEmbed embed = new Embeds().error
-                    .setDescription("I do not have the permission to kick this user!")
+                    .setDescription("I do not have the permission to ban this user!")
                     .build();
 
             event.replyEmbeds(embed)

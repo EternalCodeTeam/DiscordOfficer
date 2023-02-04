@@ -27,11 +27,19 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.3")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.2.8")
+    implementation("ch.qos.logback:logback-classic:1.2.8") {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+    }
 }
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<ShadowJar> {
@@ -48,6 +56,8 @@ tasks.withType<ShadowJar> {
         "net.dv8tion",
         "io.github.freya022",
         "org.slf4j",
+        "ch.qos.logback",
+        "org.apache.commons"
     ).forEach { pack ->
         relocate(pack, "$prefix.$pack")
     }
