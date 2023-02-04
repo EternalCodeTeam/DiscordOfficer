@@ -16,6 +16,7 @@ repositories {
     gradlePluginPortal()
 
     maven { url = uri("https://jitpack.io") }
+    maven { url = uri("https://repo.eternalcode.pl/snapshots") }
 }
 
 dependencies {
@@ -31,6 +32,8 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
     }
+
+    implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 }
 
 tasks.withType<JavaCompile> {

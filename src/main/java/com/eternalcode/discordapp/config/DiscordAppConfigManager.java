@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class DiscordAppConfigManager {
 
-    private static final Cdn CDN = CdnFactory.createStandard().getSettings().build();
+    private static final Cdn CDN = CdnFactory.createYamlLike().getSettings().build();
 
     private final Set<CdnConfig> configs = new HashSet<>();
     private final File folder;

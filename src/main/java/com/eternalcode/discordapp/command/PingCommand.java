@@ -4,16 +4,20 @@ import com.eternalcode.discordapp.Embeds;
 import com.freya02.botcommands.api.application.ApplicationCommand;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
-public class PingCommand extends ApplicationCommand {
+public class PingCommand extends SlashCommand {
 
-    @JDASlashCommand(
-            name = "ping",
-            description = "Pong!"
-    )
-    public void onSlashCommand(@NotNull GuildSlashEvent event) {
+    public PingCommand() {
+        this.name = "ping";
+        this.help = "Performs a ping to see the bot's delay";
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
         long gatewayPing = event.getJDA().getGatewayPing();
         long restPing = event.getJDA().getRestPing().complete();
 
