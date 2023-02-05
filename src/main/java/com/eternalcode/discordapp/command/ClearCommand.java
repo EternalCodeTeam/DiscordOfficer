@@ -40,9 +40,10 @@ public class ClearCommand extends SlashCommand {
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("✅ | Success!")
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("Cleared " + amount + " messages")
-                .setTimestamp(Instant.now())
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(embeds)

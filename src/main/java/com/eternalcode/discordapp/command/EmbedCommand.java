@@ -51,13 +51,13 @@ public class EmbedCommand extends SlashCommand {
         boolean timestamp = event.getOption("timestamp") != null && event.getOption("timestamp").getAsBoolean();
 
         MessageEmbed embed = new EmbedBuilder()
-                .setTitle(title)
-                .setDescription(description)
-                .setColor(Color.decode(color))
-                .setFooter(footer)
                 .setAuthor(author)
-                .setImage(image)
+                .setTitle(title)
+                .setColor(Color.decode(color))
                 .setThumbnail(thumbnail)
+                .setDescription(description)
+                .setImage(image)
+                .setFooter(footer)
                 .setTimestamp(timestamp ? Instant.now() : null)
                 .build();
 

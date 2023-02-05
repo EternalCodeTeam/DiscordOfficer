@@ -24,8 +24,10 @@ public class KickCommand extends SlashCommand {
         this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
 
         this.options = List.of(
-                new OptionData(OptionType.USER, "user", "select the user").setRequired(true),
-                new OptionData(OptionType.STRING, "reason", "provide a reason").setRequired(false)
+                new OptionData(OptionType.USER, "user", "select the user")
+                        .setRequired(true),
+                new OptionData(OptionType.STRING, "reason", "provide a reason")
+                        .setRequired(false)
         );
 
         this.discordAppConfig = discordAppConfig;
@@ -39,11 +41,12 @@ public class KickCommand extends SlashCommand {
 
             if (user.isBot()) {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setTitle("❌ | An error occurred while kicking the user")
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("You can't kick a bot")
-                        .setTimestamp(Instant.now())
                         .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                        .setTimestamp(Instant.now())
                         .build();
 
                 event.replyEmbeds(embed)
@@ -55,8 +58,9 @@ public class KickCommand extends SlashCommand {
 
             user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("Reason: " + reason)
                         .setTimestamp(Instant.now())
                         .build();
@@ -66,10 +70,11 @@ public class KickCommand extends SlashCommand {
 
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("✅ | Successfully kicked " + user.getAsTag())
-                    .setDescription("Reason: " + reason)
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                    .setTimestamp(Instant.now())
+                    .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                    .setDescription("Reason: " + reason)
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setTimestamp(Instant.now())
                     .build();
 
             event.replyEmbeds(embed)
@@ -81,10 +86,11 @@ public class KickCommand extends SlashCommand {
         catch (Exception ignored) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while kicking the user")
-                    .setDescription("I can't kick this user, he probably has highest role than me!")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                    .setTimestamp(Instant.now())
+                    .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                    .setDescription("I can't kick this user, he probably has highest role than me!")
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setTimestamp(Instant.now())
                     .build();
 
             event.replyEmbeds(embed)

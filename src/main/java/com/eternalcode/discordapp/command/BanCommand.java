@@ -50,11 +50,12 @@ public class BanCommand extends SlashCommand {
 
             if (user.isBot()) {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setTitle("❌ | An error occurred while banning the user")
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("You can't ban a bot")
-                        .setTimestamp(Instant.now())
                         .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                        .setTimestamp(Instant.now())
                         .build();
 
                 event.replyEmbeds(embed)
@@ -66,8 +67,8 @@ public class BanCommand extends SlashCommand {
 
             user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setTitle("🔨 | You have been banned from " + event.getGuild().getName())
+                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                         .setDescription("Reason: " + kickReason)
                         .setTimestamp(Instant.now())
                         .build();
@@ -77,10 +78,11 @@ public class BanCommand extends SlashCommand {
 
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("✅ | Successfully banned " + user.getAsTag())
-                    .setDescription("Reason: " + kickReason)
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                    .setTimestamp(Instant.now())
+                    .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                    .setDescription("Reason: " + kickReason)
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setTimestamp(Instant.now())
                     .build();
 
             event.replyEmbeds(embed)
@@ -92,10 +94,11 @@ public class BanCommand extends SlashCommand {
         catch (Exception ignored) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while banning the user")
-                    .setDescription("I can't ban this user, he probably has highest role than me!")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                    .setTimestamp(Instant.now())
+                    .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                    .setDescription("I can't ban this user, he probably has highest role than me!")
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setTimestamp(Instant.now())
                     .build();
 
             event.replyEmbeds(embed)

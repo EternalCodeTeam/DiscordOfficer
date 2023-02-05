@@ -27,12 +27,12 @@ public class PingCommand extends SlashCommand {
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("🏓 | Pong!")
+                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
                 .addField("Gateway Ping", gatewayPing + "ms", false)
                 .addField("Rest Ping", restPing + "ms", false)
-                .setTimestamp(Instant.now())
-                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(build)

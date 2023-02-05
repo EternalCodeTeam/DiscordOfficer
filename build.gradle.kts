@@ -1,14 +1,11 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     `java-library`
     application
-    id("idea")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    idea
 }
 
 group = "com.eternalcode"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -21,18 +18,17 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.3")
-    implementation("io.github.freya022:BotCommands:2.8.2")
+    implementation("net.dv8tion:JDA:5.0.0-beta.3")  {
+        exclude("opus-java", "opus-java")
+    }
 
     // configs
     implementation("net.dzikoysk:cdn:1.14.3")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.2.8") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-    }
+    implementation("ch.qos.logback:logback-classic:1.2.9")
 
+    // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 }
 
@@ -43,27 +39,6 @@ tasks.withType<JavaCompile> {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
-
-tasks.withType<ShadowJar> {
-    archiveBaseName.set("EternalDiscordOfficer")
-    archiveVersion.set("1.0.0")
-    archiveClassifier.set("SNAPSHOT")
-
-    mergeServiceFiles()
-    minimize()
-
-    val prefix = "com.eternalcode.discordapp.libs"
-
-    listOf(
-        "net.dv8tion",
-        "io.github.freya022",
-        "org.slf4j",
-        "ch.qos.logback",
-        "org.apache.commons"
-    ).forEach { pack ->
-        relocate(pack, "$prefix.$pack")
-    }
 }
 
 application {

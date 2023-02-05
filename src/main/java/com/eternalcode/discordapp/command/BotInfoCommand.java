@@ -24,8 +24,8 @@ public class BotInfoCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) {
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("ℹ️ | Bot Information")
-                .setThumbnail(event.getGuild().getIconUrl())
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setThumbnail(event.getGuild().getIconUrl())
                 .addField("🏰 Guilds", String.valueOf(event.getJDA().getGuilds().size()), false)
                 .addField("👥 Users", String.valueOf(event.getJDA().getUsers().size()), false)
                 .addField("🔖 Channels", String.valueOf(event.getJDA().getTextChannels().size()), false)
@@ -33,8 +33,8 @@ public class BotInfoCommand extends SlashCommand {
                 .addField("🍺 Java", System.getProperty("java.version"), false)
                 .addField("🏓 Gateway Ping", String.valueOf(event.getJDA().getGatewayPing()), false)
                 .addField("🛫 Rest Ping", String.valueOf(event.getJDA().getRestPing().complete()), false)
-                .setTimestamp(Instant.now())
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(build)

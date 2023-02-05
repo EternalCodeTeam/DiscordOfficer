@@ -21,7 +21,7 @@ import java.io.File;
 
 public class DiscordApp {
 
-    private static final boolean IS_DEVELOPER_MODE = true;
+    private static final boolean IS_DEVELOPER_MODE = false;
     private static DiscordAppConfig config;
 
     public static void main(String... args) {
@@ -32,14 +32,14 @@ public class DiscordApp {
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
                         new AvatarCommand(config),
-                        new PingCommand(config),
-                        new ServerCommand(config),
-                        new KickCommand(config),
-                        new CooldownCommand(config),
-                        new ClearCommand(config),
-                        new BotInfoCommand(config),
                         new BanCommand(config),
-                        new EmbedCommand())
+                        new BotInfoCommand(config),
+                        new ClearCommand(config),
+                        new CooldownCommand(config),
+                        new EmbedCommand(),
+                        new KickCommand(config),
+                        new PingCommand(config),
+                        new ServerCommand(config))
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));

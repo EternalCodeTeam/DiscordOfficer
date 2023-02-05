@@ -31,16 +31,16 @@ public class ServerCommand extends SlashCommand {
 
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("🌐 | " + event.getGuild().getName() + "'s information")
-                .setThumbnail(event.getGuild().getIconUrl())
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setThumbnail(event.getGuild().getIconUrl())
                 .addField("🔢 ID", id, false)
                 .addField("👑 Owner", owner, false)
                 .addField("👥 Members", members, false)
                 .addField("📊 Roles", roles, false)
                 .addField("📊 Channels", channels, false)
                 .addField("📅 Created At", createdAt, false)
-                .setTimestamp(Instant.now())
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
                 .build();
 
         event.replyEmbeds(embeds)

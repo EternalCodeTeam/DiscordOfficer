@@ -31,13 +31,13 @@ public class DiscordAppConfig implements CdnConfig {
 
         @Contextual
         public static class ErrorEmbed {
-            public String thumbnail = "https://i.imgur.com/xWeyzSR.png";
+            public String thumbnail = "https://i.imgur.com/2oTkWsr.png";
             public String color = "#e01947";
         }
 
         @Contextual
         public static class SuccessEmbed {
-            public String thumbnail = "https://i.imgur.com/joHhxFq.png";
+            public String thumbnail = "https://i.imgur.com/QkNxIL3.png";
             public String color = "#00ff77";
         }
     }
