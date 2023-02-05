@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class KickCommand extends SlashCommand {
     public KickCommand(DiscordAppConfig discordAppConfig) {
         this.name = "kick";
         this.help = "Kicks a user";
-        this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
+        this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
 
         this.options = List.of(
                 new OptionData(OptionType.USER, "user", "select the user")
