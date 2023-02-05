@@ -32,14 +32,12 @@ public class DiscordAppConfig implements CdnConfig {
         @Contextual
         public static class ErrorEmbed {
             public String thumbnail = "https://i.imgur.com/xWeyzSR.png";
-            public String footer = "© All icons created by Freepik - Flaticon";
             public String color = "#e01947";
         }
 
         @Contextual
         public static class SuccessEmbed {
             public String thumbnail = "https://i.imgur.com/joHhxFq.png";
-            public String footer = "© All icons created by Freepik - Flaticon";
             public String color = "#00ff77";
         }
     }

@@ -54,6 +54,7 @@ public class BanCommand extends SlashCommand {
                         .setTitle("❌ | An error occurred while banning the user")
                         .setDescription("You can't ban a bot")
                         .setTimestamp(Instant.now())
+                        .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                         .build();
 
                 event.replyEmbeds(embed)
@@ -79,6 +80,7 @@ public class BanCommand extends SlashCommand {
                     .setDescription("Reason: " + kickReason)
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                     .setTimestamp(Instant.now())
+                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .build();
 
             event.replyEmbeds(embed)
@@ -93,6 +95,7 @@ public class BanCommand extends SlashCommand {
                     .setDescription("I can't ban this user, he probably has highest role than me!")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                     .setTimestamp(Instant.now())
+                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .build();
 
             event.replyEmbeds(embed)

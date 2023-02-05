@@ -40,6 +40,7 @@ public class ServerCommand extends SlashCommand {
                 .addField("📊 Channels", channels, false)
                 .addField("📅 Created At", createdAt, false)
                 .setTimestamp(Instant.now())
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(embeds)

@@ -43,6 +43,7 @@ public class KickCommand extends SlashCommand {
                         .setTitle("❌ | An error occurred while kicking the user")
                         .setDescription("You can't kick a bot")
                         .setTimestamp(Instant.now())
+                        .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                         .build();
 
                 event.replyEmbeds(embed)
@@ -68,6 +69,7 @@ public class KickCommand extends SlashCommand {
                     .setDescription("Reason: " + reason)
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                     .setTimestamp(Instant.now())
+                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .build();
 
             event.replyEmbeds(embed)
@@ -82,6 +84,7 @@ public class KickCommand extends SlashCommand {
                     .setDescription("I can't kick this user, he probably has highest role than me!")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
                     .setTimestamp(Instant.now())
+                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .build();
 
             event.replyEmbeds(embed)

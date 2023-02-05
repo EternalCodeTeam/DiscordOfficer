@@ -35,6 +35,7 @@ public class AvatarCommand extends SlashCommand {
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setImage(user.getEffectiveAvatarUrl() + "?size=2048")
                 .setTimestamp(Instant.now())
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(embed)

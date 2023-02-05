@@ -41,6 +41,7 @@ public class CooldownCommand extends SlashCommand {
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setDescription("This channel's cooldown is now " + cooldown + " seconds")
                 .setTimestamp(Instant.now())
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(embeds)

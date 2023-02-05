@@ -42,6 +42,7 @@ public class ClearCommand extends SlashCommand {
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
                 .setDescription("Cleared " + amount + " messages")
                 .setTimestamp(Instant.now())
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(embeds)

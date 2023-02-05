@@ -32,6 +32,7 @@ public class PingCommand extends SlashCommand {
                 .setTimestamp(Instant.now())
                 .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(build)
