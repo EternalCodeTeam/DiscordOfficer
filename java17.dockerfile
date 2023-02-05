@@ -2,6 +2,7 @@ FROM amazoncorretto:17-alpine AS build
 
 WORKDIR /app/
 COPY . /app/
+RUN chmod +x ./gradlew
 RUN ./gradlew shadowJar
 
 FROM amazoncorretto:17-alpine
