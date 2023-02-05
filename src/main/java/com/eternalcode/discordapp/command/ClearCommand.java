@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.List;
 
 public class ClearCommand extends SlashCommand {
 
@@ -23,10 +23,11 @@ public class ClearCommand extends SlashCommand {
         this.name = "clear";
         this.help = "Clears a certain amount of messages in the chat.";
         this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
-        this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, "amount", "The amount of messages to clear")
-                .setMinValue(1)
-                .setMaxValue(100)
-                .setRequired(true)
+        this.options = List.of(
+                new OptionData(OptionType.INTEGER, "amount", "The amount of messages to clear")
+                        .setMinValue(1)
+                        .setMaxValue(100)
+                        .setRequired(true)
         );
     }
 

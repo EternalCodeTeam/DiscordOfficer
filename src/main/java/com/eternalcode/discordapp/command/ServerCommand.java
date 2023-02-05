@@ -1,9 +1,11 @@
 package com.eternalcode.discordapp.command;
 
 import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.util.DiscordTagFormat;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.Color;
@@ -22,17 +24,18 @@ public class ServerCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        String owner = "<@" + event.getGuild().getOwnerId() + ">";
-        String id = event.getGuild().getId();
-        String members = String.valueOf(event.getGuild().getMembers().size());
-        String roles = String.valueOf(event.getGuild().getRoles().size());
-        String channels = String.valueOf(event.getGuild().getChannels().size());
-        String createdAt = "<t:" + event.getGuild().getTimeCreated().toEpochSecond() + ":F>";
+        Guild guild = event.getGuild();
+        String owner = DiscordTagFormat.memberTag(guild.getOwner().getUser());
+        String id = guild.getId();
+        String members = String.valueOf(guild.getMembers().size());
+        String roles = String.valueOf(guild.getRoles().size());
+        String channels = String.valueOf(guild.getChannels().size());
+        String createdAt = DiscordTagFormat.offsetTime(guild.getTimeCreated());
 
         MessageEmbed embeds = new EmbedBuilder()
-                .setTitle("🌐 | " + event.getGuild().getName() + "'s information")
+                .setTitle("🌐 | " + guild.getName() + "'s information")
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .setThumbnail(event.getGuild().getIconUrl())
+                .setThumbnail(guild.getIconUrl())
                 .addField("🔢 ID", id, false)
                 .addField("👑 Owner", owner, false)
                 .addField("👥 Members", members, false)

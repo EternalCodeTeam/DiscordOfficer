@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.List;
 
 public class CooldownCommand extends SlashCommand {
 
@@ -23,10 +23,11 @@ public class CooldownCommand extends SlashCommand {
         this.name = "cooldown";
         this.help = "Sets the cooldown of a chat channel";
         this.userPermissions = new Permission[]{ Permission.MANAGE_CHANNEL };
-        this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, "cooldown", "select the cooldown")
-                .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(21600)
+        this.options = List.of(
+                new OptionData(OptionType.INTEGER, "cooldown", "select the cooldown")
+                        .setRequired(true)
+                        .setMinValue(1)
+                        .setMaxValue(21600)
         );
     }
 

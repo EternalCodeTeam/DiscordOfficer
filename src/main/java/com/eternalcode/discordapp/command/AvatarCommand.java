@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.List;
 
 public class AvatarCommand extends SlashCommand {
 
@@ -23,7 +23,10 @@ public class AvatarCommand extends SlashCommand {
         this.name = "avatar";
         this.help = "Shows the avatar of a user";
 
-        this.options = Collections.singletonList(new OptionData(OptionType.USER, "user", "select the user").setRequired(false));
+        this.options = List.of(
+                new OptionData(OptionType.USER, "user", "select the user")
+                        .setRequired(false)
+        );
     }
 
     @Override

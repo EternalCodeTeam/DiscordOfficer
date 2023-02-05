@@ -83,7 +83,7 @@ public class KickCommand extends SlashCommand {
 
             event.getGuild().kick(user).reason(reason).queue();
         }
-        catch (Exception ignored) {
+        catch (Exception exception) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while kicking the user")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))

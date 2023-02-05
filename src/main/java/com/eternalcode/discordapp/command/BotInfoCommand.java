@@ -4,6 +4,8 @@ import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.Color;
@@ -22,17 +24,20 @@ public class BotInfoCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
+        JDA jda = event.getJDA();
+        Guild guild = event.getGuild();
+
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("ℹ️ | Bot Information")
                 .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .setThumbnail(event.getGuild().getIconUrl())
-                .addField("🏰 Guilds", String.valueOf(event.getJDA().getGuilds().size()), false)
-                .addField("👥 Users", String.valueOf(event.getJDA().getUsers().size()), false)
-                .addField("🔖 Channels", String.valueOf(event.getJDA().getTextChannels().size()), false)
+                .setThumbnail(guild.getIconUrl())
+                .addField("🏰 Guilds", String.valueOf(jda.getGuilds().size()), false)
+                .addField("👥 Users", String.valueOf(jda.getUsers().size()), false)
+                .addField("🔖 Channels", String.valueOf(jda.getTextChannels().size()), false)
                 .addField("💾 OS", System.getProperty("os.name"), false)
                 .addField("🍺 Java", System.getProperty("java.version"), false)
-                .addField("🏓 Gateway Ping", String.valueOf(event.getJDA().getGatewayPing()), false)
-                .addField("🛫 Rest Ping", String.valueOf(event.getJDA().getRestPing().complete()), false)
+                .addField("🏓 Gateway Ping", String.valueOf(jda.getGatewayPing()), false)
+                .addField("🛫 Rest Ping", String.valueOf(jda.getRestPing().complete()), false)
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ContextException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -91,7 +92,7 @@ public class BanCommand extends SlashCommand {
 
             event.getGuild().ban(user, deletionTime, TimeUnit.HOURS).reason(reason).queue();
         }
-        catch (Exception ignored) {
+        catch (Exception exception) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while banning the user")
                     .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
