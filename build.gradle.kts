@@ -34,12 +34,15 @@ dependencies {
     // ORMLite Core
     implementation("com.j256.ormlite:ormlite-core:4.48")
 
+    // ORMLite JDBC
+    implementation("com.j256.ormlite:ormlite-jdbc:4.48")
+
     // MySQL JDBC Driver
     implementation("mysql:mysql-connector-java:8.0.32")
     // PostgreSQL JDBC Driver
     implementation("org.postgresql:postgresql:42.5.3")
-    // SQLite JDBC Driver
-    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    implementation("com.h2database:h2:2.1.214")
     // MariaDB JDBC Driver
     implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")
 }

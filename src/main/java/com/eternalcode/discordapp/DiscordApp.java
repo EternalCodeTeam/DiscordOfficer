@@ -11,6 +11,9 @@ import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.config.DiscordAppDatabaseConfig;
+import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.database.repository.UserRepository;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -18,16 +21,31 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class DiscordApp {
 
     private static final boolean IS_DEVELOPER_MODE = false;
     private static DiscordAppConfig config;
+    private static DatabaseManager databaseManager;
+    private static DiscordAppDatabaseConfig databaseConfig;
+    private static UserRepository userRepository;
+
 
     public static void main(String... args) {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
         config = new DiscordAppConfig();
+        databaseConfig = new DiscordAppDatabaseConfig();
         configManager.load(config);
+        configManager.load(databaseConfig);
+
+        try {
+            databaseManager = new DatabaseManager(databaseConfig, new File("database"));
+            databaseManager.connect();
+            userRepository = UserRepository.create(databaseManager);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
