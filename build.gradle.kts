@@ -26,7 +26,7 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.3")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.2.9")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")

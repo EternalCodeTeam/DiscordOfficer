@@ -23,7 +23,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
       - name: Build & Push (Java 17 image) - EternalCode DiscordOfficer
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
           context: .
@@ -33,7 +33,7 @@ jobs:
           build-args: |
             OFFICER_VERSION=${{ github.ref_name }}
       - name: Build & Push (Java 19) - EternalCode DiscordOfficer
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
           context: .
