@@ -1,19 +1,11 @@
 package com.eternalcode.discordapp;
 
-import com.eternalcode.discordapp.command.AvatarCommand;
-import com.eternalcode.discordapp.command.BanCommand;
-import com.eternalcode.discordapp.command.BotInfoCommand;
-import com.eternalcode.discordapp.command.ClearCommand;
-import com.eternalcode.discordapp.command.CooldownCommand;
-import com.eternalcode.discordapp.command.EmbedCommand;
-import com.eternalcode.discordapp.command.KickCommand;
-import com.eternalcode.discordapp.command.PingCommand;
-import com.eternalcode.discordapp.command.ServerCommand;
+import com.eternalcode.discordapp.command.*;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
 import com.eternalcode.discordapp.config.DiscordAppDatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.database.repository.UserRepository;
+import com.eternalcode.discordapp.database.repository.RepositoryManager;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -29,7 +21,7 @@ public class DiscordApp {
     private static DiscordAppConfig config;
     private static DatabaseManager databaseManager;
     private static DiscordAppDatabaseConfig databaseConfig;
-    private static UserRepository userRepository;
+    private static RepositoryManager repositoryManager;
 
 
     public static void main(String... args) {
@@ -42,7 +34,8 @@ public class DiscordApp {
         try {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
-            userRepository = UserRepository.create(databaseManager);
+            repositoryManager = new RepositoryManager(databaseManager);
+            repositoryManager.init();
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
