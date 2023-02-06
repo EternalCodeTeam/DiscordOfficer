@@ -32,10 +32,10 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // ORMLite Core
-    implementation("com.j256.ormlite:ormlite-core:4.48")
+    implementation("com.j256.ormlite:ormlite-core:6.1")
 
     // ORMLite JDBC
-    implementation("com.j256.ormlite:ormlite-jdbc:4.48")
+    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
     // MySQL JDBC Driver
     implementation("mysql:mysql-connector-java:8.0.32")
