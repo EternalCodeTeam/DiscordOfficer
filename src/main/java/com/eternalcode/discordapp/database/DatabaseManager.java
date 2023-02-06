@@ -41,7 +41,7 @@ public class DatabaseManager {
         }
     }
 
-    public void closeConnection() throws SQLException {
+    public void closeConnection() throws Exception {
         this.connectionSource.close();
     }
 
