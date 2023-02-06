@@ -2,8 +2,7 @@ FROM amazoncorretto:19-alpine AS build
 
 WORKDIR /app/
 COPY . /app/
-RUN chmod +x ./gradlew
-RUN ./gradlew shadowJar
+RUN ./gradlew build
 
 FROM amazoncorretto:19-alpine
 LABEL org.label-schema.name="eternalcode/discordofficer"

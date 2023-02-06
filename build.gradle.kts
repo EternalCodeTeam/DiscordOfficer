@@ -30,6 +30,18 @@ dependencies {
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
+
+    // ORMLite Core
+    implementation("com.j256.ormlite:ormlite-core:4.48")
+
+    // MySQL JDBC Driver
+    implementation("mysql:mysql-connector-java:8.0.32")
+    // PostgreSQL JDBC Driver
+    implementation("org.postgresql:postgresql:42.5.3")
+    // SQLite JDBC Driver
+    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    // MariaDB JDBC Driver
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")
 }
 
 tasks.withType<JavaCompile> {
