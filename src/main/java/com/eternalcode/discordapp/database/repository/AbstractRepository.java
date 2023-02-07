@@ -8,38 +8,36 @@ import panda.std.reactive.Completable;
 import java.sql.SQLException;
 import java.util.List;
 
-abstract class AbstractRepository {
+public abstract class AbstractRepository<T, ID> {
     protected final DatabaseManager databaseManager;
+    protected final Class<T> type;
 
-    protected AbstractRepository(DatabaseManager databaseManager) {
+    protected AbstractRepository(DatabaseManager databaseManager, Class<T> type) {
         this.databaseManager = databaseManager;
+        this.type = type;
     }
 
-    <T> Completable<Dao.CreateOrUpdateStatus> save(Class<T> type, T data) throws SQLException {
-        return this.action(type, dao -> dao.createOrUpdate(data));
+    Completable<Dao.CreateOrUpdateStatus> save(T data) throws SQLException {
+        return this.action(this.type, dao -> dao.createOrUpdate(data));
     }
 
-    <T> Completable<T> saveIfNotExist(Class<T> type, T data) throws SQLException {
-        return this.action(type, dao -> dao.createIfNotExists(data));
+    Completable<T> select(ID id) throws SQLException {
+        return this.action(this.type, dao -> dao.queryForId(id));
     }
 
-    <T, ID> Completable<T> select(Class<T> type, ID id) throws SQLException {
-        return this.action(type, dao -> dao.queryForId(id));
+    Completable<Integer> delete(T data) throws SQLException {
+        return this.action(this.type, dao -> dao.delete(data));
     }
 
-    <T> Completable<Integer> delete(Class<T> type, T data) throws SQLException {
-        return this.action(type, dao -> dao.delete(data));
+    Completable<Integer> deleteById(ID id) throws SQLException {
+        return this.action(this.type, dao -> dao.deleteById(id));
     }
 
-    <T, ID> Completable<Integer> deleteById(Class<T> type, ID id) throws SQLException {
-        return this.action(type, dao -> dao.deleteById(id));
+    Completable<List<T>> selectAll() throws SQLException {
+        return this.action(this.type, Dao::queryForAll);
     }
 
-    <T> Completable<List<T>> selectAll(Class<T> type) throws SQLException {
-        return this.action(type, Dao::queryForAll);
-    }
-
-    <T, ID, R> Completable<R> action(Class<T> type, ThrowingFunction<Dao<T, ID>, R, SQLException> action) throws SQLException {
+    <R> Completable<R> action(Class<T> type, ThrowingFunction<Dao<T, ID>, R, SQLException> action) throws SQLException {
         Completable<R> completableFuture = new Completable<>();
 
         Dao<T, ID> dao = this.databaseManager.getDao(type);
