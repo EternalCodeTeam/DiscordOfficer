@@ -17,32 +17,31 @@ public abstract class AbstractRepository<T, ID> {
         this.type = type;
     }
 
-    Completable<Dao.CreateOrUpdateStatus> save(T data) throws SQLException {
+    public Completable<Dao.CreateOrUpdateStatus> save(T data) {
         return this.action(this.type, dao -> dao.createOrUpdate(data));
     }
 
-    Completable<T> select(ID id) throws SQLException {
+    public Completable<T> select(ID id) {
         return this.action(this.type, dao -> dao.queryForId(id));
     }
 
-    Completable<Integer> delete(T data) throws SQLException {
+    public Completable<Integer> delete(T data) {
         return this.action(this.type, dao -> dao.delete(data));
     }
 
-    Completable<Integer> deleteById(ID id) throws SQLException {
+    public Completable<Integer> deleteById(ID id) {
         return this.action(this.type, dao -> dao.deleteById(id));
     }
 
-    Completable<List<T>> selectAll() throws SQLException {
+    public Completable<List<T>> selectAll() {
         return this.action(this.type, Dao::queryForAll);
     }
 
-    <R> Completable<R> action(Class<T> type, ThrowingFunction<Dao<T, ID>, R, SQLException> action) throws SQLException {
+    public <R> Completable<R> action(Class<T> type, ThrowingFunction<Dao<T, ID>, R, SQLException> action) {
         Completable<R> completableFuture = new Completable<>();
 
-        Dao<T, ID> dao = this.databaseManager.getDao(type);
-
         try {
+            Dao<T, ID> dao = this.databaseManager.getDao(type);
             completableFuture.complete(action.apply(dao));
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
