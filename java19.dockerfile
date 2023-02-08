@@ -2,7 +2,7 @@ FROM amazoncorretto:19-alpine AS build
 
 WORKDIR /app/
 COPY . /app/
-RUN ./gradlew build
+RUN ./gradlew clean build
 
 FROM amazoncorretto:19-alpine
 LABEL org.label-schema.name="eternalcode/discordofficer"
