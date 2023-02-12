@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,10 +13,10 @@ import java.time.Instant;
 
 public class BotInfoCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public BotInfoCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public BotInfoCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "botinfo";
         this.help = "Shows information about the bot";
@@ -29,7 +29,7 @@ public class BotInfoCommand extends SlashCommand {
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("ℹ️ | Bot Information")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(guild.getIconUrl())
                 .addField("🏰 Guilds", String.valueOf(jda.getGuilds().size()), false)
                 .addField("👥 Users", String.valueOf(jda.getUsers().size()), false)

@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.database;
 
-import com.eternalcode.discordapp.config.DiscordAppDatabaseConfig;
+import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager {
 
-    private final DiscordAppDatabaseConfig config;
+    private final DatabaseConfig config;
     private ConnectionSource connectionSource;
 
     private final Map<Class<?>, Dao<?, ?>> daoCache = new ConcurrentHashMap<>();
     private final File folder;
-    public DatabaseManager(DiscordAppDatabaseConfig config, File folder) {
+    public DatabaseManager(DatabaseConfig config, File folder) {
         this.folder = folder;
         this.config = config;
     }

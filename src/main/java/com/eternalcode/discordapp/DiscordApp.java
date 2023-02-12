@@ -1,9 +1,9 @@
 package com.eternalcode.discordapp;
 
 import com.eternalcode.discordapp.command.*;
-import com.eternalcode.discordapp.config.DiscordAppConfig;
-import com.eternalcode.discordapp.config.DiscordAppConfigManager;
-import com.eternalcode.discordapp.config.DiscordAppDatabaseConfig;
+import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.config.ConfigManager;
+import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.RepositoryManager;
 import com.jagrosh.jdautilities.command.CommandClient;
@@ -18,16 +18,16 @@ import java.sql.SQLException;
 public class DiscordApp {
 
     private static final boolean IS_DEVELOPER_MODE = false;
-    private static DiscordAppConfig config;
+    private static AppConfig config;
     private static DatabaseManager databaseManager;
-    private static DiscordAppDatabaseConfig databaseConfig;
+    private static DatabaseConfig databaseConfig;
     private static RepositoryManager repositoryManager;
 
 
     public static void main(String... args) {
-        DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
-        config = new DiscordAppConfig();
-        databaseConfig = new DiscordAppDatabaseConfig();
+        ConfigManager configManager = new ConfigManager(new File("config"));
+        config = new AppConfig();
+        databaseConfig = new DatabaseConfig();
         configManager.load(config);
         configManager.load(databaseConfig);
 

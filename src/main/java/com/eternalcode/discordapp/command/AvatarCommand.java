@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,10 +15,10 @@ import java.util.List;
 
 public class AvatarCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public AvatarCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public AvatarCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "avatar";
         this.help = "Shows the avatar of a user";
@@ -35,7 +35,7 @@ public class AvatarCommand extends SlashCommand {
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("🖼 | " + user.getName() + "'s avatar")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setImage(user.getEffectiveAvatarUrl() + "?size=2048")
                 .setTimestamp(Instant.now())
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
