@@ -20,7 +20,8 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
     public static UserRepositoryImpl create(DatabaseManager databaseManager) {
         try {
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserWrapper.class);
-        } catch (SQLException sqlException) {
+        }
+        catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
 

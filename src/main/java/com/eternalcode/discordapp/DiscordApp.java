@@ -1,6 +1,15 @@
 package com.eternalcode.discordapp;
 
-import com.eternalcode.discordapp.command.*;
+
+import com.eternalcode.discordapp.command.AvatarCommand;
+import com.eternalcode.discordapp.command.BanCommand;
+import com.eternalcode.discordapp.command.ServerCommand;
+import com.eternalcode.discordapp.command.BotInfoCommand;
+import com.eternalcode.discordapp.command.ClearCommand;
+import com.eternalcode.discordapp.command.CooldownCommand;
+import com.eternalcode.discordapp.command.EmbedCommand;
+import com.eternalcode.discordapp.command.KickCommand;
+import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
@@ -36,7 +45,8 @@ public class DiscordApp {
             databaseManager.connect();
             repositoryManager = new RepositoryManager(databaseManager);
             repositoryManager.init();
-        } catch (SQLException sqlException) {
+        }
+        catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
 

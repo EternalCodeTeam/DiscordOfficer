@@ -3,9 +3,7 @@ package com.eternalcode.discordapp.database.repository.userpoints;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.model.UserPoints;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
-import com.eternalcode.discordapp.database.repository.user.UserRepositoryImpl;
 import com.eternalcode.discordapp.database.wrapper.UserPointsWrapper;
-import com.eternalcode.discordapp.database.wrapper.UserWrapper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 import panda.std.reactive.Completable;
@@ -21,7 +19,8 @@ public class UserPointsRepositoryImpl extends AbstractRepository<UserPointsWrapp
     public static UserPointsRepositoryImpl create(DatabaseManager databaseManager) {
         try {
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserPointsWrapper.class);
-        } catch (SQLException sqlException) {
+        }
+        catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
 

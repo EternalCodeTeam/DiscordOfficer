@@ -43,7 +43,8 @@ public abstract class AbstractRepository<T, ID> {
         try {
             Dao<T, ID> dao = this.databaseManager.getDao(type);
             completableFuture.complete(action.apply(dao));
-        } catch (SQLException sqlException) {
+        }
+        catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
 

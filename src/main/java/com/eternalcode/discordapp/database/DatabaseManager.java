@@ -18,26 +18,27 @@ public class DatabaseManager {
 
     private final Map<Class<?>, Dao<?, ?>> daoCache = new ConcurrentHashMap<>();
     private final File folder;
+
     public DatabaseManager(DatabaseConfig config, File folder) {
         this.folder = folder;
         this.config = config;
     }
 
     public void connect() throws SQLException {
-        switch (config.type) {
+        switch (this.config.type) {
             case MYSQL -> {
-                this.connectionSource = new JdbcConnectionSource("jdbc:mysql://" + config.host + ":" + config.port + "/" + config.database, config.username, config.password);
+                this.connectionSource = new JdbcConnectionSource("jdbc:mysql://" + this.config.host + ":" + this.config.port + "/" + this.config.database, this.config.username, this.config.password);
             }
             case MARIA_DB -> {
-                this.connectionSource = new JdbcConnectionSource("jdbc:mariadb://" + config.host + ":" + config.port + "/" + config.database, config.username, config.password);
+                this.connectionSource = new JdbcConnectionSource("jdbc:mariadb://" + this.config.host + ":" + this.config.port + "/" + this.config.database, this.config.username, this.config.password);
             }
             case POSTGRESQL -> {
-                this.connectionSource = new JdbcConnectionSource("jdbc:postgresql://" + config.host + ":" + config.port + "/" + config.database, config.username, config.password);
+                this.connectionSource = new JdbcConnectionSource("jdbc:postgresql://" + this.config.host + ":" + this.config.port + "/" + this.config.database, this.config.username, this.config.password);
             }
             case H2 -> {
                 this.connectionSource = new JdbcConnectionSource("jdbc:h2:" + this.folder.getAbsolutePath() + "/database");
             }
-            default -> throw new SQLException("Database type not supported: " + config.type);
+            default -> throw new SQLException("Database type not supported: " + this.config.type);
         }
     }
 
@@ -53,13 +54,14 @@ public class DatabaseManager {
         try {
             Dao<?, ?> dao = this.daoCache.get(clazz);
 
-            if(dao == null) {
+            if (dao == null) {
                 dao = DaoManager.createDao(this.connectionSource, clazz);
                 this.daoCache.put(clazz, dao);
             }
 
             return (Dao<T, ID>) dao;
-        } catch (SQLException exception) {
+        }
+        catch (SQLException exception) {
             throw new SQLException("Failed to get DAO for class: " + clazz.getName(), exception);
         }
     }

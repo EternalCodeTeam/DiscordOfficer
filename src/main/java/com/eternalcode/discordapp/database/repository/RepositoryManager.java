@@ -20,10 +20,10 @@ public class RepositoryManager {
     }
 
     public UserRepositoryImpl getUserRepository() {
-        return userRepository;
+        return this.userRepository;
     }
 
     public UserPointsRepositoryImpl getUserPointsRepository() {
-        return userPointsRepository;
+        return this.userPointsRepository;
     }
 }

@@ -12,15 +12,15 @@ public class UserPoints {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public Long getPoints() {
-        return points;
+        return this.points;
     }
 
     public User getUser() {
-        return user;
+        return this.user;
     }
 
     public void addPoints(Long points) {
