@@ -2,6 +2,7 @@ plugins {
     `java-library`
     application
     idea
+    checkstyle
 }
 
 group = "com.eternalcode"
