@@ -43,7 +43,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
         JsonObject response = JsonParser.parseString(this.sendApiRequest(domain)).getAsJsonObject();
 
         if (!response.get("online").getAsBoolean()) {
-            event.reply("❌ The server is offline!")
+            event.reply("❌ The provided server is offline!")
                     .setEphemeral(true)
                     .queue();
             return;
