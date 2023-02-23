@@ -28,7 +28,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
         this.name = "minecraft";
         this.aliases = new String[]{ "mc", "mcserver" };
         this.options = List.of(
-                new OptionData(OptionType.STRING, "domain", "The domain of the Minecraft server")
+                new OptionData(OptionType.STRING, "address", "The domain/IP address of the Minecraft server")
                         .setRequired(true)
         );
     }
