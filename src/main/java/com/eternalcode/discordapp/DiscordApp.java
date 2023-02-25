@@ -8,6 +8,7 @@ import com.eternalcode.discordapp.command.CooldownCommand;
 import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
 import com.eternalcode.discordapp.command.PingCommand;
+import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
@@ -39,7 +40,8 @@ public class DiscordApp {
                         new EmbedCommand(),
                         new KickCommand(config),
                         new PingCommand(config),
-                        new ServerCommand(config))
+                        new ServerCommand(config),
+                        new SayCommand())
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
