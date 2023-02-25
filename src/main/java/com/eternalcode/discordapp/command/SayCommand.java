@@ -15,7 +15,7 @@ public class SayCommand extends SlashCommand {
         this.help = "Says something";
         this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
         this.options = List.of(
-                new OptionData(OptionType.STRING, "message", "the message to say")
+                new OptionData(OptionType.STRING, "message", "The message to say")
                         .setRequired(true)
         );
     }
