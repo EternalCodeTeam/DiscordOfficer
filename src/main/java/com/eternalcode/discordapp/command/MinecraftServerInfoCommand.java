@@ -9,13 +9,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 
@@ -23,6 +22,8 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
     private static final String API_URL = "https://api.mcsrvstat.us/2/";
     private static final String IMAGE_API_URL = "https://api.mcsrvstat.us/icon/%s";
+
+    private final OkHttpClient client = new OkHttpClient();
 
     public MinecraftServerInfoCommand() {
         this.name = "minecraft";
@@ -37,10 +38,9 @@ public class MinecraftServerInfoCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) {
         String domain = event.getOption("domain").getAsString();
 
+        String request = this.sendApiRequest(domain);
 
-        this.sendApiRequest(domain);
-
-        JsonObject response = JsonParser.parseString(this.sendApiRequest(domain)).getAsJsonObject();
+        JsonObject response = JsonParser.parseString(request).getAsJsonObject();
 
         if (!response.get("online").getAsBoolean()) {
             event.reply("❌ The server is offline!")
@@ -80,23 +80,16 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
     }
 
-    String sendApiRequest(String serverAddress) {
-        try {
-            URL url = new URL(API_URL + serverAddress);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+    private String sendApiRequest(String serverAddress) {
+        Request request = new Request.Builder()
+                .url(API_URL + serverAddress)
+                .get()
+                .build();
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
+        try (Response response = this.client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-
-            in.close();
-
-            return response.toString();
+            return response.body().string();
         }
         catch (IOException exception) {
             exception.printStackTrace();
