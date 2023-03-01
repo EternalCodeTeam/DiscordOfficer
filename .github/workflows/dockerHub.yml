@@ -27,7 +27,7 @@ jobs:
         with:
           platforms: linux/amd64
           context: .
-          file: ./java17.dockerfile
+          file: ./docker/java17.dockerfile
           push: true
           tags: eternalcode/discordofficer:${{ github.ref_name }}-java17 , eternalcode/discordofficer:latest-java17
           build-args: |
@@ -37,7 +37,7 @@ jobs:
         with:
           platforms: linux/amd64
           context: .
-          file: ./java19.dockerfile
+          file: ./docker/java19.dockerfile
           push: true
           tags: eternalcode/discordofficer:${{ github.ref_name }}-java19 , eternalcode/discordofficer:latest
           build-args: |
