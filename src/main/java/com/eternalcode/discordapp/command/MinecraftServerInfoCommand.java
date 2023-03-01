@@ -36,7 +36,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        String domain = event.getOption("domain").getAsString();
+        String domain = event.getOption("address").getAsString();
 
         String request = this.sendApiRequest(domain);
 
@@ -58,8 +58,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
         JsonObject motdObject = response.get("motd").getAsJsonObject();
         JsonArray motdClean = motdObject.get("clean").getAsJsonArray();
-        String motdCleanLine1 = motdClean.get(0).getAsString();
-        String motdCleanLine2 = motdClean.get(1).getAsString();
+        String[] motd = { motdClean.get(0).getAsString(), motdClean.get(1).getAsString() };
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("Minecraft server info")
@@ -69,7 +68,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
                 .addField("Version", version, true)
                 .addField("IP", ip, true)
                 .addField("Players", onlinePlayers + "/" + maxPlayers, true)
-                .addField("MOTD", motdCleanLine1 + "\n" + motdCleanLine2, false)
+                .addField("MOTD", String.join("\n", motd), false)
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
