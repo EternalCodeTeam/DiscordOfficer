@@ -40,6 +40,13 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
         String request = this.sendApiRequest(domain);
 
+        if (request == null) {
+            event.reply("❌ An error occurred while fetching the server info!")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         JsonObject response = JsonParser.parseString(request).getAsJsonObject();
 
         if (!response.get("online").getAsBoolean()) {
