@@ -20,7 +20,7 @@ import java.util.List;
 
 public class MinecraftServerInfoCommand extends SlashCommand {
 
-    private static final String API_URL = "https://api.mcsrvstat.us/2/";
+    private static final String API_URL = "https://api.mcsrvstat.us/2/%s";
     private static final String IMAGE_API_URL = "https://api.mcsrvstat.us/icon/%s";
 
     private final OkHttpClient client = new OkHttpClient();
@@ -81,12 +81,14 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
     private String sendApiRequest(String serverAddress) {
         Request request = new Request.Builder()
-                .url(API_URL + serverAddress)
+                .url(String.format(API_URL, serverAddress))
                 .get()
                 .build();
 
         try (Response response = this.client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
 
             return response.body().string();
         }
