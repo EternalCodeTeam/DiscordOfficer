@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.command;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -65,7 +66,9 @@ public class MinecraftServerInfoCommand extends SlashCommand {
 
         JsonObject motdObject = response.get("motd").getAsJsonObject();
         JsonArray motdClean = motdObject.get("clean").getAsJsonArray();
-        String[] motd = { motdClean.get(0).getAsString(), motdClean.get(1).getAsString() };
+
+        Gson gson = new Gson();
+        String[] motd = gson.fromJson(motdClean, String[].class);
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("Minecraft server info")
