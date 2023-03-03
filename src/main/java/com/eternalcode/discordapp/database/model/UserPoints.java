@@ -1,37 +1,33 @@
 package com.eternalcode.discordapp.database.model;
 
+import java.math.BigInteger;
+
 public class UserPoints {
     private Long id;
-    private Long points;
-    private final User user;
+    private int points;
 
-    public UserPoints(Long id, Long points, User user) {
+    public UserPoints(Long id, int points) {
         this.id = id;
         this.points = points;
-        this.user = user;
     }
 
     public Long getId() {
         return this.id;
     }
 
-    public Long getPoints() {
+    public int getPoints() {
         return this.points;
     }
 
-    public User getUser() {
-        return this.user;
-    }
-
-    public void addPoints(Long points) {
+    public void addPoints(int points) {
         this.points += points;
     }
 
-    public void removePoints(Long points) {
+    public void removePoints(int points) {
         this.points -= points;
     }
 
-    public void setPoints(Long points) {
+    public void setPoints(int points) {
         this.points = points;
     }
 }

@@ -2,11 +2,9 @@ package com.eternalcode.discordapp.database.model;
 
 public class User {
     private Long id;
-    private final UserPoints userPoints;
 
-    public User(Long id, UserPoints userPoints) {
+    public User(Long id) {
         this.id = id;
-        this.userPoints = userPoints;
     }
 
     public Long getId() {

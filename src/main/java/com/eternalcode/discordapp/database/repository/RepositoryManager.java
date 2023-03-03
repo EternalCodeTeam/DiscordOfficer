@@ -6,7 +6,6 @@ import com.eternalcode.discordapp.database.repository.userpoints.UserPointsRepos
 
 public class RepositoryManager {
     private final DatabaseManager databaseManager;
-
     private UserRepositoryImpl userRepository;
     private UserPointsRepositoryImpl userPointsRepository;
 

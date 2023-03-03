@@ -11,9 +11,6 @@ public class UserWrapper {
     @DatabaseField(id = true)
     private Long id;
 
-    @ForeignCollectionField(eager = true)
-    private UserPointsWrapper userPoints;
-
     public UserWrapper() {
     }
 
@@ -26,6 +23,6 @@ public class UserWrapper {
     }
 
     public User toUser() {
-        return new User(this.id, this.userPoints.toUserPoints());
+        return new User(this.id);
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> implements UserRepository {
+
     protected UserRepositoryImpl(DatabaseManager databaseManager) {
         super(databaseManager, UserWrapper.class);
     }
@@ -52,4 +53,6 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
     public Completable<Integer> deleteUserById(Long id) {
         return this.deleteById(id);
     }
+
+
 }
