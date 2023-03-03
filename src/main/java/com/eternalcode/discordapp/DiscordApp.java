@@ -1,17 +1,21 @@
 package com.eternalcode.discordapp;
 
+
 import com.eternalcode.discordapp.command.AvatarCommand;
 import com.eternalcode.discordapp.command.BanCommand;
+import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.command.BotInfoCommand;
 import com.eternalcode.discordapp.command.ClearCommand;
 import com.eternalcode.discordapp.command.CooldownCommand;
 import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
 import com.eternalcode.discordapp.command.PingCommand;
-import com.eternalcode.discordapp.command.SayCommand;
-import com.eternalcode.discordapp.command.ServerCommand;
-import com.eternalcode.discordapp.config.DiscordAppConfig;
-import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.config.ConfigManager;
+import com.eternalcode.discordapp.config.DatabaseConfig;
+import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.database.repository.RepositoryManager;
+import com.eternalcode.discordapp.leveling.MessageExpEvent;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -19,16 +23,33 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class DiscordApp {
 
     private static final boolean IS_DEVELOPER_MODE = false;
-    private static DiscordAppConfig config;
+    private static AppConfig config;
+    private static DatabaseManager databaseManager;
+    private static DatabaseConfig databaseConfig;
+    private static RepositoryManager repositoryManager;
+
 
     public static void main(String... args) {
-        DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
-        config = new DiscordAppConfig();
+        ConfigManager configManager = new ConfigManager(new File("config"));
+        config = new AppConfig();
+        databaseConfig = new DatabaseConfig();
         configManager.load(config);
+        configManager.load(databaseConfig);
+
+        try {
+            databaseManager = new DatabaseManager(databaseConfig, new File("database"));
+            databaseManager.connect();
+            repositoryManager = new RepositoryManager(databaseManager);
+            repositoryManager.init();
+        }
+        catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
@@ -40,8 +61,7 @@ public class DiscordApp {
                         new EmbedCommand(),
                         new KickCommand(config),
                         new PingCommand(config),
-                        new ServerCommand(config),
-                        new SayCommand())
+                        new ServerCommand(config))
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
@@ -49,6 +69,7 @@ public class DiscordApp {
 
         JDABuilder.createDefault(getToken())
                 .addEventListeners(commandClient)
+                .addEventListeners(new MessageExpEvent(repositoryManager.getUserPointsRepository()))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_BANS,
