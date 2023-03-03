@@ -1,7 +1,5 @@
 package com.eternalcode.discordapp.database.model;
 
-import java.math.BigInteger;
-
 public class UserPoints {
     private Long id;
     private int points;

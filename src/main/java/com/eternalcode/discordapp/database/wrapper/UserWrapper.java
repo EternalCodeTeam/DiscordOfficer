@@ -2,7 +2,6 @@ package com.eternalcode.discordapp.database.wrapper;
 
 import com.eternalcode.discordapp.database.model.User;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "edc_users")

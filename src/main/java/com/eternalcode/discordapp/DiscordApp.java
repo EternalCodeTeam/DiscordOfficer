@@ -14,7 +14,8 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.database.repository.RepositoryManager;
+import com.eternalcode.discordapp.database.repository.user.UserRepositoryImpl;
+import com.eternalcode.discordapp.database.repository.userpoints.UserPointsRepositoryImpl;
 import com.eternalcode.discordapp.leveling.MessageExpEvent;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -31,8 +32,8 @@ public class DiscordApp {
     private static AppConfig config;
     private static DatabaseManager databaseManager;
     private static DatabaseConfig databaseConfig;
-    private static RepositoryManager repositoryManager;
-
+    private static UserRepositoryImpl userRepository;
+    private static UserPointsRepositoryImpl userPointsRepository;
 
     public static void main(String... args) {
         ConfigManager configManager = new ConfigManager(new File("config"));
@@ -44,8 +45,8 @@ public class DiscordApp {
         try {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
-            repositoryManager = new RepositoryManager(databaseManager);
-            repositoryManager.init();
+            userRepository = UserRepositoryImpl.create(databaseManager);
+            userPointsRepository = UserPointsRepositoryImpl.create(databaseManager);
         }
         catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
@@ -69,7 +70,7 @@ public class DiscordApp {
 
         JDABuilder.createDefault(getToken())
                 .addEventListeners(commandClient)
-                .addEventListeners(new MessageExpEvent(repositoryManager.getUserPointsRepository()))
+                .addEventListeners(new MessageExpEvent(userPointsRepository))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_BANS,

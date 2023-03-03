@@ -33,11 +33,10 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
 
-    // ORMLite
+    // Database
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
-
-    // Database drivers
+    implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("mysql:mysql-connector-java:8.0.32")
     implementation("org.postgresql:postgresql:42.5.3")
     implementation("com.h2database:h2:2.1.214")
