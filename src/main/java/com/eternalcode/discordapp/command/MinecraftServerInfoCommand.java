@@ -24,7 +24,8 @@ public class MinecraftServerInfoCommand extends SlashCommand {
     private static final String API_URL = "https://api.mcsrvstat.us/2/%s";
     private static final String IMAGE_API_URL = "https://api.mcsrvstat.us/icon/%s";
 
-    private final OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient OK_HTTP_CLIENT = new OkHttpClient();
+    private static final Gson GSON = new Gson();
 
     public MinecraftServerInfoCommand() {
         this.name = "minecraft";
@@ -67,8 +68,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
         JsonObject motdObject = response.get("motd").getAsJsonObject();
         JsonArray motdClean = motdObject.get("clean").getAsJsonArray();
 
-        Gson gson = new Gson();
-        String[] motd = gson.fromJson(motdClean, String[].class);
+        String[] motd = GSON.fromJson(motdClean, String[].class);
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("Minecraft server info")
@@ -95,7 +95,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
                 .get()
                 .build();
 
-        try (Response response = this.client.newCall(request).execute()) {
+        try (Response response = OK_HTTP_CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
             }
