@@ -21,8 +21,7 @@ public class MessageExpEvent extends ListenerAdapter {
         this.givePoints(event);
     }
 
-    private void givePoints(MessageReceivedEvent event)
-    {
+    private void givePoints(MessageReceivedEvent event) {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
         if (message.length < HOW_MANY_WORDS_TO_GIVE_POINTS) {
@@ -33,11 +32,13 @@ public class MessageExpEvent extends ListenerAdapter {
 
         try {
             user = this.userPointsRepository.findUser(event.getAuthor().getIdLong()).get();
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             user = new UserPoints(event.getAuthor().getIdLong(), 0);
         }
 
-        user.addPoints((Math.round(message.length / HOW_MANY_WORDS_TO_GIVE_POINTS)) * 10);
+        int points = (Math.round(message.length / HOW_MANY_WORDS_TO_GIVE_POINTS)) * 10;
+        user.addPoints(points);
         this.userPointsRepository.saveUser(user).get();
     }
 
