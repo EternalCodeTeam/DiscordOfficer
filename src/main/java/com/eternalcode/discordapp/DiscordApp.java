@@ -77,7 +77,6 @@ public class DiscordApp {
                 .addEventListeners(new MessageExpEvent(userPointsRepository))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_BANS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_WEBHOOKS,
                         GatewayIntent.GUILD_INVITES,

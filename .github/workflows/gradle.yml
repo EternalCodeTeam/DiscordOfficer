@@ -1,6 +1,6 @@
 name: Java CI with Gradle
 
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   build:
@@ -34,4 +34,4 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           name: 'DiscordOfficer*.jar'
-          path: build/libs/EternalDiscordOfficer*.jar
+          path: build/libs/DiscordOfficer*.jar
