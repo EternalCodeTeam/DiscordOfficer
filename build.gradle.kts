@@ -18,12 +18,12 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.4")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.5")  {
         exclude("opus-java", "opus-java")
     }
 
     // configs
-    implementation("net.dzikoysk:cdn:1.14.3")
+    implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
     implementation("ch.qos.logback:logback-classic:1.4.5")
