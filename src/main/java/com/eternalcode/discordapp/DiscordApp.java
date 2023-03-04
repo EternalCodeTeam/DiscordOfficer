@@ -7,6 +7,7 @@ import com.eternalcode.discordapp.command.ClearCommand;
 import com.eternalcode.discordapp.command.CooldownCommand;
 import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
+import com.eternalcode.discordapp.command.MinecraftServerInfoCommand;
 import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
@@ -41,6 +42,7 @@ public class DiscordApp {
                         new KickCommand(config),
                         new PingCommand(config),
                         new ServerCommand(config),
+                        new MinecraftServerInfoCommand(),
                         new SayCommand())
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)

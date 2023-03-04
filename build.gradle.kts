@@ -30,6 +30,9 @@ dependencies {
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
+
+    // gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.withType<JavaCompile> {
