@@ -9,6 +9,7 @@ import com.eternalcode.discordapp.command.ClearCommand;
 import com.eternalcode.discordapp.command.CooldownCommand;
 import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
+import com.eternalcode.discordapp.command.MinecraftServerInfoCommand;
 import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
@@ -62,7 +63,9 @@ public class DiscordApp {
                         new EmbedCommand(),
                         new KickCommand(config),
                         new PingCommand(config),
-                        new ServerCommand(config))
+                        new ServerCommand(config),
+                        new MinecraftServerInfoCommand(),
+                        new SayCommand())
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
