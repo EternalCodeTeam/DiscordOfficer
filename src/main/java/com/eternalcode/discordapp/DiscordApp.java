@@ -3,6 +3,7 @@ package com.eternalcode.discordapp;
 
 import com.eternalcode.discordapp.command.AvatarCommand;
 import com.eternalcode.discordapp.command.BanCommand;
+import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.command.BotInfoCommand;
 import com.eternalcode.discordapp.command.ClearCommand;

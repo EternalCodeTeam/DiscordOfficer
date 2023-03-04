@@ -6,7 +6,7 @@
     <property name="charset" value="UTF-8"/>
 
     <property name="severity" value="error"/>
-    <property name="rootModule" value="com.eternalcode.discordapp.DiscordApp" />
+
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Excludes all 'module-info.java' files              -->
     <!-- See https://checkstyle.org/config_filefilters.html -->

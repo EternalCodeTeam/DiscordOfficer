@@ -1,8 +1,12 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     `java-library`
     application
     idea
     checkstyle
+
+    id("com.github.johnrengelman.shadow") version "8.0.0"
 }
 
 group = "com.eternalcode"
@@ -15,6 +19,16 @@ repositories {
 
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.eternalcode.pl/snapshots") }
+    maven { url = uri("https://repo.eternalcode.pl/releases") }
+}
+
+checkstyle {
+    toolVersion = "10.8.0"
+
+    configFile = file("/checkstyle/checkstyle.xml")
+
+    maxErrors = 0
+    maxWarnings = 0
 }
 
 dependencies {
@@ -47,6 +61,7 @@ dependencies {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+    options.isIncremental = true
 }
 
 java {
@@ -56,4 +71,10 @@ java {
 
 application {
     mainClass.set("com.eternalcode.discordapp.DiscordApp")
+}
+
+tasks.withType<ShadowJar> {
+    archiveFileName.set("DiscordOfficer ${project.version}.jar")
+
+    dependsOn("checkstyleMain")
 }
