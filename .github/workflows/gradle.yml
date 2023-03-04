@@ -33,5 +33,5 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: 'DiscordOfficer*.jar'
-          path: build/libs/DiscordOfficer*.jar
+          name: 'Successfully build DiscordOfficer JDK${{ matrix.jdk }}'
+          path: build/libs/*.jar
