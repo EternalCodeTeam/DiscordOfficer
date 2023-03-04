@@ -25,12 +25,11 @@ repositories {
 checkstyle {
     toolVersion = "10.8.0"
 
-    configFile = file("/checkstyle/checkstyle.xml")
+    configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
     maxErrors = 0
     maxWarnings = 0
 }
-
 dependencies {
     // JDA
     implementation("net.dv8tion:JDA:5.0.0-beta.5")  {
