@@ -9,6 +9,7 @@ import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
 import com.eternalcode.discordapp.command.MinecraftServerInfoCommand;
 import com.eternalcode.discordapp.command.PingCommand;
+import com.eternalcode.discordapp.command.RemoveForcePushCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
@@ -43,7 +44,8 @@ public class DiscordApp {
                         new PingCommand(config),
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(),
-                        new SayCommand())
+                        new SayCommand(),
+                        new RemoveForcePushCommand())
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
@@ -53,7 +55,6 @@ public class DiscordApp {
                 .addEventListeners(commandClient)
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_BANS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_WEBHOOKS,
                         GatewayIntent.GUILD_INVITES,
