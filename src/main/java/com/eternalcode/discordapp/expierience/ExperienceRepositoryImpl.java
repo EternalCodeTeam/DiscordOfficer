@@ -26,7 +26,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     }
 
     @Override
-    public CompletableFuture<Experience> findUser(Long id) {
+    public CompletableFuture<Experience> findUser(long id) {
         return this.select(id).thenApply(experienceWrapperOptional -> experienceWrapperOptional
                 .map(ExperienceWrapper::toUserPoints)
                 .orElse(new Experience(id, 0))
@@ -44,7 +44,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     }
 
     @Override
-    public CompletableFuture<Integer> deleteUserById(Long id) {
+    public CompletableFuture<Integer> deleteUserById(long id) {
         return this.deleteById(id);
     }
 }

@@ -1,15 +1,15 @@
 package com.eternalcode.discordapp.expierience;
 
 public class Experience {
-    private final Long id;
+    private final long id;
     private int points;
 
-    public Experience(Long id, int points) {
+    public Experience(long id, int points) {
         this.id = id;
         this.points = points;
     }
 
-    public Long getId() {
+    public long getId() {
         return this.id;
     }
 

@@ -7,7 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 class ExperienceWrapper {
 
     @DatabaseField(id = true)
-    private Long id;
+    private long id;
 
     @DatabaseField(columnName = "points", defaultValue = "0")
     private int points;
@@ -15,7 +15,7 @@ class ExperienceWrapper {
     public ExperienceWrapper() {
     }
 
-    public ExperienceWrapper(Long id, int points) {
+    public ExperienceWrapper(long id, int points) {
         this.id = id;
         this.points = points;
     }
