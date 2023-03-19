@@ -3,10 +3,11 @@ package com.eternalcode.discordapp.database.repository;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.j256.ormlite.dao.Dao;
 import panda.std.function.ThrowingFunction;
-import panda.std.reactive.Completable;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractRepository<T, ID> {
     protected final DatabaseManager databaseManager;
@@ -17,38 +18,36 @@ public abstract class AbstractRepository<T, ID> {
         this.type = type;
     }
 
-    public Completable<Dao.CreateOrUpdateStatus> save(T data) {
-        return this.action(this.type, dao -> dao.createOrUpdate(data));
+    public CompletableFuture<Dao.CreateOrUpdateStatus> save(T data) {
+        return this.action(dao -> dao.createOrUpdate(data));
     }
 
-    public Completable<T> select(ID id) {
-        return this.action(this.type, dao -> dao.queryForId(id));
+    public CompletableFuture<Optional<T>> select(ID id) {
+        return this.action(dao -> Optional.ofNullable(dao.queryForId(id)));
     }
 
-    public Completable<Integer> delete(T data) {
-        return this.action(this.type, dao -> dao.delete(data));
+    public CompletableFuture<Integer> delete(T data) {
+        return this.action(dao -> dao.delete(data));
     }
 
-    public Completable<Integer> deleteById(ID id) {
-        return this.action(this.type, dao -> dao.deleteById(id));
+    public CompletableFuture<Integer> deleteById(ID id) {
+        return this.action(dao -> dao.deleteById(id));
     }
 
-    public Completable<List<T>> selectAll() {
-        return this.action(this.type, Dao::queryForAll);
+    public CompletableFuture<List<T>> selectAll() {
+        return this.action(Dao::queryForAll);
     }
 
-    public <R> Completable<R> action(Class<T> type, ThrowingFunction<Dao<T, ID>, R, SQLException> action) {
-        Completable<R> completableFuture = new Completable<>();
-
-        try {
-            Dao<T, ID> dao = this.databaseManager.getDao(type);
-            completableFuture.complete(action.apply(dao));
-        }
-        catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-
-        return completableFuture;
+    public <R> CompletableFuture<R> action(ThrowingFunction<Dao<T, ID>, R, SQLException> action) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Dao<T, ID> dao = this.databaseManager.getDao(this.type);
+                return action.apply(dao);
+            }
+            catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        });
     }
 
 }

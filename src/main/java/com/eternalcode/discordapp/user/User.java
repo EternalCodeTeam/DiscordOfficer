@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.database.model;
+package com.eternalcode.discordapp.user;
 
 public class User {
     private Long id;

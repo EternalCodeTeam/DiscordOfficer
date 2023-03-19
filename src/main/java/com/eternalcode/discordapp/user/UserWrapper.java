@@ -1,11 +1,10 @@
-package com.eternalcode.discordapp.database.wrapper;
+package com.eternalcode.discordapp.user;
 
-import com.eternalcode.discordapp.database.model.User;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "edc_users")
-public class UserWrapper {
+class UserWrapper {
 
     @DatabaseField(id = true)
     private Long id;

@@ -16,9 +16,11 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.database.repository.user.UserRepositoryImpl;
-import com.eternalcode.discordapp.database.repository.userpoints.UserPointsRepositoryImpl;
-import com.eternalcode.discordapp.leveling.MessageExpEvent;
+import com.eternalcode.discordapp.expierience.ExperienceRepository;
+import com.eternalcode.discordapp.expierience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.user.UserRepository;
+import com.eternalcode.discordapp.user.UserRepositoryImpl;
+import com.eternalcode.discordapp.expierience.MessageExpEvent;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -34,8 +36,8 @@ public class DiscordApp {
     private static AppConfig config;
     private static DatabaseManager databaseManager;
     private static DatabaseConfig databaseConfig;
-    private static UserRepositoryImpl userRepository;
-    private static UserPointsRepositoryImpl userPointsRepository;
+    private static UserRepository userRepository;
+    private static ExperienceRepository experienceRepository;
 
     public static void main(String... args) {
         ConfigManager configManager = new ConfigManager(new File("config"));
@@ -48,7 +50,7 @@ public class DiscordApp {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             userRepository = UserRepositoryImpl.create(databaseManager);
-            userPointsRepository = UserPointsRepositoryImpl.create(databaseManager);
+            experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
         }
         catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
@@ -74,7 +76,7 @@ public class DiscordApp {
 
         JDABuilder.createDefault(getToken())
                 .addEventListeners(commandClient)
-                .addEventListeners(new MessageExpEvent(userPointsRepository))
+                .addEventListeners(new MessageExpEvent(experienceRepository))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,

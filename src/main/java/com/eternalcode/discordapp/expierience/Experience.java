@@ -1,10 +1,10 @@
-package com.eternalcode.discordapp.database.model;
+package com.eternalcode.discordapp.expierience;
 
-public class UserPoints {
-    private Long id;
+public class Experience {
+    private final Long id;
     private int points;
 
-    public UserPoints(Long id, int points) {
+    public Experience(Long id, int points) {
         this.id = id;
         this.points = points;
     }
