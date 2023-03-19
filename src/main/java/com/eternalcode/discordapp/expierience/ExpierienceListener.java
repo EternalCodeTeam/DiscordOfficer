@@ -5,11 +5,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.concurrent.ExecutionException;
 
-public class MessageExpEvent extends ListenerAdapter {
+public class ExpierienceListener extends ListenerAdapter {
     private final ExperienceRepository experienceRepository;
     private static final int HOW_MANY_WORDS_TO_GIVE_POINTS = 5;
 
-    public MessageExpEvent(ExperienceRepository experienceRepository) {
+    public ExpierienceListener(ExperienceRepository experienceRepository) {
         this.experienceRepository = experienceRepository;
     }
 
@@ -18,8 +18,9 @@ public class MessageExpEvent extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         try {
             this.givePoints(event);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+        }
+        catch (ExecutionException | InterruptedException exception) {
+            throw new RuntimeException(exception);
         }
     }
 
