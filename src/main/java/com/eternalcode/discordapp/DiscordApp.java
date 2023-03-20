@@ -24,12 +24,9 @@ import java.io.File;
 
 public class DiscordApp {
 
-    private static final boolean IS_DEVELOPER_MODE = false;
-    private static DiscordAppConfig config;
-
     public static void main(String... args) {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
-        config = new DiscordAppConfig();
+        DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
 
         CommandClientBuilder builder = new CommandClientBuilder()
@@ -51,7 +48,7 @@ public class DiscordApp {
                 .setActivity(Activity.playing("IntelliJ IDEA"));
         CommandClient commandClient = builder.build();
 
-        JDABuilder.createDefault(getToken())
+        JDABuilder.createDefault(config.token)
                 .addEventListeners(commandClient)
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
@@ -72,11 +69,4 @@ public class DiscordApp {
                 .build();
     }
 
-    public static String getToken() {
-        if (!IS_DEVELOPER_MODE) {
-            return config.token;
-        }
-
-        return System.getenv("OFFICER_TOKEN");
-    }
 }
