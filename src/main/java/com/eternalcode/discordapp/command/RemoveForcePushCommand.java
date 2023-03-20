@@ -32,7 +32,7 @@ public class RemoveForcePushCommand extends SlashCommand {
         int days = event.getOption("days").getAsInt();
 
         try {
-            deleteForcePushedMessages(channel, days);
+            this.deleteForcePushedMessages(channel, days);
             event.reply("Successfully removed force pushed messages")
                     .setEphemeral(true)
                     .queue();

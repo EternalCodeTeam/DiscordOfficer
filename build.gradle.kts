@@ -1,7 +1,11 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     `java-library`
     application
     idea
+
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.eternalcode"
@@ -26,7 +30,7 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("ch.qos.logback:logback-classic:1.4.6")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
@@ -37,11 +41,22 @@ dependencies {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+    options.isIncremental = true
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType<ShadowJar> {
+    archiveFileName.set("DiscordOfficer v${project.version}.jar")
+
+    manifest {
+        attributes(
+            "Main-Class" to "com.eternalcode.discordapp.DiscordApp",
+        )
+    }
 }
 
 application {

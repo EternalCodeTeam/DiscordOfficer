@@ -14,6 +14,7 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.listener.ForcePushListener;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -49,7 +50,10 @@ public class DiscordApp {
         CommandClient commandClient = builder.build();
 
         JDABuilder.createDefault(config.token)
-                .addEventListeners(commandClient)
+                .addEventListeners(
+                        commandClient,
+                        new ForcePushListener()
+                )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
