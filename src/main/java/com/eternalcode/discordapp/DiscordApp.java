@@ -9,16 +9,13 @@ import com.eternalcode.discordapp.command.EmbedCommand;
 import com.eternalcode.discordapp.command.KickCommand;
 import com.eternalcode.discordapp.command.MinecraftServerInfoCommand;
 import com.eternalcode.discordapp.command.PingCommand;
-import com.eternalcode.discordapp.command.RemoveForcePushCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
-import com.eternalcode.discordapp.filter.Filter;
-import com.eternalcode.discordapp.filter.FilterRegistry;
 import com.eternalcode.discordapp.filter.FilterService;
-import com.eternalcode.discordapp.filter.impl.RenovateForcedPushFilter;
-import com.eternalcode.discordapp.filter.impl.RenovateForcedPushListener;
+import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -34,9 +31,8 @@ public class DiscordApp {
         DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
 
-        FilterService filterService = new FilterRegistry()
-                .register(new RenovateForcedPushFilter())
-                .build();
+        FilterService filterService = new FilterService()
+                .registerFilter(new RenovateForcedPushFilter());
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
@@ -50,8 +46,8 @@ public class DiscordApp {
                         new PingCommand(config),
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(),
-                        new SayCommand(),
-                        new RemoveForcePushCommand())
+                        new SayCommand()
+                )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
@@ -60,7 +56,7 @@ public class DiscordApp {
         JDABuilder.createDefault(config.token)
                 .addEventListeners(
                         commandClient,
-                        new RenovateForcedPushListener(filterService)
+                        new FilterMessageEmbedController(filterService)
                 )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,

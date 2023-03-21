@@ -1,22 +1,27 @@
 package com.eternalcode.discordapp.filter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FilterService {
 
-    private final List<Filter> filters;
+    private final List<Filter> filters = new ArrayList<>();
 
-    public FilterService(List<Filter> filters) {
-        this.filters = filters;
+    public FilterService registerFilter(Filter filter) {
+        this.filters.add(filter);
+        return this;
     }
 
-    public boolean filterSource(String source) {
-        for (Filter filter : this.filters) {
-            if (!filter.filter(source)) {
-                return false;
+public FilterResult check(String... sources) {
+            for (Filter filter : this.filters) {
+                FilterResult result = filter.filter(sources);
+
+                if (!result.isPassed()) {
+                    return FilterResult.notPassed();
+                }
             }
-        }
-        return true;
+
+        return FilterResult.passed();
     }
 
 }
