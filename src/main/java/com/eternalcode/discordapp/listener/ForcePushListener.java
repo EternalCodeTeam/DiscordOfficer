@@ -7,10 +7,6 @@ public class ForcePushListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) {
-            return;
-        }
-
         event.getMessage().getEmbeds().forEach(embed -> {
             if (embed.getTitle() != null && embed.getTitle().contains("forced-push")) {
                 event.getMessage().delete().queue();
