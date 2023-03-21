@@ -14,7 +14,11 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
-import com.eternalcode.discordapp.listener.ForcePushListener;
+import com.eternalcode.discordapp.filter.Filter;
+import com.eternalcode.discordapp.filter.FilterRegistry;
+import com.eternalcode.discordapp.filter.FilterService;
+import com.eternalcode.discordapp.filter.impl.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.filter.impl.RenovateForcedPushListener;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -29,6 +33,10 @@ public class DiscordApp {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
         DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
+
+        FilterService filterService = new FilterRegistry()
+                .register(new RenovateForcedPushFilter())
+                .build();
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
@@ -52,7 +60,7 @@ public class DiscordApp {
         JDABuilder.createDefault(config.token)
                 .addEventListeners(
                         commandClient,
-                        new ForcePushListener()
+                        new RenovateForcedPushListener(filterService)
                 )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
