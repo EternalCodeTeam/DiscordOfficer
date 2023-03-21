@@ -8,7 +8,7 @@ public class ForcePushListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         event.getMessage().getEmbeds().forEach(embed -> {
-            if (embed.getTitle() != null && embed.getTitle().contains("forced-push")) {
+            if (embed.getTitle() != null && embed.getTitle().contains("force-pushed")) {
                 event.getMessage().delete().queue();
             }
         });
