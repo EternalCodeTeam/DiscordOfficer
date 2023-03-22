@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.expierience;
 
 public class Experience {
+
     private final long id;
     private int points;
 
@@ -28,4 +29,5 @@ public class Experience {
     public void setPoints(int points) {
         this.points = points;
     }
+
 }

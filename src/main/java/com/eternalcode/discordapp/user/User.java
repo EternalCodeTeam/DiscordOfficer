@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.user;
 
 public class User {
+
     private Long id;
 
     public User(Long id) {
