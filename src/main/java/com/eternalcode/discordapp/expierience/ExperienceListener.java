@@ -5,11 +5,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.concurrent.ExecutionException;
 
-public class ExpierienceListener extends ListenerAdapter {
+public class ExperienceListener extends ListenerAdapter {
     private final ExperienceRepository experienceRepository;
     private static final int HOW_MANY_WORDS_TO_GIVE_POINTS = 5;
 
-    public ExpierienceListener(ExperienceRepository experienceRepository) {
+    public ExperienceListener(ExperienceRepository experienceRepository) {
         this.experienceRepository = experienceRepository;
     }
 

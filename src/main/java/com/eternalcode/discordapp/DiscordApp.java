@@ -18,7 +18,7 @@ import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.expierience.ExperienceRepository;
 import com.eternalcode.discordapp.expierience.ExperienceRepositoryImpl;
-import com.eternalcode.discordapp.expierience.ExpierienceListener;
+import com.eternalcode.discordapp.expierience.ExperienceListener;
 import com.eternalcode.discordapp.user.UserRepository;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
@@ -76,7 +76,7 @@ public class DiscordApp {
 
         JDABuilder.createDefault(getToken())
                 .addEventListeners(commandClient)
-                .addEventListeners(new ExpierienceListener(experienceRepository))
+                .addEventListeners(new ExperienceListener(experienceRepository))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
