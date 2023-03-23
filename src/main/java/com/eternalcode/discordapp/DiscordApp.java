@@ -13,11 +13,13 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 
@@ -31,6 +33,8 @@ public class DiscordApp {
         config = new DiscordAppConfig();
         configManager.load(config);
 
+        OkHttpClient httpClient = new OkHttpClient();
+
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
                         new AvatarCommand(config),
@@ -42,8 +46,9 @@ public class DiscordApp {
                         new KickCommand(config),
                         new PingCommand(config),
                         new ServerCommand(config),
-                        new MinecraftServerInfoCommand(),
-                        new SayCommand())
+                        new MinecraftServerInfoCommand(httpClient),
+                        new SayCommand(),
+                        new GitHubReviewCommand(httpClient))
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));

@@ -33,6 +33,14 @@ dependencies {
 
     // gson
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // tests
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+}
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
 }
 
 tasks.withType<JavaCompile> {
