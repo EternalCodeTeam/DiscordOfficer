@@ -13,6 +13,9 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.filter.FilterService;
+import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDABuilder;
@@ -23,13 +26,13 @@ import java.io.File;
 
 public class DiscordApp {
 
-    private static final boolean IS_DEVELOPER_MODE = false;
-    private static DiscordAppConfig config;
-
     public static void main(String... args) {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
-        config = new DiscordAppConfig();
+        DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
+
+        FilterService filterService = new FilterService()
+                .registerFilter(new RenovateForcedPushFilter());
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 .addSlashCommands(
@@ -43,17 +46,20 @@ public class DiscordApp {
                         new PingCommand(config),
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(),
-                        new SayCommand())
+                        new SayCommand()
+                )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"));
         CommandClient commandClient = builder.build();
 
-        JDABuilder.createDefault(getToken())
-                .addEventListeners(commandClient)
+        JDABuilder.createDefault(config.token)
+                .addEventListeners(
+                        commandClient,
+                        new FilterMessageEmbedController(filterService)
+                )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_BANS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_WEBHOOKS,
                         GatewayIntent.GUILD_INVITES,
@@ -71,11 +77,4 @@ public class DiscordApp {
                 .build();
     }
 
-    public static String getToken() {
-        if (!IS_DEVELOPER_MODE) {
-            return config.token;
-        }
-
-        return System.getenv("OFFICER_TOKEN");
-    }
 }
