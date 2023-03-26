@@ -16,7 +16,8 @@ import com.eternalcode.discordapp.config.DiscordAppConfigManager;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
-import com.eternalcode.discordapp.guildstats.VoiceChannelGuildStatistics;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -28,7 +29,9 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.EnumSet;
+import java.util.Timer;
 
 public class DiscordApp {
 
@@ -84,8 +87,10 @@ public class DiscordApp {
                 .build()
                 .awaitReady();
 
-        VoiceChannelGuildStatistics voiceChannelGuildStatistics = new VoiceChannelGuildStatistics(config, jda);
-        voiceChannelGuildStatistics.startTask();
+        GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+
+        Timer timer = new Timer();
+        timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
     }
 
 }

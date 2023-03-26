@@ -4,7 +4,6 @@ import com.eternalcode.discordapp.config.DiscordAppConfig;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import panda.utilities.text.Formatter;
 
@@ -12,31 +11,18 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Stream;
 
-public class VoiceChannelGuildStatistics {
+public class GuildStatisticsService {
 
     private final DiscordAppConfig config;
     private final JDA jda;
 
-    public VoiceChannelGuildStatistics(DiscordAppConfig config, JDA jda) {
+    public GuildStatisticsService(DiscordAppConfig config, JDA jda) {
         this.config = config;
         this.jda = jda;
     }
 
-    public void startTask() {
-        this.displayStats();
-
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                displayStats();
-            }
-        }, 0, Duration.ofMinutes(5L).toMillis());
-    }
-
-    private void displayStats() {
+    public void displayStats() {
         for (Map.Entry<Long, String> entry : this.config.voiceChannelStatistics.channelNames.entrySet()) {
             Long key = entry.getKey();
             String value = entry.getValue();
