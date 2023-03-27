@@ -13,20 +13,29 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
+import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
-import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Timer;
 
 public class DiscordApp {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws InterruptedException {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
         DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
@@ -35,6 +44,7 @@ public class DiscordApp {
                 .registerFilter(new RenovateForcedPushFilter());
 
         CommandClientBuilder builder = new CommandClientBuilder()
+                // slash commands registry
                 .addSlashCommands(
                         new AvatarCommand(config),
                         new BanCommand(config),
@@ -48,33 +58,39 @@ public class DiscordApp {
                         new MinecraftServerInfoCommand(),
                         new SayCommand()
                 )
+
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
-                .setActivity(Activity.playing("IntelliJ IDEA"));
+                .setActivity(Activity.playing("IntelliJ IDEA"))
+                .useHelpBuilder(false);
         CommandClient commandClient = builder.build();
 
-        JDABuilder.createDefault(config.token)
+        JDA jda = JDABuilder.createDefault(config.token)
                 .addEventListeners(
+                        // commands
                         commandClient,
+
+                        // filters
                         new FilterMessageEmbedController(filterService)
                 )
-                .enableIntents(
-                        GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-                        GatewayIntent.GUILD_WEBHOOKS,
-                        GatewayIntent.GUILD_INVITES,
-                        GatewayIntent.GUILD_VOICE_STATES,
-                        GatewayIntent.GUILD_PRESENCES,
-                        GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                        GatewayIntent.GUILD_MESSAGE_TYPING,
-                        GatewayIntent.DIRECT_MESSAGES,
-                        GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-                        GatewayIntent.DIRECT_MESSAGE_TYPING,
-                        GatewayIntent.MESSAGE_CONTENT,
-                        GatewayIntent.SCHEDULED_EVENTS
-                )
-                .build();
+
+                .setAutoReconnect(true)
+
+                // enable all intents
+                .enableIntents(EnumSet.noneOf(GatewayIntent.class))
+
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES) // Because JDA doesn't understand that a few lines above all intents are enabled
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(CacheFlag.ONLINE_STATUS)
+                .setChunkingFilter(ChunkingFilter.ALL)
+
+                .build()
+                .awaitReady();
+
+        GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+
+        Timer timer = new Timer();
+        timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
     }
 
 }
