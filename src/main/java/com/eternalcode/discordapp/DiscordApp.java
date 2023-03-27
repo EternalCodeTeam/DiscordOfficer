@@ -14,28 +14,41 @@ import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
+import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
+import com.eternalcode.discordapp.filter.FilterService;
+import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import okhttp3.OkHttpClient;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Timer;
 
 public class DiscordApp {
 
-    private static final boolean IS_DEVELOPER_MODE = false;
-    private static DiscordAppConfig config;
-
-    public static void main(String... args) {
+    public static void main(String... args) throws InterruptedException {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
-        config = new DiscordAppConfig();
+        DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
 
         OkHttpClient httpClient = new OkHttpClient();
 
+        FilterService filterService = new FilterService()
+                .registerFilter(new RenovateForcedPushFilter());
+
         CommandClientBuilder builder = new CommandClientBuilder()
+                // slash commands registry
                 .addSlashCommands(
                         new AvatarCommand(config),
                         new BanCommand(config),
@@ -48,39 +61,39 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(httpClient))
+                        new GitHubReviewCommand(httpClient)
+                )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
-                .setActivity(Activity.playing("IntelliJ IDEA"));
+                .setActivity(Activity.playing("IntelliJ IDEA"))
+                .useHelpBuilder(false);
         CommandClient commandClient = builder.build();
 
-        JDABuilder.createDefault(getToken())
-                .addEventListeners(commandClient)
-                .enableIntents(
-                        GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_BANS,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-                        GatewayIntent.GUILD_WEBHOOKS,
-                        GatewayIntent.GUILD_INVITES,
-                        GatewayIntent.GUILD_VOICE_STATES,
-                        GatewayIntent.GUILD_PRESENCES,
-                        GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                        GatewayIntent.GUILD_MESSAGE_TYPING,
-                        GatewayIntent.DIRECT_MESSAGES,
-                        GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-                        GatewayIntent.DIRECT_MESSAGE_TYPING,
-                        GatewayIntent.MESSAGE_CONTENT,
-                        GatewayIntent.SCHEDULED_EVENTS
+        JDA jda = JDABuilder.createDefault(config.token)
+                .addEventListeners(
+                        // commands
+                        commandClient,
+
+                        // filters
+                        new FilterMessageEmbedController(filterService)
                 )
-                .build();
-    }
 
-    public static String getToken() {
-        if (!IS_DEVELOPER_MODE) {
-            return config.token;
-        }
+                .setAutoReconnect(true)
 
-        return System.getenv("OFFICER_TOKEN");
+                // enable all intents
+                .enableIntents(EnumSet.noneOf(GatewayIntent.class))
+
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES) // Because JDA doesn't understand that a few lines above all intents are enabled
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(CacheFlag.ONLINE_STATUS)
+                .setChunkingFilter(ChunkingFilter.ALL)
+
+                .build()
+                .awaitReady();
+
+        GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+
+        Timer timer = new Timer();
+        timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
     }
 }

@@ -6,6 +6,8 @@ import net.dzikoysk.cdn.source.Resource;
 import net.dzikoysk.cdn.source.Source;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DiscordAppConfig implements CdnConfig {
 
@@ -20,6 +22,14 @@ public class DiscordAppConfig implements CdnConfig {
 
     @Description("# The settings of embeds")
     public EmbedSettings embedSettings = new EmbedSettings();
+
+    @Description("# The settings of voice channel statistics")
+    public VoiceChannelStatistics voiceChannelStatistics = new VoiceChannelStatistics();
+
+    @Override
+    public Resource resource(File folder) {
+        return Source.of(folder, "config.yml");
+    }
 
     @Contextual
     public static class EmbedSettings {
@@ -42,8 +52,32 @@ public class DiscordAppConfig implements CdnConfig {
         }
     }
 
-    @Override
-    public Resource resource(File folder) {
-        return Source.of(folder, "config.yml");
+    @Contextual
+    public static class VoiceChannelStatistics {
+        @Description({
+                "# Placeholders:",
+                "# {MEMBERS_SIZE} - the number of members",
+                "# {ONLINE_MEMBERS_SIZE} - the number of online members",
+                "# {BOT_MEMBERS_SIZE} - the number of bot members",
+                "# {CHANNELS_SIZE} - the number of channels",
+                "# {ROLES_SIZE} - the number of roles",
+                "# {TEXT_CHANNELS_SIZE} - the number of text channels",
+                "# {VOICE_CHANNELS_SIZE} - the number of voice channels",
+                "# {CATEGORIES_SIZE} - the number of categories",
+                "# {EMOJIS_SIZE} - the number of emojis",
+                "# {BOOSTS_SIZE} - the number of boosts",
+                "# {BOOST_TIER} - the boost tier"
+        })
+        public Map<Long, String> channelNames = new HashMap<>(Map.of(
+                1043190619729842217L, "Members: {MEMBERS_SIZE}",
+                1088950113302495403L, "Channels: {CHANNELS_SIZE}",
+                1088950123192660068L, "Roles: {ROLES_SIZE}",
+                1088950131660963932L, "Text Channels: {TEXT_CHANNELS_SIZE}",
+                1088951302257647717L, "Voice Channels: {VOICE_CHANNELS_SIZE}",
+                1088951310839206088L, "Emojis: {EMOJIS_SIZE}",
+                1088951320033112095L, "Boosts: {BOOSTS_SIZE}",
+                1088951327964528723L, "Boost Tier: {BOOST_TIER}",
+                1088951511662460988L, "Online Users: {ONLINE_MEMBERS_SIZE}"
+        ));
     }
 }
