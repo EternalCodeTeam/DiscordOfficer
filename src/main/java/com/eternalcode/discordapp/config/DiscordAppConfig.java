@@ -20,6 +20,8 @@ public class DiscordAppConfig implements CdnConfig {
     @Description("# The ID of guild")
     public long guildId = System.getenv("OFFICER_GUILD") != null ? Long.parseLong(System.getenv("OFFICER_GUILD")) : 1043190618526068767L;
 
+    public String githubToken = System.getenv("OFFICER_GITHUB_TOKEN") != null ? System.getenv("OFFICER_GITHUB_TOKEN") : "PASTE_GITHUB_TOKEN_HERE";
+
     @Description("# The settings of embeds")
     public EmbedSettings embedSettings = new EmbedSettings();
 

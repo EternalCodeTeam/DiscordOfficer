@@ -30,25 +30,25 @@ public class GitHubReviewService {
     }
 
     boolean checkPullRequestTitle(String url) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.httpClient);
+        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.httpClient, this.discordAppConfig.githubToken);
         return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
     }
 
     // create channel
     long createChannelWithPRTitleAndMention(Guild guild, String url) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, httpClient);
+        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, httpClient, this.discordAppConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(1090383282744590396L);
 
         MessageCreateData createData = MessageCreateData.fromContent(url);
         return forumChannel.createForumPost(pullRequestTitleFromUrl, createData).complete().getThreadChannel().getIdLong();
     }
 
-    void mentionReviewers(SlashCommandEvent event, String url, long messageId) {
-        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.httpClient);
+    boolean mentionReviewers(SlashCommandEvent event, String url, long messageId) {
+        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.httpClient, this.discordAppConfig.githubToken);
 
         if (assignedReviewers.isEmpty()) {
             event.reply("No reviewers assigned to this pull request").setEphemeral(true).queue();
-            return;
+            return false;
         }
 
         StringBuilder reviewersMention = new StringBuilder();
@@ -68,6 +68,7 @@ public class GitHubReviewService {
 
         ThreadChannel threadChannel = event.getJDA().getThreadChannelById(messageId);
         threadChannel.sendMessage(message).queue();
+        return true;
     }
 
 }

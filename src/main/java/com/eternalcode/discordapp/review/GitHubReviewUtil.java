@@ -27,9 +27,10 @@ public final class GitHubReviewUtil {
         return title.matches(GITHUB_PULL_REQUEST_TITLE_CONVENTION);
     }
 
-    public static List<String> getReviewers(String url, OkHttpClient client) {
+    public static List<String> getReviewers(String url, OkHttpClient client, String githubToken) {
         Request request = new Request.Builder()
                 .url(url)
+                .header("Authorization", "token" + githubToken)
                 .build();
 
         try {
@@ -61,9 +62,10 @@ public final class GitHubReviewUtil {
         return String.format("https://api.github.com/repos/%s/%s/pulls/%s", pullRequestInfo.getOwner(), pullRequestInfo.getRepo(), pullRequestInfo.getNumber());
     }
 
-    public static String getPullRequestTitleFromUrl(String url, OkHttpClient client) throws IOException {
+    public static String getPullRequestTitleFromUrl(String url, OkHttpClient client, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
+                .header("Authorization", "token" + githubToken)
                 .build();
 
         Response response = client.newCall(request).execute();

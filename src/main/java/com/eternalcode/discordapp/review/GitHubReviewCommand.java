@@ -47,13 +47,17 @@ public class GitHubReviewCommand extends SlashCommand {
         }
         catch (IOException exception) {
             event.reply("Failed to check pull request title").setEphemeral(true).queue();
+            exception.printStackTrace();
             return;
         }
 
         try {
             long channelWithPRTitleAndMention = this.gitHubReviewService.createChannelWithPRTitleAndMention(event.getGuild(), url);
-            System.out.println(channelWithPRTitleAndMention);
-            this.gitHubReviewService.mentionReviewers(event, url, channelWithPRTitleAndMention);
+            boolean isPossibleMentionReviewers = this.gitHubReviewService.mentionReviewers(event, url, channelWithPRTitleAndMention);
+
+            if (!isPossibleMentionReviewers) {
+                return;
+            }
 
             event.reply(String.format("Review started <#%s>", channelWithPRTitleAndMention)).setEphemeral(true).queue();
         }
