@@ -19,6 +19,8 @@ import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
+import com.eternalcode.discordapp.review.GitHubReviewService;
+import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -47,6 +49,8 @@ public class DiscordApp {
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
 
+        GitHubReviewService gitHubReviewService = new GitHubReviewService(httpClient, config);
+
         CommandClientBuilder builder = new CommandClientBuilder()
                 // slash commands registry
                 .addSlashCommands(
@@ -61,7 +65,7 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(httpClient, config)
+                        new GitHubReviewCommand(gitHubReviewService)
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
@@ -95,5 +99,6 @@ public class DiscordApp {
 
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
+        timer.schedule(new GitHubReviewTask(jda, config), 0, Duration.ofSeconds(3L).toMillis());
     }
 }

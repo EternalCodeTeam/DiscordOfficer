@@ -1,0 +1,2 @@
+- dodać checka sprawdzającego czy wątek na forum już istnieje
+- 

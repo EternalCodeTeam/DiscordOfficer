@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.review.pr.PullRequestInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -58,6 +59,23 @@ public final class GitHubReviewUtil {
         PullRequestInfo pullRequestInfo = PullRequestApiExtractor.extractPRInfoFromLink(url);
 
         return String.format("https://api.github.com/repos/%s/%s/pulls/%s", pullRequestInfo.getOwner(), pullRequestInfo.getRepo(), pullRequestInfo.getNumber());
+    }
+
+    public static String getPullRequestTitleFromUrl(String url, OkHttpClient client) throws IOException {
+        Request request = new Request.Builder()
+                .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        if (!response.isSuccessful()) {
+            throw new IOException("HTTP Error: " + response.code());
+        }
+
+        String string = response.body().string();
+        JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
+
+        return jsonObject.get("title").getAsString();
     }
 
 }
