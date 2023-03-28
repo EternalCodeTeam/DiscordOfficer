@@ -13,6 +13,7 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class GitHubReviewUtil {
 
@@ -78,6 +79,30 @@ public final class GitHubReviewUtil {
         JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
 
         return jsonObject.get("title").getAsString();
+    }
+
+    public static String getPullRequestAuthorUsernameFromUrl(String url, OkHttpClient client, String githubToken) throws IOException {
+        Request request = new Request.Builder()
+                .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
+                .header("Authorization", "token" + githubToken)
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        if (!response.isSuccessful()) {
+            throw new IOException("HTTP Error: " + response.code());
+        }
+
+        Gson gson = new Gson();
+
+        String responseBody = response.body().string();
+        JsonObject jsonObject = gson.fromJson(responseBody, JsonObject.class);
+        JsonObject userObject = jsonObject.getAsJsonObject("user");
+        return userObject.get("login").getAsString();
+    }
+
+    public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
+        return githubToDiscordMap.get(githubUsername).toString();
     }
 
 }

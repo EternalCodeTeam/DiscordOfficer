@@ -2,9 +2,7 @@ package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
@@ -31,6 +29,7 @@ public class GitHubReviewService {
 
     boolean checkPullRequestTitle(String url) throws IOException {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.httpClient, this.discordAppConfig.githubToken);
+
         return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
     }
 

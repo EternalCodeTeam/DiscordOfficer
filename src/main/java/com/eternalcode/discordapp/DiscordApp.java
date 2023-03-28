@@ -100,7 +100,7 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
 
-        // ONLY FOR TESTING
-        timer.schedule(new GitHubReviewTask(jda, httpClient, config), 0, Duration.ofSeconds(10L).toMillis());
+/*        // ONLY FOR TESTING
+        timer.schedule(new GitHubReviewTask(jda, httpClient, config), 0, Duration.ofSeconds(10L).toMillis());*/
     }
 }

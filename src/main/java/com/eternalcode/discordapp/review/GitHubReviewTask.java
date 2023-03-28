@@ -39,7 +39,10 @@ public class GitHubReviewTask extends TimerTask {
                             boolean pullRequestTitleValid = GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
 
                             if (!pullRequestTitleValid) {
-                                threadChannel.delete().queue();
+                                String pullRequestAuthorUsernameFromUrl = GitHubReviewUtil.getPullRequestAuthorUsernameFromUrl(message.getContentRaw(), this.httpClient, this.discordAppConfig.githubToken);
+                                String discordIdFromGitHubUsername = GitHubReviewUtil.getDiscordIdFromGitHubUsername(pullRequestAuthorUsernameFromUrl, this.discordAppConfig.reviewSystem.reviewers);
+
+                                threadChannel.sendMessage(String.format("<@%s> Pull request title is invalid, please fix it!", discordIdFromGitHubUsername)).queue();
                             }
                         }
                         catch (IOException exception) {
