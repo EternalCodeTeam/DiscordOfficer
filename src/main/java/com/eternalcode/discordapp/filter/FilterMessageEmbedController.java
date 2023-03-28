@@ -13,12 +13,12 @@ public class FilterMessageEmbedController extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        event.getMessage().getEmbeds().forEach(embed -> {
+/*        event.getMessage().getEmbeds().forEach(embed -> {
             FilterResult result = this.filterService.check(embed.getAuthor().getName(), embed.getTitle());
 
             if (!result.isPassed()) {
                 event.getMessage().delete().queue();
             }
-        });
+        });*/
     }
 }

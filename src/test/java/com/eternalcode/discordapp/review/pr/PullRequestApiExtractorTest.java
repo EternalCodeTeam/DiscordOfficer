@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PullRequestExtractorTest {
+class PullRequestApiExtractorTest {
 
     @Test
     void testExtractPRInfoFromLink() {
         String pullRequestLink = "https://github.com/EternalCodeTeam/DiscordOfficer/pull/123";
         PullRequestInfo expectedPRInfo = new PullRequestInfo("EternalCodeTeam", "DiscordOfficer", 123);
 
-        PullRequestInfo actualPRInfo = PullRequestExtractor.extractPRInfoFromLink(pullRequestLink);
+        PullRequestInfo actualPRInfo = PullRequestApiExtractor.extractPRInfoFromLink(pullRequestLink);
 
         assertEquals(expectedPRInfo.getOwner(), actualPRInfo.getOwner());
         assertEquals(expectedPRInfo.getRepo(), actualPRInfo.getRepo());

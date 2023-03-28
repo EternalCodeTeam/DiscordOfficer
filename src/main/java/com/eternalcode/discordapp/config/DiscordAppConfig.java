@@ -26,6 +26,9 @@ public class DiscordAppConfig implements CdnConfig {
     @Description("# The settings of voice channel statistics")
     public VoiceChannelStatistics voiceChannelStatistics = new VoiceChannelStatistics();
 
+    @Description("# The settings of review system")
+    public ReviewSystem reviewSystem = new ReviewSystem();
+
     @Override
     public Resource resource(File folder) {
         return Source.of(folder, "config.yml");
@@ -78,6 +81,14 @@ public class DiscordAppConfig implements CdnConfig {
                 1088951320033112095L, "Boosts: {BOOSTS_SIZE}",
                 1088951327964528723L, "Boost Tier: {BOOST_TIER}",
                 1088951511662460988L, "Online Users: {ONLINE_MEMBERS_SIZE}"
+        ));
+    }
+
+    @Contextual
+    public static class ReviewSystem {
+        public Map<String, Long> reviewers = new HashMap<>(Map.of(
+                "vLuckyyy", 852920601969950760L,
+                "eripe14", 1043189165203914792L
         ));
     }
 }

@@ -13,22 +13,22 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.eternalcode.discordapp.config.DiscordAppConfigManager;
-import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
+import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import okhttp3.OkHttpClient;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.time.Duration;
@@ -61,7 +61,7 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(httpClient)
+                        new GitHubReviewCommand(httpClient, config)
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)

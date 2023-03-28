@@ -1,12 +1,12 @@
 package com.eternalcode.discordapp.review;
 
-import com.eternalcode.discordapp.review.pr.PullRequestExtractor;
-import com.eternalcode.discordapp.review.pr.PullRequestInfo;
+import com.eternalcode.discordapp.config.DiscordAppConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import okhttp3.OkHttpClient;
@@ -15,12 +15,15 @@ import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class GitHubReviewCommand extends SlashCommand {
 
     private final OkHttpClient httpClient;
+    private final DiscordAppConfig discordAppConfig;
+    private final Map<String, Long> githubDiscordMap;
 
-    public GitHubReviewCommand(OkHttpClient httpClient) {
+    public GitHubReviewCommand(OkHttpClient httpClient, DiscordAppConfig discordAppConfig) {
         this.name = "review";
         this.help = "Review a GitHub pull request";
         this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
@@ -31,6 +34,8 @@ public class GitHubReviewCommand extends SlashCommand {
         );
 
         this.httpClient = httpClient;
+        this.discordAppConfig = discordAppConfig;
+        this.githubDiscordMap = discordAppConfig.reviewSystem.reviewers;
     }
 
     @Override
@@ -41,33 +46,49 @@ public class GitHubReviewCommand extends SlashCommand {
 
         if (!pullRequestUrl) {
             event.reply("Invalid GitHub pull request URL").setEphemeral(true).queue();
+            return;
         }
 
         try {
             boolean checkPullRequestTitle = this.checkPullRequestTitle(url);
 
-            if (checkPullRequestTitle) {
-                event.reply("Hurray! The pull request title is valid").setEphemeral(true).queue();
+            if (!checkPullRequestTitle) {
+                event.reply("Invalid pull request title, use GH-NUMBER convention").setEphemeral(true).queue();
+                return;
             }
-            else {
-                event.reply("The pull request title is invalid").setEphemeral(true).queue();
-            }
-
-
         }
         catch (IOException exception) {
-            throw new RuntimeException(exception);
+            event.reply("Failed to check pull request title").setEphemeral(true).queue();
+            return;
         }
 
+        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.httpClient);
+
+        if (assignedReviewers.isEmpty()) {
+            event.reply("No reviewers assigned to this pull request").setEphemeral(true).queue();
+            return;
+        }
+
+        StringBuilder reviewersMention = new StringBuilder();
+        for (String reviewer : assignedReviewers) {
+            Long discordId = this.githubDiscordMap.get(reviewer);
+
+            if (discordId != null) {
+                User user = event.getJDA().getUserById(discordId);
+
+                if (user != null) {
+                    reviewersMention.append(user.getAsMention()).append(" ");
+                }
+            }
+        }
+
+        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention.toString(), url);
+        event.reply(message).queue();
     }
 
     boolean checkPullRequestTitle(String url) throws IOException {
-        PullRequestInfo pullRequestInfo = PullRequestExtractor.extractPRInfoFromLink(url);
-
-        String apiUrl = String.format("https://api.github.com/repos/%s/%s/pulls/%s", pullRequestInfo.getOwner(), pullRequestInfo.getRepo(), pullRequestInfo.getNumber());
-
         Request request = new Request.Builder()
-                .url(apiUrl)
+                .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
                 .build();
 
         Response response = this.httpClient.newCall(request).execute();

@@ -13,15 +13,15 @@ public class PullRequestInfo {
     }
 
     public String getOwner() {
-        return owner;
+        return this.owner;
     }
 
     public String getRepo() {
-        return repo;
+        return this.repo;
     }
 
     public int getNumber() {
-        return number;
+        return this.number;
     }
 
 }

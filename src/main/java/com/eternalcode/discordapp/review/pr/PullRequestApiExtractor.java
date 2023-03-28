@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.review.pr;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class PullRequestExtractor {
+public final class PullRequestApiExtractor {
 
     private static final Pattern PULL_REQUEST_REGEX = Pattern.compile("https://github\\.com/(\\w+)/([\\w-]+)/pull/(\\d+)");
 
