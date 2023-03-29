@@ -34,12 +34,12 @@ public class GitHubReviewTask extends TimerTask {
                         Message message = messages.get(0);
 
                         try {
-                            String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(message.getContentRaw(), this.httpClient, this.discordAppConfig.githubToken);
+                            String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(message.getContentRaw(), this.discordAppConfig.githubToken);
 
                             boolean pullRequestTitleValid = GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
 
                             if (!pullRequestTitleValid) {
-                                String pullRequestAuthorUsernameFromUrl = GitHubReviewUtil.getPullRequestAuthorUsernameFromUrl(message.getContentRaw(), this.httpClient, this.discordAppConfig.githubToken);
+                                String pullRequestAuthorUsernameFromUrl = GitHubReviewUtil.getPullRequestAuthorUsernameFromUrl(message.getContentRaw(), this.discordAppConfig.githubToken);
                                 String discordIdFromGitHubUsername = GitHubReviewUtil.getDiscordIdFromGitHubUsername(pullRequestAuthorUsernameFromUrl, this.discordAppConfig.reviewSystem.reviewers);
 
                                 threadChannel.sendMessage(String.format("<@%s> Pull request title is invalid, please fix it!", discordIdFromGitHubUsername)).queue();

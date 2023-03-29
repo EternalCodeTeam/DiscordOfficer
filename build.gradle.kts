@@ -41,6 +41,10 @@ dependencies {
     // tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+
+    // mockwebserver
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
 
 tasks.getByName<Test>("test") {

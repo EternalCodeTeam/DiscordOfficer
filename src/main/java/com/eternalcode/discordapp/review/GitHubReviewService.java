@@ -28,14 +28,14 @@ public class GitHubReviewService {
     }
 
     boolean checkPullRequestTitle(String url) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.httpClient, this.discordAppConfig.githubToken);
+        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken);
 
         return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
     }
 
     // create channel
     long createForumPostWithPRTitleAndMention(Guild guild, String url) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, httpClient, this.discordAppConfig.githubToken);
+        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(1090383282744590396L);
 
         MessageCreateData createData = MessageCreateData.fromContent(url);
@@ -43,7 +43,7 @@ public class GitHubReviewService {
     }
 
     boolean mentionReviewers(SlashCommandEvent event, String url, long messageId) {
-        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.httpClient, this.discordAppConfig.githubToken);
+        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.discordAppConfig.githubToken);
 
         if (assignedReviewers.isEmpty()) {
             event.reply("No reviewers assigned to this pull request").setEphemeral(true).queue();

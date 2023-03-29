@@ -21,6 +21,9 @@ public final class GitHubReviewUtil {
     private static final String GITHUB_PULL_REQUEST_REGEX = "^https://github\\.com/([a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+)/pull/([0-9]+)$";
     private static final String GITHUB_PULL_REQUEST_TITLE_CONVENTION = "^(GH)-\\d+ .+$";
 
+    private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
+    private static final Gson GSON = new Gson();
+
     public static boolean isPullRequestUrl(String url) {
         return url.matches(GITHUB_PULL_REQUEST_REGEX);
     }
@@ -29,18 +32,17 @@ public final class GitHubReviewUtil {
         return title.matches(GITHUB_PULL_REQUEST_TITLE_CONVENTION);
     }
 
-    public static List<String> getReviewers(String url, OkHttpClient client, String githubToken) {
+    public static List<String> getReviewers(String url, String githubToken) {
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", "token" + githubToken)
                 .build();
 
         try {
-            Response response = client.newCall(request).execute();
+            Response response = HTTP_CLIENT.newCall(request).execute();
             String responseBody = response.body().string();
 
-            Gson gson = new Gson();
-            JsonObject json = gson.fromJson(responseBody, JsonObject.class);
+            JsonObject json = GSON.fromJson(responseBody, JsonObject.class);
             JsonArray requestedReviewers = json.getAsJsonArray("requested_reviewers");
 
             List<String> reviewers = new ArrayList<>();
@@ -64,13 +66,13 @@ public final class GitHubReviewUtil {
         return String.format("https://api.github.com/repos/%s/%s/pulls/%s", pullRequestInfo.getOwner(), pullRequestInfo.getRepo(), pullRequestInfo.getNumber());
     }
 
-    public static String getPullRequestTitleFromUrl(String url, OkHttpClient client, String githubToken) throws IOException {
+    public static String getPullRequestTitleFromUrl(String url, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
                 .header("Authorization", "token" + githubToken)
                 .build();
 
-        Response response = client.newCall(request).execute();
+        Response response = HTTP_CLIENT.newCall(request).execute();
 
         if (!response.isSuccessful()) {
             throw new IOException("HTTP Error: " + response.code());
@@ -82,67 +84,48 @@ public final class GitHubReviewUtil {
         return jsonObject.get("title").getAsString();
     }
 
-    public static String getPullRequestAuthorUsernameFromUrl(String url, OkHttpClient client, String githubToken) throws IOException {
+    public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
+        return githubToDiscordMap.get(githubUsername).toString();
+    }
+
+    public static String getPullRequestAuthorUsernameFromUrl(String url, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
                 .header("Authorization", "token" + githubToken)
                 .build();
 
-        Response response = client.newCall(request).execute();
+        Response response = HTTP_CLIENT.newCall(request).execute();
 
         if (!response.isSuccessful()) {
             throw new IOException("HTTP Error: " + response.code());
         }
 
-        Gson gson = new Gson();
-
         String responseBody = response.body().string();
-        JsonObject jsonObject = gson.fromJson(responseBody, JsonObject.class);
+        JsonObject jsonObject = GSON.fromJson(responseBody, JsonObject.class);
         JsonObject userObject = jsonObject.getAsJsonObject("user");
         return userObject.get("login").getAsString();
     }
 
-    public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
-        return githubToDiscordMap.get(githubUsername).toString();
-    }
-
-    public static List<String> getPullRequests(String organizationName, List<String> userList, OkHttpClient client, String githubToken) throws IOException {
+    public static List<String> getPullRequests(String organizationName, List<String> userList, List<String> repoList, String githubToken) throws IOException {
         List<String> pullRequestsLinks = new ArrayList<>();
 
-        String orgReposUrl = String.format("https://api.github.com/orgs/%s/repos", organizationName);
+        for (String repoName : repoList) {
+            String repoPullsUrl = String.format("https://api.github.com/repos/%s/%s/pulls", organizationName, repoName);
 
-        Request orgReposRequest = new Request.Builder()
-                .url(orgReposUrl)
-                .build();
+            Request repoPullsRequest = new Request.Builder()
+                    .url(repoPullsUrl)
+                    .header("Authorization", "token " + githubToken)
+                    .build();
 
-        try (Response orgReposResponse = client.newCall(orgReposRequest).execute()) {
-            Gson gson = new Gson();
+            try (Response repoPullsResponse = HTTP_CLIENT.newCall(repoPullsRequest).execute()) {
+                JsonArray pullRequests = GSON.fromJson(repoPullsResponse.body().string(), JsonArray.class);
 
-            JsonArray repositories = gson.fromJson(orgReposResponse.body().string(), JsonArray.class);
-            List<String> repoNames = new ArrayList<>();
+                for (JsonElement pullRequestElements : pullRequests) {
+                    String username = pullRequestElements.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
 
-            for (JsonElement repository : repositories) {
-                repoNames.add(repository.getAsJsonObject().get("name").getAsString());
-            }
-
-            for (String repoName : repoNames) {
-                String repoPullsUrl = String.format("https://api.github.com/repos/%s/%s/pulls", organizationName, repoName);
-
-                Request repoPullsRequest = new Request.Builder()
-                        .url(repoPullsUrl)
-                        .header("Authorization", "token " + githubToken)
-                        .build();
-
-                try (Response repoPullsResponse = client.newCall(repoPullsRequest).execute()) {
-                    JsonArray pullRequests = gson.fromJson(repoPullsResponse.body().string(), JsonArray.class);
-
-                    for (JsonElement pullRequestElements : pullRequests) {
-                        String username = pullRequestElements.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
-
-                        if (userList.contains(username)) {
-                            String prLink = pullRequestElements.getAsJsonObject().get("html_url").getAsString();
-                            pullRequestsLinks.add(prLink);
-                        }
+                    if (userList.contains(username)) {
+                        String prLink = pullRequestElements.getAsJsonObject().get("html_url").getAsString();
+                        pullRequestsLinks.add(prLink);
                     }
                 }
             }
@@ -150,6 +133,5 @@ public final class GitHubReviewUtil {
 
         return pullRequestsLinks;
     }
-
 
 }
