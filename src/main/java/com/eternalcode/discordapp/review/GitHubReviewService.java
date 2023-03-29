@@ -34,7 +34,7 @@ public class GitHubReviewService {
     }
 
     // create channel
-    long createChannelWithPRTitleAndMention(Guild guild, String url) throws IOException {
+    long createForumPostWithPRTitleAndMention(Guild guild, String url) throws IOException {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, httpClient, this.discordAppConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(1090383282744590396L);
 

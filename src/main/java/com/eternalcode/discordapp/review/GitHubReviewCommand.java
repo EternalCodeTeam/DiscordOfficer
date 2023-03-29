@@ -52,7 +52,7 @@ public class GitHubReviewCommand extends SlashCommand {
         }
 
         try {
-            long channelWithPRTitleAndMention = this.gitHubReviewService.createChannelWithPRTitleAndMention(event.getGuild(), url);
+            long channelWithPRTitleAndMention = this.gitHubReviewService.createForumPostWithPRTitleAndMention(event.getGuild(), url);
             boolean isPossibleMentionReviewers = this.gitHubReviewService.mentionReviewers(event, url, channelWithPRTitleAndMention);
 
             if (!isPossibleMentionReviewers) {

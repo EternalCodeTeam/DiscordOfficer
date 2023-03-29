@@ -4,6 +4,7 @@ import com.eternalcode.discordapp.review.pr.PullRequestApiExtractor;
 import com.eternalcode.discordapp.review.pr.PullRequestInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
@@ -103,6 +104,59 @@ public final class GitHubReviewUtil {
 
     public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
         return githubToDiscordMap.get(githubUsername).toString();
+    }
+
+    /**
+     * Returns a list of links to all pull requests made by the specified users in repositories
+     * belonging to the given organization on GitHub.
+     *
+     * @param organizationName the name of the organization on GitHub
+     * @param userList         the list of usernames to search for
+     * @return a list of links to all pull requests made by the specified users
+     * @throws IOException if there was an error communicating with the GitHub API
+     */
+    public static List<String> getPullRequests(String organizationName, List<String> userList, OkHttpClient client, String githubToken) throws IOException {
+        List<String> pullRequestsLinks = new ArrayList<>();
+
+        String orgReposUrl = String.format("https://api.github.com/orgs/%s/repos", organizationName);
+
+        Request request = new Request.Builder()
+                .url(orgReposUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            Gson gson = new Gson();
+
+            JsonArray repositories = gson.fromJson(response.body().string(), JsonArray.class);
+            List<String> repoNames = new ArrayList<>();
+            for (JsonElement repository : repositories) {
+                repoNames.add(repository.getAsJsonObject().get("name").getAsString());
+            }
+
+            for (String repoName : repoNames) {
+                String repoPullsUrl = String.format("https://api.github.com/repos/%s/%s/pulls", organizationName, repoName);
+
+                request = new Request.Builder()
+                        .url(repoPullsUrl)
+                        .header("Authorization", "token" + githubToken)
+                        .build();
+
+                try (Response prResponse = client.newCall(request).execute()) {
+                    JsonArray pullRequests = gson.fromJson(prResponse.body().string(), JsonArray.class);
+
+                    for (JsonElement pr : pullRequests) {
+                        String username = pr.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
+
+                        if (userList.contains(username)) {
+                            String prLink = pr.getAsJsonObject().get("html_url").getAsString();
+                            pullRequestsLinks.add(prLink);
+                        }
+                    }
+                }
+            }
+        }
+
+        return pullRequestsLinks;
     }
 
 }
