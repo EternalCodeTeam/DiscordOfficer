@@ -44,10 +44,14 @@ dependencies {
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
-    // Database
+    // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+
+    // HikariCP
     implementation("com.zaxxer:HikariCP:5.0.1")
+
+    // Database drivers
     implementation("mysql:mysql-connector-java:8.0.32")
     implementation("org.postgresql:postgresql:42.5.3")
     implementation("com.h2database:h2:2.1.214")

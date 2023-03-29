@@ -50,7 +50,6 @@ public class DiscordApp {
     private static DatabaseConfig databaseConfig;
     private static ExperienceConfig experienceConfig;
 
-
     private static DatabaseManager databaseManager;
     private static UserRepository userRepository;
     private static ExperienceRepository experienceRepository;
@@ -77,7 +76,7 @@ public class DiscordApp {
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
 
-        CommandClientBuilder builder = new CommandClientBuilder()
+        CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
                 .addSlashCommands(
                         new AvatarCommand(config),
@@ -90,17 +89,23 @@ public class DiscordApp {
                         new PingCommand(config),
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(),
-                        new SayCommand())
+                        new SayCommand()
+                )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false);
-        CommandClient commandClient = builder.build();
+                .useHelpBuilder(false)
+                .build();
 
-        JDA jda = JDABuilder.createDefault(getToken())
+        JDA jda = JDABuilder.createDefault(config.token)
                 .addEventListeners(
+                        // Slash commands
                         commandClient,
+
+                        // Experience system
                         new ExperienceListener(experienceRepository, experienceConfig),
+
+                        // Message filter
                         new FilterMessageEmbedController(filterService)
                 )
                 .enableIntents(
@@ -111,20 +116,11 @@ public class DiscordApp {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ONLINE_STATUS)
                 .setChunkingFilter(ChunkingFilter.ALL)
-
                 .build()
                 .awaitReady();
 
-                GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
-                Timer timer = new Timer();
-                timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
-    }
-
-    public static String getToken() {
-        if (!IS_DEVELOPER_MODE) {
-            return config.token;
-        }
-
-        return System.getenv("OFFICER_TOKEN");
+        GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+        Timer timer = new Timer();
+        timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
     }
 }
