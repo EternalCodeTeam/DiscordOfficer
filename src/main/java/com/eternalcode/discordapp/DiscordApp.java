@@ -16,6 +16,7 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.expierience.ExperienceConfig;
 import com.eternalcode.discordapp.expierience.ExperienceRepository;
 import com.eternalcode.discordapp.expierience.ExperienceRepositoryImpl;
 import com.eternalcode.discordapp.expierience.ExperienceListener;
@@ -47,6 +48,7 @@ public class DiscordApp {
     private static final boolean IS_DEVELOPER_MODE = false;
     private static AppConfig config;
     private static DatabaseConfig databaseConfig;
+    private static ExperienceConfig experienceConfig;
 
 
     private static DatabaseManager databaseManager;
@@ -55,8 +57,12 @@ public class DiscordApp {
 
     public static void main(String... args) throws InterruptedException {
         ConfigManager configManager = new ConfigManager(new File("config"));
-        configManager.load(new AppConfig());
-        configManager.load(new DatabaseConfig());
+        config = new AppConfig();
+        databaseConfig = new DatabaseConfig();
+        experienceConfig = new ExperienceConfig();
+        configManager.load(config);
+        configManager.load(databaseConfig);
+        configManager.load(experienceConfig);
 
         try {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
@@ -94,7 +100,7 @@ public class DiscordApp {
         JDA jda = JDABuilder.createDefault(getToken())
                 .addEventListeners(
                         commandClient,
-                        new ExperienceListener(experienceRepository),
+                        new ExperienceListener(experienceRepository, experienceConfig),
                         new FilterMessageEmbedController(filterService)
                 )
                 .enableIntents(

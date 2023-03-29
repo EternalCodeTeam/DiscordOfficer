@@ -10,12 +10,12 @@ class ExperienceWrapper {
     private long id;
 
     @DatabaseField(columnName = "points", defaultValue = "0")
-    private int points;
+    private double points;
 
     public ExperienceWrapper() {
     }
 
-    public ExperienceWrapper(long id, int points) {
+    public ExperienceWrapper(long id, double points) {
         this.id = id;
         this.points = points;
     }

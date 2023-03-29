@@ -7,10 +7,12 @@ import java.util.concurrent.ExecutionException;
 
 public class ExperienceListener extends ListenerAdapter {
     private final ExperienceRepository experienceRepository;
+    private final ExperienceConfig experienceConfig;
     private static final int HOW_MANY_WORDS_TO_GIVE_POINTS = 5;
 
-    public ExperienceListener(ExperienceRepository experienceRepository) {
+    public ExperienceListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
         this.experienceRepository = experienceRepository;
+        this.experienceConfig = experienceConfig;
     }
 
 
@@ -27,11 +29,12 @@ public class ExperienceListener extends ListenerAdapter {
     private void givePoints(MessageReceivedEvent event) throws ExecutionException, InterruptedException {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
-        if (message.length < HOW_MANY_WORDS_TO_GIVE_POINTS) {
+        if (message.length < experienceConfig.messageExperience.howManyWords) {
             return;
         }
 
-        int points = message.length / HOW_MANY_WORDS_TO_GIVE_POINTS * 10;
+        double basePoints = experienceConfig.basePoints * experienceConfig.messageExperience.multiplier;
+        double points = (double) message.length / experienceConfig.messageExperience.howManyWords * basePoints;
 
         this.experienceRepository.find(event.getAuthor().getIdLong()).whenComplete((experience, expierienceThrowable) -> {
             if (expierienceThrowable != null) {

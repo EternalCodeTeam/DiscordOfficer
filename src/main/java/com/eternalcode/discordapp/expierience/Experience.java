@@ -3,9 +3,9 @@ package com.eternalcode.discordapp.expierience;
 public class Experience {
 
     private final long id;
-    private int points;
+    private double points;
 
-    public Experience(long id, int points) {
+    public Experience(long id, double points) {
         this.id = id;
         this.points = points;
     }
@@ -14,19 +14,19 @@ public class Experience {
         return this.id;
     }
 
-    public int getPoints() {
+    public double getPoints() {
         return this.points;
     }
 
-    public void addPoints(int points) {
+    public void addPoints(double points) {
         this.points += points;
     }
 
-    public void removePoints(int points) {
+    public void removePoints(double points) {
         this.points -= points;
     }
 
-    public void setPoints(int points) {
+    public void setPoints(double points) {
         this.points = points;
     }
 
