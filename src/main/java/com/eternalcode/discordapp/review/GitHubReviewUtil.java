@@ -18,7 +18,7 @@ import java.util.Map;
 
 public final class GitHubReviewUtil {
 
-    private static final String GITHUB_PULL_REQUEST_REGEX = "^https:\\/\\/github\\.com\\/([a-zA-Z0-9-_]+\\/[a-zA-Z0-9-_]+)\\/pull\\/([0-9]+)$";
+    private static final String GITHUB_PULL_REQUEST_REGEX = "^https://github\\.com/([a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+)/pull/([0-9]+)$";
     private static final String GITHUB_PULL_REQUEST_TITLE_CONVENTION = "^(GH)-\\d+ .+$";
 
     public static boolean isPullRequestUrl(String url) {
@@ -106,29 +106,21 @@ public final class GitHubReviewUtil {
         return githubToDiscordMap.get(githubUsername).toString();
     }
 
-    /**
-     * Returns a list of links to all pull requests made by the specified users in repositories
-     * belonging to the given organization on GitHub.
-     *
-     * @param organizationName the name of the organization on GitHub
-     * @param userList         the list of usernames to search for
-     * @return a list of links to all pull requests made by the specified users
-     * @throws IOException if there was an error communicating with the GitHub API
-     */
     public static List<String> getPullRequests(String organizationName, List<String> userList, OkHttpClient client, String githubToken) throws IOException {
         List<String> pullRequestsLinks = new ArrayList<>();
 
         String orgReposUrl = String.format("https://api.github.com/orgs/%s/repos", organizationName);
 
-        Request request = new Request.Builder()
+        Request orgReposRequest = new Request.Builder()
                 .url(orgReposUrl)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response orgReposResponse = client.newCall(orgReposRequest).execute()) {
             Gson gson = new Gson();
 
-            JsonArray repositories = gson.fromJson(response.body().string(), JsonArray.class);
+            JsonArray repositories = gson.fromJson(orgReposResponse.body().string(), JsonArray.class);
             List<String> repoNames = new ArrayList<>();
+
             for (JsonElement repository : repositories) {
                 repoNames.add(repository.getAsJsonObject().get("name").getAsString());
             }
@@ -136,19 +128,19 @@ public final class GitHubReviewUtil {
             for (String repoName : repoNames) {
                 String repoPullsUrl = String.format("https://api.github.com/repos/%s/%s/pulls", organizationName, repoName);
 
-                request = new Request.Builder()
+                Request repoPullsRequest = new Request.Builder()
                         .url(repoPullsUrl)
-                        .header("Authorization", "token" + githubToken)
+                        .header("Authorization", "token " + githubToken)
                         .build();
 
-                try (Response prResponse = client.newCall(request).execute()) {
-                    JsonArray pullRequests = gson.fromJson(prResponse.body().string(), JsonArray.class);
+                try (Response repoPullsResponse = client.newCall(repoPullsRequest).execute()) {
+                    JsonArray pullRequests = gson.fromJson(repoPullsResponse.body().string(), JsonArray.class);
 
-                    for (JsonElement pr : pullRequests) {
-                        String username = pr.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
+                    for (JsonElement pullRequestElements : pullRequests) {
+                        String username = pullRequestElements.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
 
                         if (userList.contains(username)) {
-                            String prLink = pr.getAsJsonObject().get("html_url").getAsString();
+                            String prLink = pullRequestElements.getAsJsonObject().get("html_url").getAsString();
                             pullRequestsLinks.add(prLink);
                         }
                     }
@@ -158,5 +150,6 @@ public final class GitHubReviewUtil {
 
         return pullRequestsLinks;
     }
+
 
 }
