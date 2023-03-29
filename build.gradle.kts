@@ -5,8 +5,7 @@ plugins {
     application
     idea
     checkstyle
-
-    id("com.github.johnrengelman.shadow") version "8.0.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.eternalcode"
@@ -40,7 +39,7 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("ch.qos.logback:logback-classic:1.4.6")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
@@ -53,7 +52,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.5.3")
     implementation("com.h2database:h2:2.1.214")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")
-    
+
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 }
@@ -68,12 +67,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-application {
-    mainClass.set("com.eternalcode.discordapp.DiscordApp")
-}
-
 tasks.withType<ShadowJar> {
-    archiveFileName.set("DiscordOfficer ${project.version}.jar")
+    archiveFileName.set("DiscordOfficer v${project.version}.jar")
 
-    dependsOn("checkstyleMain")
+    manifest {
+        attributes(
+            "Main-Class" to "com.eternalcode.discordapp.DiscordApp",
+        )
+    }
 }

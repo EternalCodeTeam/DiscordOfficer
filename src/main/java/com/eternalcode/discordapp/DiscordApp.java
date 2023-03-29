@@ -21,14 +21,25 @@ import com.eternalcode.discordapp.expierience.ExperienceRepositoryImpl;
 import com.eternalcode.discordapp.expierience.ExperienceListener;
 import com.eternalcode.discordapp.user.UserRepository;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
+import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
+import com.eternalcode.discordapp.filter.FilterService;
+import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
+import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.util.Timer;
 
 public class DiscordApp {
 
@@ -56,7 +67,11 @@ public class DiscordApp {
             sqlException.printStackTrace();
         }
 
+        FilterService filterService = new FilterService()
+                .registerFilter(new RenovateForcedPushFilter());
+
         CommandClientBuilder builder = new CommandClientBuilder()
+                // slash commands registry
                 .addSlashCommands(
                         new AvatarCommand(config),
                         new BanCommand(config),
@@ -71,13 +86,15 @@ public class DiscordApp {
                         new SayCommand())
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
-                .setActivity(Activity.playing("IntelliJ IDEA"));
+                .setActivity(Activity.playing("IntelliJ IDEA"))
+                .useHelpBuilder(false);
         CommandClient commandClient = builder.build();
 
-        JDABuilder.createDefault(getToken())
+        JDA jda = JDABuilder.createDefault(getToken())
                 .addEventListeners(
                         commandClient,
-                        new ExperienceListener(experienceRepository)
+                        new ExperienceListener(experienceRepository),
+                        new FilterMessageEmbedController(filterService)
                 )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
@@ -95,7 +112,22 @@ public class DiscordApp {
                         GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.SCHEDULED_EVENTS
                 )
-                .build();
+                .setAutoReconnect(true)
+
+                // enable all intents
+                .enableIntents(EnumSet.noneOf(GatewayIntent.class))
+
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES) // Because JDA doesn't understand that a few lines above all intents are enabled
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(CacheFlag.ONLINE_STATUS)
+                .setChunkingFilter(ChunkingFilter.ALL)
+
+                .build()
+                .awaitReady();
+
+                GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+                Timer timer = new Timer();
+                timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
     }
 
     public static String getToken() {
