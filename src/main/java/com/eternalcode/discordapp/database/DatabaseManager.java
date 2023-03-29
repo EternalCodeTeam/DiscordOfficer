@@ -75,19 +75,14 @@ public class DatabaseManager {
 
     @SuppressWarnings("unchecked")
     public <T, ID> Dao<T, ID> getDao(Class<T> clazz) throws SQLException {
-        try {
-            Dao<?, ?> dao = this.daoCache.get(clazz);
+        Dao<?, ?> dao = this.daoCache.get(clazz);
 
-            if (dao == null) {
-                dao = DaoManager.createDao(this.connectionSource, clazz);
-                this.daoCache.put(clazz, dao);
-            }
+        if (dao == null) {
+            dao = DaoManager.createDao(this.connectionSource, clazz);
+            this.daoCache.put(clazz, dao);
+        }
 
-            return (Dao<T, ID>) dao;
-        }
-        catch (SQLException exception) {
-            throw new SQLException("Failed to get DAO for class: " + clazz.getName(), exception);
-        }
+        return (Dao<T, ID>) dao;
     }
 
 }

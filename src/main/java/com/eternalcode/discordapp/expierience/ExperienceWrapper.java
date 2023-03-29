@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.expierience;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "edc_experience")
+@DatabaseTable(tableName = "officer_experience")
 class ExperienceWrapper {
 
     @DatabaseField(id = true)
@@ -24,7 +24,7 @@ class ExperienceWrapper {
         return new ExperienceWrapper(userPoints.getId(), userPoints.getPoints());
     }
 
-    public Experience toUserPoints() {
+    public Experience toExperience() {
         return new Experience(this.id, this.points);
     }
 }

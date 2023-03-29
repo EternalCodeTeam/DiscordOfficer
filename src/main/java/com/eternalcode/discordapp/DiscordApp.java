@@ -34,17 +34,17 @@ public class DiscordApp {
 
     private static final boolean IS_DEVELOPER_MODE = false;
     private static AppConfig config;
-    private static DatabaseManager databaseManager;
     private static DatabaseConfig databaseConfig;
+
+
+    private static DatabaseManager databaseManager;
     private static UserRepository userRepository;
     private static ExperienceRepository experienceRepository;
 
     public static void main(String... args) {
         ConfigManager configManager = new ConfigManager(new File("config"));
-        config = new AppConfig();
-        databaseConfig = new DatabaseConfig();
-        configManager.load(config);
-        configManager.load(databaseConfig);
+        configManager.load(new AppConfig());
+        configManager.load(new DatabaseConfig());
 
         try {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
@@ -53,7 +53,7 @@ public class DiscordApp {
             experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
         }
         catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            sqlException.printStackTrace();
         }
 
         CommandClientBuilder builder = new CommandClientBuilder()
@@ -75,8 +75,10 @@ public class DiscordApp {
         CommandClient commandClient = builder.build();
 
         JDABuilder.createDefault(getToken())
-                .addEventListeners(commandClient)
-                .addEventListeners(new ExperienceListener(experienceRepository))
+                .addEventListeners(
+                        commandClient,
+                        new ExperienceListener(experienceRepository)
+                )
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,

@@ -5,9 +5,9 @@ import com.j256.ormlite.dao.Dao;
 import java.util.concurrent.CompletableFuture;
 
 public interface ExperienceRepository {
-    CompletableFuture<Experience> findUser(long id);
+    CompletableFuture<Experience> find(long id);
 
-    CompletableFuture<Dao.CreateOrUpdateStatus> saveUser(Experience user);
+    CompletableFuture<Dao.CreateOrUpdateStatus> saveExperience(Experience user);
 
     CompletableFuture<Integer> deleteUser(Experience user);
 

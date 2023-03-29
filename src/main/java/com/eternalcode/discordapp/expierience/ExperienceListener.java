@@ -33,17 +33,17 @@ public class ExperienceListener extends ListenerAdapter {
 
         int points = message.length / HOW_MANY_WORDS_TO_GIVE_POINTS * 10;
 
-        this.experienceRepository.findUser(event.getAuthor().getIdLong()).whenComplete((experience, throwable) -> {
-            if (throwable != null) {
-                throwable.printStackTrace();
+        this.experienceRepository.find(event.getAuthor().getIdLong()).whenComplete((experience, expierienceThrowable) -> {
+            if (expierienceThrowable != null) {
+                expierienceThrowable.printStackTrace();
                 return;
             }
 
             experience.addPoints(points);
 
-            this.experienceRepository.saveUser(experience).whenComplete((createOrUpdateStatus, throwable1) -> {
-                if (throwable1 != null) {
-                    throwable1.printStackTrace();
+            this.experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
+                if (saveExperienceThrowable != null) {
+                    saveExperienceThrowable.printStackTrace();
                 }
             });
         });

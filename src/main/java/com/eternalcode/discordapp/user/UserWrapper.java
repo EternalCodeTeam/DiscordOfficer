@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.user;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "edc_users")
+@DatabaseTable(tableName = "officer_users")
 class UserWrapper {
 
     @DatabaseField(id = true)
