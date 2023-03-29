@@ -11,8 +11,9 @@ import java.util.List;
 
 public class GitHubReviewCommand extends SlashCommand {
 
-    private final GitHubReviewService gitHubReviewService;
+/*    private final GitHubReviewService gitHubReviewService;*/
 
+/*
     public GitHubReviewCommand(GitHubReviewService gitHubReviewService) {
         this.name = "review";
         this.help = "Review a GitHub pull request";
@@ -25,12 +26,22 @@ public class GitHubReviewCommand extends SlashCommand {
 
         this.gitHubReviewService = gitHubReviewService;
     }
+*/
 
     @Override
     public void execute(SlashCommandEvent event) {
         String url = event.getOption("url").getAsString();
+/*
 
-        boolean pullRequestUrl = GitHubReviewUtil.isPullRequestUrl(url);
+        try {
+            this.gitHubReviewService.automaticCreatePullRequests();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+*/
+
+/*        boolean pullRequestUrl = GitHubReviewUtil.isPullRequestUrl(url);
 
         if (!pullRequestUrl) {
             event.reply("Invalid GitHub pull request URL").setEphemeral(true).queue();
@@ -53,17 +64,12 @@ public class GitHubReviewCommand extends SlashCommand {
 
         try {
             long channelWithPRTitleAndMention = this.gitHubReviewService.createForumPostWithPRTitleAndMention(event.getGuild(), url);
-            boolean isPossibleMentionReviewers = this.gitHubReviewService.mentionReviewers(event, url, channelWithPRTitleAndMention);
-
-            if (!isPossibleMentionReviewers) {
-                return;
-            }
-
+            this.gitHubReviewService.mentionReviewers(url, channelWithPRTitleAndMention);
             event.reply(String.format("Review started <#%s>", channelWithPRTitleAndMention)).setEphemeral(true).queue();
         }
         catch (IOException exception) {
             throw new RuntimeException(exception);
-        }
+        }*/
 
     }
 

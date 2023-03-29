@@ -114,21 +114,33 @@ public final class GitHubReviewUtil {
 
             Request repoPullsRequest = new Request.Builder()
                     .url(repoPullsUrl)
-                    .header("Authorization", "token " + githubToken)
+                    .header("Authorization", "token" + githubToken)
                     .build();
 
+            System.out.println("Requesting: " + repoPullsUrl);
+
             try (Response repoPullsResponse = HTTP_CLIENT.newCall(repoPullsRequest).execute()) {
-                JsonArray pullRequests = GSON.fromJson(repoPullsResponse.body().string(), JsonArray.class);
+                JsonElement responseJson = JsonParser.parseString(repoPullsResponse.body().string());
 
-                for (JsonElement pullRequestElements : pullRequests) {
-                    String username = pullRequestElements.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
+                if (responseJson.isJsonArray()) {
+                    JsonArray pullRequests = responseJson.getAsJsonArray();
 
-                    if (userList.contains(username)) {
-                        String prLink = pullRequestElements.getAsJsonObject().get("html_url").getAsString();
-                        pullRequestsLinks.add(prLink);
+                    for (JsonElement pullRequestElement : pullRequests) {
+                        String username = pullRequestElement.getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
+
+                        if (userList.contains(username)) {
+                            String prLink = pullRequestElement.getAsJsonObject().get("html_url").getAsString();
+                            pullRequestsLinks.add(prLink);
+                        }
                     }
+                } else if (responseJson.isJsonObject()) {
+                    JsonObject errorObject = responseJson.getAsJsonObject();
+                    throw new IOException("API returned an error: " + errorObject.toString());
+                } else {
+                    throw new IOException("API returned an unexpected response format: " + responseJson.toString());
                 }
             }
+
         }
 
         return pullRequestsLinks;

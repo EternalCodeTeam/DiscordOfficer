@@ -20,7 +20,6 @@ import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
-import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -33,13 +32,14 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
 
-    public static void main(String... args) throws InterruptedException {
+    public static void main(String... args) throws InterruptedException, IOException {
         DiscordAppConfigManager configManager = new DiscordAppConfigManager(new File("config"));
         DiscordAppConfig config = new DiscordAppConfig();
         configManager.load(config);
@@ -49,7 +49,6 @@ public class DiscordApp {
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
 
-        GitHubReviewService gitHubReviewService = new GitHubReviewService(httpClient, config);
 
         CommandClientBuilder builder = new CommandClientBuilder()
                 // slash commands registry
@@ -64,8 +63,7 @@ public class DiscordApp {
                         new PingCommand(config),
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
-                        new SayCommand(),
-                        new GitHubReviewCommand(gitHubReviewService)
+                        new SayCommand()
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
@@ -96,6 +94,8 @@ public class DiscordApp {
                 .awaitReady();
 
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+        GitHubReviewService gitHubReviewService = new GitHubReviewService(config, jda);
+        gitHubReviewService.automaticCreatePullRequests();
 
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
