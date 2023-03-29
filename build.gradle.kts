@@ -76,3 +76,7 @@ tasks.withType<ShadowJar> {
         )
     }
 }
+
+application {
+    mainClass.set("com.eternalcode.discordapp.DiscordApp")
+}
