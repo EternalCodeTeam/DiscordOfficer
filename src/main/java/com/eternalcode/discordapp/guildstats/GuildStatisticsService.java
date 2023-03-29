@@ -1,23 +1,20 @@
 package com.eternalcode.discordapp.guildstats;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import panda.utilities.text.Formatter;
 
-import java.time.Duration;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class GuildStatisticsService {
 
-    private final DiscordAppConfig config;
+    private final AppConfig config;
     private final JDA jda;
 
-    public GuildStatisticsService(DiscordAppConfig config, JDA jda) {
+    public GuildStatisticsService(AppConfig config, JDA jda) {
         this.config = config;
         this.jda = jda;
     }

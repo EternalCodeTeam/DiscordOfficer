@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
@@ -52,7 +53,7 @@ public class DiscordApp {
     private static UserRepository userRepository;
     private static ExperienceRepository experienceRepository;
 
-    public static void main(String... args) {
+    public static void main(String... args) throws InterruptedException {
         ConfigManager configManager = new ConfigManager(new File("config"));
         configManager.load(new AppConfig());
         configManager.load(new DatabaseConfig());
@@ -97,26 +98,9 @@ public class DiscordApp {
                         new FilterMessageEmbedController(filterService)
                 )
                 .enableIntents(
-                        GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-                        GatewayIntent.GUILD_WEBHOOKS,
-                        GatewayIntent.GUILD_INVITES,
-                        GatewayIntent.GUILD_VOICE_STATES,
-                        GatewayIntent.GUILD_PRESENCES,
-                        GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                        GatewayIntent.GUILD_MESSAGE_TYPING,
-                        GatewayIntent.DIRECT_MESSAGES,
-                        GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-                        GatewayIntent.DIRECT_MESSAGE_TYPING,
-                        GatewayIntent.MESSAGE_CONTENT,
-                        GatewayIntent.SCHEDULED_EVENTS
+                        EnumSet.noneOf(GatewayIntent.class)
                 )
                 .setAutoReconnect(true)
-
-                // enable all intents
-                .enableIntents(EnumSet.noneOf(GatewayIntent.class))
-
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES) // Because JDA doesn't understand that a few lines above all intents are enabled
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ONLINE_STATUS)
