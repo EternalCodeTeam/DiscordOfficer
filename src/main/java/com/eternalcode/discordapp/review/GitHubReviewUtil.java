@@ -7,6 +7,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -106,6 +110,8 @@ public final class GitHubReviewUtil {
         return userObject.get("login").getAsString();
     }
 
+
+    // TODO: This method is a mess, refactor it
     public static List<String> getPullRequests(String organizationName, List<String> userList, List<String> repoList, String githubToken) throws IOException {
         List<String> pullRequestsLinks = new ArrayList<>();
 
@@ -145,5 +151,25 @@ public final class GitHubReviewUtil {
 
         return pullRequestsLinks;
     }
+
+
+
+    /*
+                            try {
+                            String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(message.getContentRaw(), this.discordAppConfig.githubToken);
+
+                            boolean pullRequestTitleValid = GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
+
+                            if (!pullRequestTitleValid) {
+                                String pullRequestAuthorUsernameFromUrl = GitHubReviewUtil.getPullRequestAuthorUsernameFromUrl(message.getContentRaw(), this.discordAppConfig.githubToken);
+                                String discordIdFromGitHubUsername = GitHubReviewUtil.getDiscordIdFromGitHubUsername(pullRequestAuthorUsernameFromUrl, this.discordAppConfig.reviewSystem.reviewers);
+
+                                threadChannel.sendMessage(String.format("<@%s> Pull request title is invalid, please fix it!", discordIdFromGitHubUsername)).queue();
+                            }
+                        }
+                        catch (IOException exception) {
+                            throw new RuntimeException(exception);
+                        }
+     */
 
 }
