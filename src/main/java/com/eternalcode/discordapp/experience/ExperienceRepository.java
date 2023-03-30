@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.expierience;
+package com.eternalcode.discordapp.experience;
 
 import com.j256.ormlite.dao.Dao;
 

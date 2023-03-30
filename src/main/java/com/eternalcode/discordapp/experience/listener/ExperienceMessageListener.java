@@ -1,16 +1,18 @@
-package com.eternalcode.discordapp.expierience;
+package com.eternalcode.discordapp.experience.listener;
 
+import com.eternalcode.discordapp.experience.ExperienceConfig;
+import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.concurrent.ExecutionException;
 
-public class ExperienceListener extends ListenerAdapter {
+public class ExperienceMessageListener extends ListenerAdapter {
     private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
-    private static final int HOW_MANY_WORDS_TO_GIVE_POINTS = 5;
 
-    public ExperienceListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
+    public ExperienceMessageListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
         this.experienceRepository = experienceRepository;
         this.experienceConfig = experienceConfig;
     }
@@ -36,20 +38,7 @@ public class ExperienceListener extends ListenerAdapter {
         double basePoints = experienceConfig.basePoints * experienceConfig.messageExperience.multiplier;
         double points = (double) message.length / experienceConfig.messageExperience.howManyWords * basePoints;
 
-        this.experienceRepository.find(event.getAuthor().getIdLong()).whenComplete((experience, expierienceThrowable) -> {
-            if (expierienceThrowable != null) {
-                expierienceThrowable.printStackTrace();
-                return;
-            }
-
-            experience.addPoints(points);
-
-            this.experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
-                if (saveExperienceThrowable != null) {
-                    saveExperienceThrowable.printStackTrace();
-                }
-            });
-        });
+        ExperienceUtil.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
     }
 
 }

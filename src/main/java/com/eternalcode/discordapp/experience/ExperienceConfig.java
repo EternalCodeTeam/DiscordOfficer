@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.expierience;
+package com.eternalcode.discordapp.experience;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.entity.Contextual;

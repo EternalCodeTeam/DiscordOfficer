@@ -16,10 +16,10 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.expierience.ExperienceConfig;
-import com.eternalcode.discordapp.expierience.ExperienceRepository;
-import com.eternalcode.discordapp.expierience.ExperienceRepositoryImpl;
-import com.eternalcode.discordapp.expierience.ExperienceListener;
+import com.eternalcode.discordapp.experience.ExperienceConfig;
+import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.user.UserRepository;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
@@ -103,7 +103,7 @@ public class DiscordApp {
                         commandClient,
 
                         // Experience system
-                        new ExperienceListener(experienceRepository, experienceConfig),
+                        new ExperienceMessageListener(experienceRepository, experienceConfig),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)

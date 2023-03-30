@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.expierience;
+package com.eternalcode.discordapp.experience;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
