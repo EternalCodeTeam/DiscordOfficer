@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractRepository<T, ID> {
+
     protected final DatabaseManager databaseManager;
     protected final Class<T> type;
 

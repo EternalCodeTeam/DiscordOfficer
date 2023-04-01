@@ -8,6 +8,7 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 
 public class DatabaseConfig implements CdnConfig {
+
     @Description("# Database settings")
     @Description("# Type of database server")
     public DatabaseType type = DatabaseType.H2;
@@ -23,4 +24,5 @@ public class DatabaseConfig implements CdnConfig {
     public Resource resource(File folder) {
         return Source.of(folder, "database.yml");
     }
+
 }

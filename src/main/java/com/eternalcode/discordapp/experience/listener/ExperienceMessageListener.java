@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.util.concurrent.ExecutionException;
 
 public class ExperienceMessageListener extends ListenerAdapter {
+
     private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
 

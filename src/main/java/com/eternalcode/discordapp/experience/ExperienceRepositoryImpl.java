@@ -47,4 +47,5 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     public CompletableFuture<Integer> deleteUserById(long id) {
         return this.deleteById(id);
     }
+
 }

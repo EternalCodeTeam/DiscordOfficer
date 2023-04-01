@@ -9,6 +9,7 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 
 public class ExperienceConfig implements CdnConfig {
+
     @Description("# Base number of point that will be multiplied by the multiplier")
     public int basePoints = 10;
 
@@ -50,4 +51,5 @@ public class ExperienceConfig implements CdnConfig {
     public Resource resource(File folder) {
         return Source.of(folder, "experience.yml");
     }
+
 }
