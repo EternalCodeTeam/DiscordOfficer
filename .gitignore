@@ -3,7 +3,8 @@
 
 .gradle
 build/
-config/config.cdn
+database/
+logs/
 config
 gradle-app.setting
 

@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,10 +15,10 @@ import java.util.List;
 
 public class ClearCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public ClearCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public ClearCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "clear";
         this.help = "Clears a certain amount of messages in the chat.";
@@ -40,8 +40,8 @@ public class ClearCommand extends SlashCommand {
 
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("✅ | Success!")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("Cleared " + amount + " messages")
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())

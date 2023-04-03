@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,10 +15,10 @@ import java.util.List;
 
 public class CooldownCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public CooldownCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public CooldownCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "cooldown";
         this.help = "Sets the cooldown of a chat channel";
@@ -39,8 +39,8 @@ public class CooldownCommand extends SlashCommand {
 
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("✅ | Success!")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("This channel's cooldown is now " + cooldown + " seconds")
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())

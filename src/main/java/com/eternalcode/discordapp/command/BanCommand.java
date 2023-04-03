@@ -1,13 +1,12 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.exceptions.ContextException;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -18,10 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 public class BanCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public BanCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public BanCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "ban";
         this.help = "Ban a user from the server";
@@ -52,8 +51,8 @@ public class BanCommand extends SlashCommand {
             if (user.isBot()) {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("❌ | An error occurred while banning the user")
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("You can't ban a bot")
                         .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                         .setTimestamp(Instant.now())
@@ -69,7 +68,7 @@ public class BanCommand extends SlashCommand {
             user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("🔨 | You have been banned from " + event.getGuild().getName())
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
+                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
                         .setDescription("Reason: " + kickReason)
                         .setTimestamp(Instant.now())
                         .build();
@@ -79,8 +78,8 @@ public class BanCommand extends SlashCommand {
 
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("✅ | Successfully banned " + user.getAsTag())
-                    .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                    .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                    .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                     .setDescription("Reason: " + kickReason)
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
@@ -95,8 +94,8 @@ public class BanCommand extends SlashCommand {
         catch (Exception exception) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while banning the user")
-                    .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                    .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                    .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                     .setDescription("I can't ban this user, he probably has highest role than me!")
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())

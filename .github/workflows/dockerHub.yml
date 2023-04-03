@@ -21,7 +21,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
       - name: Build & Push (Java 17 image) - EternalCode DiscordOfficer
         uses: docker/build-push-action@v4
         with:

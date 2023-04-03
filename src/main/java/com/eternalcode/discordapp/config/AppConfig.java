@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DiscordAppConfig implements CdnConfig {
+public class AppConfig implements CdnConfig {
 
     @Description("# The token of the bot")
     public String token = System.getenv("OFFICER_TOKEN") != null ? System.getenv("OFFICER_TOKEN") : "PASTE_TOKEN_HERE";

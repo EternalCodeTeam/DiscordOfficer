@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,9 +16,9 @@ import java.util.List;
 
 public class KickCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public KickCommand(DiscordAppConfig discordAppConfig) {
+    public KickCommand(AppConfig appConfig) {
         this.name = "kick";
         this.help = "Kicks a user";
         this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
@@ -30,7 +30,7 @@ public class KickCommand extends SlashCommand {
                         .setRequired(false)
         );
 
-        this.discordAppConfig = discordAppConfig;
+        this.appConfig = appConfig;
     }
 
     @Override
@@ -42,8 +42,8 @@ public class KickCommand extends SlashCommand {
             if (user.isBot()) {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("❌ | An error occurred while kicking the user")
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("You can't kick a bot")
                         .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                         .setTimestamp(Instant.now())
@@ -59,8 +59,8 @@ public class KickCommand extends SlashCommand {
             user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
-                        .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                        .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                        .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("Reason: " + reason)
                         .setTimestamp(Instant.now())
                         .build();
@@ -70,8 +70,8 @@ public class KickCommand extends SlashCommand {
 
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("✅ | Successfully kicked " + user.getAsTag())
-                    .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                    .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                    .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                     .setDescription("Reason: " + reason)
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
@@ -86,8 +86,8 @@ public class KickCommand extends SlashCommand {
         catch (Exception exception) {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle("❌ | An error occurred while kicking the user")
-                    .setColor(Color.decode(this.discordAppConfig.embedSettings.errorEmbed.color))
-                    .setThumbnail(this.discordAppConfig.embedSettings.errorEmbed.thumbnail)
+                    .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                     .setDescription("I can't kick this user, he probably has highest role than me!")
                     .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
