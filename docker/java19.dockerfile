@@ -1,8 +1,8 @@
 FROM gradle:jdk19-alpine AS build
 
 WORKDIR /app/
-COPY . /app/
-RUN gradle clean build
+COPY .. /app/
+RUN gradle clean shadowJar
 
 FROM amazoncorretto:19-alpine
 LABEL org.label-schema.name="eternalcode/discordofficer"

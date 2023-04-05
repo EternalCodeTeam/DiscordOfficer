@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.util.DiscordTagFormat;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -13,10 +13,10 @@ import java.time.Instant;
 
 public class ServerCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public ServerCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public ServerCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "server";
         this.help = "Shows the server's information";
@@ -34,7 +34,7 @@ public class ServerCommand extends SlashCommand {
 
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("🌐 | " + guild.getName() + "'s information")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(guild.getIconUrl())
                 .addField("🔢 ID", id, false)
                 .addField("👑 Owner", owner, false)

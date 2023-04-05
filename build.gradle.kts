@@ -4,7 +4,7 @@ plugins {
     `java-library`
     application
     idea
-
+    checkstyle
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -18,11 +18,20 @@ repositories {
 
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.eternalcode.pl/snapshots") }
+    maven { url = uri("https://repo.eternalcode.pl/releases") }
 }
 
+checkstyle {
+    toolVersion = "10.9.3"
+
+    configFile = file("${rootDir}/checkstyle/checkstyle.xml")
+
+    maxErrors = 0
+    maxWarnings = 0
+}
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.5")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.6")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -35,7 +44,20 @@ dependencies {
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
-    // gson
+    // ORMLite
+    implementation("com.j256.ormlite:ormlite-core:6.1")
+    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+
+    // HikariCP
+    implementation("com.zaxxer:HikariCP:5.0.1")
+
+    // Database drivers
+    implementation("mysql:mysql-connector-java:8.0.32")
+    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("com.h2database:h2:2.1.214")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.1.3")
+
+    // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
     // tests

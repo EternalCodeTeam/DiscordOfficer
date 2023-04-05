@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.command;
 
-import com.eternalcode.discordapp.config.DiscordAppConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,10 +11,10 @@ import java.time.Instant;
 
 public class PingCommand extends SlashCommand {
 
-    private final DiscordAppConfig discordAppConfig;
+    private final AppConfig appConfig;
 
-    public PingCommand(DiscordAppConfig discordAppConfig) {
-        this.discordAppConfig = discordAppConfig;
+    public PingCommand(AppConfig appConfig) {
+        this.appConfig = appConfig;
 
         this.name = "ping";
         this.help = "Performs a ping to see the bot's delay";
@@ -27,8 +27,8 @@ public class PingCommand extends SlashCommand {
 
         MessageEmbed build = new EmbedBuilder()
                 .setTitle("🏓 | Pong!")
-                .setColor(Color.decode(this.discordAppConfig.embedSettings.successEmbed.color))
-                .setThumbnail(this.discordAppConfig.embedSettings.successEmbed.thumbnail)
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .addField("Gateway Ping", gatewayPing + "ms", false)
                 .addField("Rest Ping", restPing + "ms", false)
                 .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())

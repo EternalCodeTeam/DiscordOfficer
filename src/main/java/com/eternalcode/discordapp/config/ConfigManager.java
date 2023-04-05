@@ -7,14 +7,14 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DiscordAppConfigManager {
+public class ConfigManager {
 
     private static final Cdn CDN = CdnFactory.createYamlLike().getSettings().build();
 
     private final Set<CdnConfig> configs = new HashSet<>();
     private final File folder;
 
-    public DiscordAppConfigManager(File folder) {
+    public ConfigManager(File folder) {
         this.folder = folder;
     }
 
