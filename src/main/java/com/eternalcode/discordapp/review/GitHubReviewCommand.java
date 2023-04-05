@@ -11,13 +11,12 @@ import java.util.List;
 
 public class GitHubReviewCommand extends SlashCommand {
 
-/*    private final GitHubReviewService gitHubReviewService;*/
+    private final GitHubReviewService gitHubReviewService;
 
-/*
     public GitHubReviewCommand(GitHubReviewService gitHubReviewService) {
         this.name = "review";
         this.help = "Review a GitHub pull request";
-        this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
+        this.userPermissions = new Permission[]{Permission.MESSAGE_MANAGE};
 
         this.options = List.of(
                 new OptionData(OptionType.STRING, "url", "Review a GitHub pull request")
@@ -26,51 +25,13 @@ public class GitHubReviewCommand extends SlashCommand {
 
         this.gitHubReviewService = gitHubReviewService;
     }
-*/
 
     @Override
     public void execute(SlashCommandEvent event) {
         String url = event.getOption("url").getAsString();
-/*
 
-        try {
-            this.gitHubReviewService.automaticCreatePullRequests();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-*/
-
-/*        boolean pullRequestUrl = GitHubReviewUtil.isPullRequestUrl(url);
-
-        if (!pullRequestUrl) {
-            event.reply("Invalid GitHub pull request URL").setEphemeral(true).queue();
-            return;
-        }
-
-        try {
-            boolean checkPullRequestTitle = this.gitHubReviewService.checkPullRequestTitle(url);
-
-            if (!checkPullRequestTitle) {
-                event.reply("Invalid pull request title, use GH-NUMBER convention").setEphemeral(true).queue();
-                return;
-            }
-        }
-        catch (IOException exception) {
-            event.reply("Failed to check pull request title").setEphemeral(true).queue();
-            exception.printStackTrace();
-            return;
-        }
-
-        try {
-            long channelWithPRTitleAndMention = this.gitHubReviewService.createForumPostWithPRTitleAndMention(event.getGuild(), url);
-            this.gitHubReviewService.mentionReviewers(url, channelWithPRTitleAndMention);
-            event.reply(String.format("Review started <#%s>", channelWithPRTitleAndMention)).setEphemeral(true).queue();
-        }
-        catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }*/
-
+        String review = this.gitHubReviewService.createReview(event.getGuild(), url, event.getJDA());
+        event.reply(review).setEphemeral(true).queue();
     }
 
 }
