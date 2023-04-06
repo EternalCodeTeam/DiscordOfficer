@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GitHubReviewUtilTest {
 
+    private static final String GITHUB_FAKE_TOKEN = "fake-token";
+
     private MockWebServer server;
 
     @BeforeEach
@@ -65,7 +67,7 @@ public class GitHubReviewUtilTest {
 
         HttpUrl baseUrl = this.server.url("/");
 
-        List<String> reviewers = GitHubReviewUtil.getReviewers(baseUrl.toString(), " fake-token");
+        List<String> reviewers = GitHubReviewUtil.getReviewers(baseUrl.toString(), GITHUB_FAKE_TOKEN);
 
         assertNotNull(reviewers);
         assertEquals(2, reviewers.size());
@@ -74,7 +76,7 @@ public class GitHubReviewUtilTest {
 
         RecordedRequest recordedRequest = this.server.takeRequest();
         assertEquals(baseUrl.toString(), recordedRequest.getRequestUrl().toString());
-        assertEquals("token fake-token", recordedRequest.getHeader("Authorization"));
+        assertEquals("token" + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
     @Test
