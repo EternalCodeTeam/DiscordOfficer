@@ -1,3 +1,0 @@
-- dodać checka sprawdzającego czy wątek na forum już istnieje if = true, ignore
-- dodac checka ktróry będzie informać użytkownika na DM o tym że wątek nie mógł zostać automatycznie stworzony ponieważ ma on złą nazwe PR lub nie spełnia innych wymagań
-- dodać automatyczne usuwanie zmergowanych PRków

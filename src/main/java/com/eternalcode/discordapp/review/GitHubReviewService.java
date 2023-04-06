@@ -9,41 +9,41 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GitHubReviewService {
 
     private final AppConfig discordAppConfig;
-    private final ReviewRepository reviewRepository;
 
-    public GitHubReviewService(AppConfig discordAppConfig, ReviewRepository reviewRepository) {
+    public GitHubReviewService(AppConfig discordAppConfig) {
         this.discordAppConfig = discordAppConfig;
-        this.reviewRepository = reviewRepository;
     }
 
     public String createReview(Guild guild, String url, JDA jda) {
 
         try {
+            if (this.isReviewPostCreatedInGuild(guild, url)) {
+                return "Review already exists";
+            }
+
             if (!GitHubReviewUtil.isPullRequestUrl(url)) {
-                return "URL is not a valid GitHub pull request";
+                return "URL is not a valid, please provide a valid GitHub pull request URL";
             }
 
             if (!checkPullRequestTitle(url)) {
-                return "Pull request title is not valid";
+                return "Pull request title is not valid, please use GH-<number> as title";
             }
 
             long messageId = createReviewForumPost(guild, url);
             this.mentionReviewers(jda, url, messageId);
 
-            Review review = new Review(messageId, url, GitHubReviewUtil.getPullRequestAuthorUsernameFromUrl(url, this.discordAppConfig.githubToken), GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken));
-            this.reviewRepository.saveReview(review);
-
             return "Review created";
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
-
-        return "Something went wrong";
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return "Something went wrong";
+        }
     }
 
     public boolean checkPullRequestTitle(String url) throws IOException {
@@ -57,10 +57,10 @@ public class GitHubReviewService {
         ForumChannel forumChannel = guild.getForumChannelById(1090383282744590396L);
 
         MessageCreateData createData = MessageCreateData.fromContent(url);
-        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData).complete().getThreadChannel().getIdLong();
+        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData).setName(url).complete().getThreadChannel().getIdLong();
     }
 
-    public void mentionReviewers(JDA jda, String url, long messageId) {
+    public void mentionReviewers(JDA jda, String url, long forumId) {
         List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.discordAppConfig.githubToken);
 
         if (assignedReviewers.isEmpty()) {
@@ -70,20 +70,66 @@ public class GitHubReviewService {
         StringBuilder reviewersMention = new StringBuilder();
         for (String reviewer : assignedReviewers) {
             Long discordId = this.discordAppConfig.reviewSystem.reviewers.get(reviewer);
-
-            if (discordId != null) {
-                User user = jda.getUserById(discordId);
-
-                if (user != null) {
-                    reviewersMention.append(user.getAsMention()).append(" ");
-                }
+            if (discordId == null) {
+                continue;
             }
+
+            User user = jda.getUserById(discordId);
+            if (user == null) {
+                continue;
+            }
+
+            reviewersMention.append(user.getAsMention()).append(" ");
         }
 
         String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, url);
 
-        ThreadChannel threadChannel = jda.getThreadChannelById(messageId);
+        ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
         threadChannel.sendMessage(message).queue();
     }
 
+    public void mentionReviewersOnAllReviewChannels(JDA jda) {
+        Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
+
+        for (ForumChannel forumChannel : guild.getForumChannels()) {
+            for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
+                this.mentionReviewers(jda, threadChannel.getName(), threadChannel.getIdLong());
+            }
+        }
+    }
+
+    public boolean isReviewPostCreatedInGuild(Guild guild, String url) {
+        List<ThreadChannel> threadChannels = new ArrayList<>();
+
+        for (ForumChannel forumChannel : guild.getForumChannels()) {
+            threadChannels.addAll(forumChannel.getThreadChannels());
+        }
+
+        for (ThreadChannel threadChannel : threadChannels) {
+            if (threadChannel.getName().equals(url)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public void deleteMergedPullRequests(JDA jda) {
+        try {
+
+            Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
+
+            for (ForumChannel forumChannel : guild.getForumChannels()) {
+                for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
+                    if (GitHubReviewUtil.isPullRequestMerged(threadChannel.getName(), this.discordAppConfig.githubToken)) {
+                        threadChannel.delete().queue();
+                    }
+                }
+            }
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
 }

@@ -101,6 +101,21 @@ public final class GitHubReviewUtil {
         return userObject.get("login").getAsString();
     }
 
+    public static boolean isPullRequestMerged(String url, String githubToken) throws IOException {
+        Request request = new Request.Builder()
+                .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
+                .header("Authorization", "token " + githubToken)
+                .build();
+
+        Response response = HTTP_CLIENT.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            throw new IOException("HTTP Error: " + response.code());
+        }
+
+        JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
+        return json.get("merged").getAsBoolean();
+    }
+
     public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
         return githubToDiscordMap.get(githubUsername).toString();
     }

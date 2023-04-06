@@ -26,9 +26,7 @@ import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
-import com.eternalcode.discordapp.review.ReviewController;
-import com.eternalcode.discordapp.review.ReviewRepository;
-import com.eternalcode.discordapp.review.ReviewRepositoryImpl;
+import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -50,7 +48,6 @@ import java.util.Timer;
 public class DiscordApp {
 
     private static ExperienceRepository experienceRepository;
-    private static ReviewRepository reviewRepository;
 
     public static void main(String... args) throws InterruptedException {
         ConfigManager configManager = new ConfigManager(new File("config"));
@@ -69,7 +66,6 @@ public class DiscordApp {
             UserRepositoryImpl.create(databaseManager);
 
             experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
-            reviewRepository = ReviewRepositoryImpl.create(databaseManager);
         }
         catch (SQLException exception) {
             exception.printStackTrace();
@@ -79,6 +75,8 @@ public class DiscordApp {
 
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
+
+        GitHubReviewService gitHubReviewService = new GitHubReviewService(config);
 
         CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
@@ -94,7 +92,7 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(new GitHubReviewService(config, reviewRepository))
+                        new GitHubReviewCommand(gitHubReviewService)
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
@@ -111,9 +109,7 @@ public class DiscordApp {
                         new ExperienceMessageListener(experienceRepository, experienceConfig),
 
                         // Message filter
-                        new FilterMessageEmbedController(filterService),
-
-                        new ReviewController(reviewRepository)
+                        new FilterMessageEmbedController(filterService)
                 )
 
                 .setAutoReconnect(true)
@@ -132,5 +128,6 @@ public class DiscordApp {
 
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
+        timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(2L).toMillis());
     }
 }
