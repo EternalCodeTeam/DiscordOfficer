@@ -117,7 +117,6 @@ public class GitHubReviewService {
 
     public void deleteMergedPullRequests(JDA jda) {
         try {
-
             Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {

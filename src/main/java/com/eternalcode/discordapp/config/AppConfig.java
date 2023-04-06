@@ -90,7 +90,13 @@ public class AppConfig implements CdnConfig {
     public static class ReviewSystem {
         public Map<String, Long> reviewers = new HashMap<>(Map.of(
                 "vLuckyyy", 852920601969950760L,
-                "eripe14", 1043189165203914792L
+                "Embrejs", 887998351239413821L,
+                "eripe14", 406091568378937344L,
+                "Hyd3r1", 1038402657594908712L,
+                "Jakubk15", 533345209434767372L,
+                "Kamicjusz", 477473823546015744L,
+                "Osnixer", 719653565026664628L,
+                "Rollczi", 534018824559788032L
         ));
     }
 }
