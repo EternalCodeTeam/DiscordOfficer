@@ -1,12 +1,12 @@
-package com.eternalcode.discordapp.review.pr;
+package com.eternalcode.discordapp.review;
 
-public class PullRequestInfo {
+public class GitHubPullRequestInfo {
 
     private final String owner;
     private final String repo;
     private final int number;
 
-    public PullRequestInfo(String owner, String repo, int number) {
+    public GitHubPullRequestInfo(String owner, String repo, int number) {
         this.owner = owner;
         this.repo = repo;
         this.number = number;

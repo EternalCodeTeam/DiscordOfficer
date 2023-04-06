@@ -31,11 +31,11 @@ public class GitHubReviewService {
                 return "URL is not a valid, please provide a valid GitHub pull request URL";
             }
 
-            if (!checkPullRequestTitle(url)) {
+            if (!this.checkPullRequestTitle(url)) {
                 return "Pull request title is not valid, please use GH-<number> as title";
             }
 
-            long messageId = createReviewForumPost(guild, url);
+            long messageId = this.createReviewForumPost(guild, url);
             this.mentionReviewers(jda, url, messageId);
 
             return "Review created";

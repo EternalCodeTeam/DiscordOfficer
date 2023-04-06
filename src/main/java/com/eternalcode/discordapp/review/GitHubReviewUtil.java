@@ -1,7 +1,5 @@
 package com.eternalcode.discordapp.review;
 
-import com.eternalcode.discordapp.review.pr.PullRequestApiExtractor;
-import com.eternalcode.discordapp.review.pr.PullRequestInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -13,7 +11,6 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public final class GitHubReviewUtil {
 
@@ -60,9 +57,9 @@ public final class GitHubReviewUtil {
     }
 
     public static String getGitHubPullRequestApiUrl(String url) {
-        PullRequestInfo pullRequestInfo = PullRequestApiExtractor.extractPRInfoFromLink(url);
+        GitHubPullRequestInfo gitHubPullRequestInfo = GitHubPullRequestApiExtractor.extract(url);
 
-        return String.format("https://api.github.com/repos/%s/%s/pulls/%s", pullRequestInfo.getOwner(), pullRequestInfo.getRepo(), pullRequestInfo.getNumber());
+        return String.format("https://api.github.com/repos/%s/%s/pulls/%s", gitHubPullRequestInfo.getOwner(), gitHubPullRequestInfo.getRepo(), gitHubPullRequestInfo.getNumber());
     }
 
     public static String getPullRequestTitleFromUrl(String url, String githubToken) throws IOException {
@@ -83,24 +80,6 @@ public final class GitHubReviewUtil {
         return jsonObject.get("title").getAsString();
     }
 
-    public static String getPullRequestAuthorUsernameFromUrl(String url, String githubToken) throws IOException {
-        Request request = new Request.Builder()
-                .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
-                .header("Authorization", "token" + githubToken)
-                .build();
-
-        Response response = HTTP_CLIENT.newCall(request).execute();
-
-        if (!response.isSuccessful()) {
-            throw new IOException("HTTP Error: " + response.code());
-        }
-
-        String responseBody = response.body().string();
-        JsonObject jsonObject = GSON.fromJson(responseBody, JsonObject.class);
-        JsonObject userObject = jsonObject.getAsJsonObject("user");
-        return userObject.get("login").getAsString();
-    }
-
     public static boolean isPullRequestMerged(String url, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(GitHubReviewUtil.getGitHubPullRequestApiUrl(url))
@@ -114,10 +93,6 @@ public final class GitHubReviewUtil {
 
         JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
         return json.get("merged").getAsBoolean();
-    }
-
-    public static String getDiscordIdFromGitHubUsername(String githubUsername, Map<String, Long> githubToDiscordMap) {
-        return githubToDiscordMap.get(githubUsername).toString();
     }
 
 }
