@@ -89,6 +89,8 @@ public class AppConfig implements CdnConfig {
 
     @Contextual
     public static class ReviewSystem {
+        public long reviewForumId = 1090383282744590396L;
+
         public Map<String, Long> reviewers = new HashMap<>(Map.of(
                 "vLuckyyy", 852920601969950760L,
                 "Embrejs", 887998351239413821L,

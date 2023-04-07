@@ -53,7 +53,7 @@ public class GitHubReviewService {
 
     public long createReviewForumPost(Guild guild, String url) throws IOException {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken);
-        ForumChannel forumChannel = guild.getForumChannelById(1090383282744590396L);
+        ForumChannel forumChannel = guild.getForumChannelById(this.discordAppConfig.reviewSystem.reviewForumId);
 
         MessageCreateData createData = MessageCreateData.fromContent(url);
         return forumChannel.createForumPost(pullRequestTitleFromUrl, createData).setName(url).complete().getThreadChannel().getIdLong();
