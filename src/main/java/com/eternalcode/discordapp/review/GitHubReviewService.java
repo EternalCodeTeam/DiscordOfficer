@@ -105,7 +105,13 @@ public class GitHubReviewService {
 
         for (ForumChannel forumChannel : guild.getForumChannels()) {
             for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                this.mentionReviewers(jda, threadChannel.getName(), threadChannel.getIdLong());
+                String name = threadChannel.getName();
+
+                if (!GitHubReviewUtil.isPullRequestUrl(name)) {
+                    continue;
+                }
+
+                this.mentionReviewers(jda, name, threadChannel.getIdLong());
             }
         }
     }
@@ -133,7 +139,13 @@ public class GitHubReviewService {
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                    if (GitHubReviewUtil.isPullRequestMerged(threadChannel.getName(), this.discordAppConfig.githubToken)) {
+                    String name = threadChannel.getName();
+
+                    if (!GitHubReviewUtil.isPullRequestUrl(name)) {
+                        continue;
+                    }
+
+                    if (GitHubReviewUtil.isPullRequestMerged(name, this.discordAppConfig.githubToken)) {
                         threadChannel.delete().queue();
                     }
                 }
