@@ -20,6 +20,8 @@ public final class GitHubReviewUtil {
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
     private static final Gson GSON = new Gson();
 
+    private GitHubReviewUtil() {}
+
     public static boolean isPullRequestUrl(String url) {
         return url.matches(GITHUB_PULL_REQUEST_REGEX);
     }
