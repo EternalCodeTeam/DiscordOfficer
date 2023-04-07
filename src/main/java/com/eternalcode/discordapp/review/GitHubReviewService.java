@@ -21,7 +21,6 @@ public class GitHubReviewService {
     }
 
     public String createReview(Guild guild, String url, JDA jda) {
-
         try {
             if (this.isReviewPostCreatedInGuild(guild, url)) {
                 return "Review already exists";
@@ -79,6 +78,15 @@ public class GitHubReviewService {
                 continue;
             }
 
+            user.openPrivateChannel().queue(privateChannel -> {
+                try {
+                    privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", url)).queue();
+                }
+                catch (Exception ignored) {
+
+                }
+            });
+
             reviewersMention.append(user.getAsMention()).append(" ");
         }
 
@@ -86,7 +94,7 @@ public class GitHubReviewService {
             return;
         }
 
-        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention.toString(), url);
+        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, url);
 
         ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
         threadChannel.sendMessage(message).queue();
