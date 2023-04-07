@@ -10,6 +10,7 @@ import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class GitHubReviewUtil {
@@ -54,14 +55,14 @@ public final class GitHubReviewUtil {
         }
         catch (IOException exception) {
             exception.printStackTrace();
-            return null;
+            return Collections.emptyList();
         }
     }
 
     public static String getGitHubPullRequestApiUrl(String url) {
-        GitHubPullRequestInfo gitHubPullRequestInfo = GitHubPullRequestApiExtractor.extract(url);
+        GitHubPullRequestInfo gitHubPullRequestInfo = new GitHubPullRequestInfo(url);
 
-        return String.format("https://api.github.com/repos/%s/%s/pulls/%s", gitHubPullRequestInfo.getOwner(), gitHubPullRequestInfo.getRepo(), gitHubPullRequestInfo.getNumber());
+        return gitHubPullRequestInfo.toApiUrl();
     }
 
     public static String getPullRequestTitleFromUrl(String url, String githubToken) throws IOException {
