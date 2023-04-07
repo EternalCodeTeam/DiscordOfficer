@@ -82,7 +82,11 @@ public class GitHubReviewService {
             reviewersMention.append(user.getAsMention()).append(" ");
         }
 
-        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, url);
+        if (reviewersMention.length() == 0) {
+            return;
+        }
+
+        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention.toString(), url);
 
         ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
         threadChannel.sendMessage(message).queue();
