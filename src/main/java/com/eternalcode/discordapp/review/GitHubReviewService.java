@@ -60,7 +60,7 @@ public class GitHubReviewService {
     }
 
     public void mentionReviewers(JDA jda, String url, long forumId) {
-        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestApiUrl(url), this.discordAppConfig.githubToken);
+        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestAPIUrl(url), this.discordAppConfig.githubToken);
 
         if (assignedReviewers.isEmpty()) {
             return;
