@@ -8,22 +8,29 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import panda.std.Result;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class GitHubReviewUtilTest {
+class GitHubReviewUtilTest {
 
     private static final String GITHUB_FAKE_TOKEN = "fake-token";
 
     private MockWebServer server;
+    private GitHubPullRequest fakePullRequest;
 
     @BeforeEach
     public void setUp() throws IOException {
         this.server = new MockWebServer();
         this.server.start();
+        this.fakePullRequest = mock(GitHubPullRequest.class);
+
+        when(this.fakePullRequest.toApiUrl()).thenReturn(this.server.url("/").toString());
     }
 
     @AfterEach
@@ -33,22 +40,39 @@ public class GitHubReviewUtilTest {
 
     @Test
     void testIsPullRequestUrl() {
-        assertTrue(GitHubReviewUtil.isPullRequestUrl("https://github.com/user/repo/pull/123"));
-        assertTrue(GitHubReviewUtil.isPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456"));
-        assertFalse(GitHubReviewUtil.isPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull"));
-        assertFalse(GitHubReviewUtil.isPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123"));
-        assertFalse(GitHubReviewUtil.isPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/"));
+        assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
+        assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
+    }
+
+    private void assertPullRequestUrl(String url, String expectedOwner, String expectedRepo, int expectedNumber) {
+        Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(url);
+        assertTrue(result.isOk());
+
+        GitHubPullRequest pullRequest = result.get();
+        assertEquals(expectedOwner, pullRequest.getOwner());
+        assertEquals(expectedRepo, pullRequest.getRepository());
+        assertEquals(expectedNumber, pullRequest.getNumber());
+
+        assertEquals(url, pullRequest.toUrl());
+    }
+
+    private void assertNotPullRequestUrl(String url) {
+        Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(url);
+        assertTrue(result.isErr());
     }
 
     @Test
-    public void testIsPullRequestTitleValid() {
+    void testIsPullRequestTitleValid() {
         assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"));
     }
 
     @Test
-    public void testGetReviewers() throws Exception {
+    void testGetReviewers() throws Exception {
         String jsonResponse = """
                 {
                   "requested_reviewers": [
@@ -65,9 +89,7 @@ public class GitHubReviewUtilTest {
                 .setBody(jsonResponse)
                 .addHeader("Content-Type", "application/json"));
 
-        HttpUrl baseUrl = this.server.url("/");
-
-        List<String> reviewers = GitHubReviewUtil.getReviewers(baseUrl.toString(), GITHUB_FAKE_TOKEN);
+        List<String> reviewers = GitHubReviewUtil.getReviewers(fakePullRequest, GITHUB_FAKE_TOKEN);
 
         assertNotNull(reviewers);
         assertEquals(2, reviewers.size());
@@ -75,18 +97,20 @@ public class GitHubReviewUtilTest {
         assertEquals("Piotr", reviewers.get(1));
 
         RecordedRequest recordedRequest = this.server.takeRequest();
-        assertEquals(baseUrl.toString(), recordedRequest.getRequestUrl().toString());
+        assertEquals(fakePullRequest.toApiUrl(), recordedRequest.getRequestUrl().toString());
         assertEquals("token" + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
     @Test
-    public void testGetGitHubPullRequestApiUrl() {
+    void testGetGitHubPullRequestApiUrl() {
         String url = "https://github.com/EternalCodeTeam/DiscordOfficer/pull/123";
         String expectedApiUrl = "https://api.github.com/repos/EternalCodeTeam/DiscordOfficer/pulls/123";
 
-        String actualApiUrl = GitHubReviewUtil.getGitHubPullRequestApiUrl(url);
+        Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(url);
+        assertTrue(result.isOk());
 
-        assertEquals(expectedApiUrl, actualApiUrl);
+        GitHubPullRequest pullRequest = result.get();
+        assertEquals(expectedApiUrl, pullRequest.toApiUrl());
     }
 
 }

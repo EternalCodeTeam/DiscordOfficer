@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import panda.std.Result;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 public class GitHubReviewService {
 
     private final AppConfig discordAppConfig;
+    private final GitHubReviewMentionRepository mentionRepository = new GitHubReviewMentionRepositoryImpl();
 
     public GitHubReviewService(AppConfig discordAppConfig) {
         this.discordAppConfig = discordAppConfig;
@@ -26,16 +28,18 @@ public class GitHubReviewService {
                 return "Review already exists";
             }
 
-            if (!GitHubReviewUtil.isPullRequestUrl(url)) {
+            Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(url);
+            if (result.isErr()) {
                 return "URL is not a valid, please provide a valid GitHub pull request URL";
             }
 
-            if (!this.checkPullRequestTitle(url)) {
+            GitHubPullRequest pullRequest = result.get();
+            if (!this.checkPullRequestTitle(pullRequest)) {
                 return "Pull request title is not valid, please use GH-<number> as title";
             }
 
-            long messageId = this.createReviewForumPost(guild, url);
-            this.mentionReviewers(jda, url, messageId);
+            long messageId = this.createReviewForumPost(guild, pullRequest);
+            this.mentionReviewers(jda, pullRequest, messageId);
 
             return "Review created";
         }
@@ -45,22 +49,27 @@ public class GitHubReviewService {
         }
     }
 
-    public boolean checkPullRequestTitle(String url) throws IOException {
+    public boolean checkPullRequestTitle(GitHubPullRequest url) throws IOException {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken);
 
         return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
     }
 
-    public long createReviewForumPost(Guild guild, String url) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.discordAppConfig.githubToken);
+    public long createReviewForumPost(Guild guild, GitHubPullRequest pullRequest) throws IOException {
+        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.discordAppConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(this.discordAppConfig.reviewSystem.reviewForumId);
 
-        MessageCreateData createData = MessageCreateData.fromContent(url);
-        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData).setName(url).complete().getThreadChannel().getIdLong();
+        MessageCreateData createData = MessageCreateData.fromContent(pullRequest.toUrl());
+
+        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
+                .setName(pullRequest.toUrl())
+                .complete()
+                .getThreadChannel()
+                .getIdLong();
     }
 
-    public void mentionReviewers(JDA jda, String url, long forumId) {
-        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(GitHubReviewUtil.getGitHubPullRequestAPIUrl(url), this.discordAppConfig.githubToken);
+    public void mentionReviewers(JDA jda, GitHubPullRequest pullRequest, long forumId) {
+        List<String> assignedReviewers = GitHubReviewUtil.getReviewers(pullRequest, this.discordAppConfig.githubToken);
 
         if (assignedReviewers.isEmpty()) {
             return;
@@ -73,6 +82,10 @@ public class GitHubReviewService {
                 continue;
             }
 
+            if (this.mentionRepository.isMentioned(pullRequest, discordId)) {
+                continue;
+            }
+
             User user = jda.getUserById(discordId);
             if (user == null) {
                 continue;
@@ -80,7 +93,7 @@ public class GitHubReviewService {
 
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
-                    privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", url)).queue();
+                    privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl())).queue();
                 }
                 catch (Exception ignored) {
 
@@ -88,13 +101,14 @@ public class GitHubReviewService {
             });
 
             reviewersMention.append(user.getAsMention()).append(" ");
+            this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
         }
 
         if (reviewersMention.length() == 0) {
             return;
         }
 
-        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, url);
+        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, pullRequest.toUrl());
 
         ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
         threadChannel.sendMessage(message).queue();
@@ -105,13 +119,13 @@ public class GitHubReviewService {
 
         for (ForumChannel forumChannel : guild.getForumChannels()) {
             for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                String name = threadChannel.getName();
+                Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(threadChannel.getName());
 
-                if (!GitHubReviewUtil.isPullRequestUrl(name)) {
+                if (result.isErr()) {
                     continue;
                 }
 
-                this.mentionReviewers(jda, name, threadChannel.getIdLong());
+                this.mentionReviewers(jda, result.get(), threadChannel.getIdLong());
             }
         }
     }
@@ -140,12 +154,14 @@ public class GitHubReviewService {
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
                     String name = threadChannel.getName();
+                    Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(name);
 
-                    if (!GitHubReviewUtil.isPullRequestUrl(name)) {
+                    if (result.isErr()) {
                         continue;
                     }
 
-                    if (GitHubReviewUtil.isPullRequestMerged(name, this.discordAppConfig.githubToken)) {
+                    GitHubPullRequest pullRequest = result.get();
+                    if (GitHubReviewUtil.isPullRequestMerged(pullRequest, this.discordAppConfig.githubToken)) {
                         threadChannel.delete().queue();
                     }
                 }
