@@ -1,6 +1,5 @@
 package com.eternalcode.discordapp;
 
-
 import com.eternalcode.discordapp.command.AvatarCommand;
 import com.eternalcode.discordapp.command.BanCommand;
 import com.eternalcode.discordapp.command.BotInfoCommand;
@@ -25,6 +24,9 @@ import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
+import com.eternalcode.discordapp.review.GitHubReviewCommand;
+import com.eternalcode.discordapp.review.GitHubReviewService;
+import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -35,6 +37,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -61,14 +64,19 @@ public class DiscordApp {
             DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
+
             experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
         }
         catch (SQLException exception) {
             exception.printStackTrace();
         }
 
+        OkHttpClient httpClient = new OkHttpClient();
+
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
+
+        GitHubReviewService gitHubReviewService = new GitHubReviewService(config);
 
         CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
@@ -82,8 +90,9 @@ public class DiscordApp {
                         new KickCommand(config),
                         new PingCommand(config),
                         new ServerCommand(config),
-                        new MinecraftServerInfoCommand(),
-                        new SayCommand()
+                        new MinecraftServerInfoCommand(httpClient),
+                        new SayCommand(),
+                        new GitHubReviewCommand(gitHubReviewService)
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
@@ -119,6 +128,6 @@ public class DiscordApp {
 
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
+        timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofHours(8L).toMillis());
     }
-
 }

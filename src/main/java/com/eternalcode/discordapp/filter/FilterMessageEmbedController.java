@@ -14,7 +14,22 @@ public class FilterMessageEmbedController extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         event.getMessage().getEmbeds().forEach(embed -> {
-            FilterResult result = this.filterService.check(embed.getAuthor().getName(), embed.getTitle());
+            if (embed == null) {
+                return;
+            }
+
+            if (embed.getAuthor() == null) {
+                return;
+            }
+
+            String name = embed.getAuthor().getName();
+            String title = embed.getTitle();
+
+            if (name == null || title == null) {
+                return;
+            }
+
+            FilterResult result = this.filterService.check(name, title);
 
             if (!result.isPassed()) {
                 event.getMessage().delete().queue();

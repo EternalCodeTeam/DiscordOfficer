@@ -12,7 +12,7 @@ public class FilterResult {
     }
 
     public boolean isPassed() {
-        return passed;
+        return this.passed;
     }
 
     public static FilterResult passed() {
