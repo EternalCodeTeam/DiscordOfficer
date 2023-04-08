@@ -98,7 +98,7 @@ class GitHubReviewUtilTest {
 
         RecordedRequest recordedRequest = this.server.takeRequest();
         assertEquals(fakePullRequest.toApiUrl(), recordedRequest.getRequestUrl().toString());
-        assertEquals("token" + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
+        assertEquals("token " + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
     @Test

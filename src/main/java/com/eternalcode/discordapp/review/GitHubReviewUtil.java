@@ -29,7 +29,7 @@ public final class GitHubReviewUtil {
     public static List<String> getReviewers(GitHubPullRequest pullRequest, String githubToken) {
         Request request = new Request.Builder()
                 .url(pullRequest.toApiUrl())
-                .header("Authorization", "token" + githubToken)
+                .header("Authorization", "token " + githubToken)
                 .build();
 
         try {
@@ -57,7 +57,7 @@ public final class GitHubReviewUtil {
     public static String getPullRequestTitleFromUrl(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(pullRequest.toApiUrl())
-                .header("Authorization", "token" + githubToken)
+                .header("Authorization", "token " + githubToken)
                 .build();
 
         Response response = HTTP_CLIENT.newCall(request).execute();
