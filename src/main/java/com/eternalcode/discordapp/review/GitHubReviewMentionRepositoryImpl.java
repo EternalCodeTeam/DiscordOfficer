@@ -1,11 +1,13 @@
 package com.eternalcode.discordapp.review;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
 class GitHubReviewMentionRepositoryImpl implements GitHubReviewMentionRepository {
+
+    private static final Duration MENTION_COOLDOWN = Duration.ofHours(8);
 
     private final Map<GitHubPullRequest, Map<Long, Instant>> reviewMentions = new HashMap<>();
 
@@ -30,10 +32,9 @@ class GitHubReviewMentionRepositoryImpl implements GitHubReviewMentionRepository
             return false;
         }
 
-        Instant nextMention = lastMention.plus(8, ChronoUnit.HOURS);
+        Instant nextMention = lastMention.plus(MENTION_COOLDOWN);
 
         return nextMention.isAfter(Instant.now());
     }
-
 
 }
