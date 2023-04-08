@@ -24,15 +24,15 @@ public class GitHubPullRequest {
     }
 
     public String getOwner() {
-        return owner;
+        return this.owner;
     }
 
     public String getRepository() {
-        return repository;
+        return this.repository;
     }
 
     public int getNumber() {
-        return number;
+        return this.number;
     }
 
     public String toUrl() {
@@ -59,13 +59,19 @@ public class GitHubPullRequest {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GitHubPullRequest that)) return false;
-        return number == that.number && Objects.equals(owner, that.owner) && Objects.equals(repository, that.repository);
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof GitHubPullRequest that)) {
+            return false;
+        }
+
+        return this.number == that.number && Objects.equals(this.owner, that.owner) && Objects.equals(this.repository, that.repository);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(owner, repository, number);
+        return Objects.hash(this.owner, this.repository, this.number);
     }
 }
