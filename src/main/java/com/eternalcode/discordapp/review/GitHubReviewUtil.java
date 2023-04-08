@@ -12,13 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class GitHubReviewUtil {
 
-    private static final String GITHUB_PULL_REQUEST_REGEX = "^https://github\\.com/([a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+)/pull/([0-9]+)$";
-    private static final String GITHUB_PULL_REQUEST_API_URL_REGEX = "https:\\/\\/github\\.com\\/(\\w+)\\/(\\w+)\\/pull\\/(\\d+)";
     private static final String GITHUB_PULL_REQUEST_TITLE_CONVENTION = "^(GH)-\\d+ .+$";
 
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
@@ -26,18 +22,14 @@ public final class GitHubReviewUtil {
 
     private GitHubReviewUtil() {}
 
-    public static boolean isPullRequestUrl(String url) {
-        return url.matches(GITHUB_PULL_REQUEST_REGEX);
-    }
-
     public static boolean isPullRequestTitleValid(String title) {
         return title.matches(GITHUB_PULL_REQUEST_TITLE_CONVENTION);
     }
 
-    public static List<String> getReviewers(String url, String githubToken) {
+    public static List<String> getReviewers(GitHubPullRequest pullRequest, String githubToken) {
         Request request = new Request.Builder()
-                .url(url)
-                .header("Authorization", "token" + githubToken)
+                .url(pullRequest.toApiUrl())
+                .header("Authorization", "token " + githubToken)
                 .build();
 
         try {
@@ -62,28 +54,10 @@ public final class GitHubReviewUtil {
         }
     }
 
-    public static String getGitHubPullRequestAPIUrl(String url) {
-        Pattern pattern = Pattern.compile(GITHUB_PULL_REQUEST_API_URL_REGEX);
-        Matcher matcher = pattern.matcher(url);
-
-        String user = "";
-        String repo = "";
-        int number = 0;
-
-        if (matcher.find()) {
-            user = matcher.group(1);
-            repo = matcher.group(2);
-            number = Integer.parseInt(matcher.group(3));
-        }
-
-        return String.format("https://api.github.com/repos/%s/%s/pulls/%d", user, repo, number);
-    }
-
-
-    public static String getPullRequestTitleFromUrl(String url, String githubToken) throws IOException {
+    public static String getPullRequestTitleFromUrl(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
-                .url(GitHubReviewUtil.getGitHubPullRequestAPIUrl(url))
-                .header("Authorization", "token" + githubToken)
+                .url(pullRequest.toApiUrl())
+                .header("Authorization", "token " + githubToken)
                 .build();
 
         Response response = HTTP_CLIENT.newCall(request).execute();
@@ -98,9 +72,9 @@ public final class GitHubReviewUtil {
         return jsonObject.get("title").getAsString();
     }
 
-    public static boolean isPullRequestMerged(String url, String githubToken) throws IOException {
+    public static boolean isPullRequestMerged(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
-                .url(GitHubReviewUtil.getGitHubPullRequestAPIUrl(url))
+                .url(pullRequest.toApiUrl())
                 .header("Authorization", "token " + githubToken)
                 .build();
 

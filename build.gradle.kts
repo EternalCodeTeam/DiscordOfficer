@@ -67,6 +67,10 @@ dependencies {
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     testImplementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    // mockito
+    testImplementation("org.mockito:mockito-core:4.0.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.0.0")
 }
 
 tasks.getByName<Test>("test") {
