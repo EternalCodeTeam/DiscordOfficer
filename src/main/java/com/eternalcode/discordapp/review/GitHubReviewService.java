@@ -146,7 +146,7 @@ public class GitHubReviewService {
                     }
 
                     if (GitHubReviewUtil.isPullRequestMerged(name, this.discordAppConfig.githubToken)) {
-                        threadChannel.delete().queue();
+                        threadChannel.getManager().setLocked(true).setArchived(true).queue();
                     }
                 }
             }
