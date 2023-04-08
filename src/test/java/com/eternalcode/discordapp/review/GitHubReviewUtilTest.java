@@ -1,7 +1,5 @@
 package com.eternalcode.discordapp.review;
 
-import okhttp3.HttpUrl;
-import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -13,7 +11,10 @@ import panda.std.Result;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +90,7 @@ class GitHubReviewUtilTest {
                 .setBody(jsonResponse)
                 .addHeader("Content-Type", "application/json"));
 
-        List<String> reviewers = GitHubReviewUtil.getReviewers(fakePullRequest, GITHUB_FAKE_TOKEN);
+        List<String> reviewers = GitHubReviewUtil.getReviewers(this.fakePullRequest, GITHUB_FAKE_TOKEN);
 
         assertNotNull(reviewers);
         assertEquals(2, reviewers.size());
@@ -97,7 +98,7 @@ class GitHubReviewUtilTest {
         assertEquals("Piotr", reviewers.get(1));
 
         RecordedRequest recordedRequest = this.server.takeRequest();
-        assertEquals(fakePullRequest.toApiUrl(), recordedRequest.getRequestUrl().toString());
+        assertEquals(this.fakePullRequest.toApiUrl(), recordedRequest.getRequestUrl().toString());
         assertEquals("token " + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
