@@ -31,7 +31,7 @@ checkstyle {
 }
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.6")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.7")  {
         exclude("opus-java", "opus-java")
     }
 
