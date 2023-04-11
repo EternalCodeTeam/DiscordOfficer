@@ -44,6 +44,9 @@ dependencies {
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
+    // Sentry.io integration
+    implementation("io.sentry:sentry:6.17.0")
+
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")

@@ -30,6 +30,7 @@ import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -59,6 +60,12 @@ public class DiscordApp {
         configManager.load(config);
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
+
+        Sentry.init(options -> {
+            options.setDsn(config.sentryDsn);
+            options.setTracesSampleRate(1.0);
+            options.setDebug(true);
+        });
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));

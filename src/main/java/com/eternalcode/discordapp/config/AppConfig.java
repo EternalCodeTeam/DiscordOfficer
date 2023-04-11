@@ -23,6 +23,9 @@ public class AppConfig implements CdnConfig {
     @Description("# The app discord token")
     public String githubToken = System.getenv("OFFICER_GITHUB_TOKEN") != null ? System.getenv("OFFICER_GITHUB_TOKEN") : "PASTE_GITHUB_TOKEN_HERE";
 
+    @Description("# Sentry DSN")
+    public String sentryDsn = System.getenv("OFFICER_SENTRY_DSN") != null ? System.getenv("OFFICER_SENTRY_DSN") : "PASTE_SENTRY_DSN_HERE";
+
     @Description("# The settings of embeds")
     public EmbedSettings embedSettings = new EmbedSettings();
 
