@@ -65,6 +65,7 @@ public class DiscordApp {
             options.setDsn(config.sentryDsn);
             options.setTracesSampleRate(1.0);
             options.setDebug(true);
+            options.setAttachStacktrace(true);
         });
 
         try {
@@ -120,10 +121,9 @@ public class DiscordApp {
                 )
 
                 .setAutoReconnect(true)
+                .setHttpClient(httpClient)
 
-                .enableIntents(EnumSet.noneOf(GatewayIntent.class))
-
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES) // Because JDA doesn't understand that a few lines above all intents are enabled
+                .enableIntents(EnumSet.allOf(GatewayIntent.class))
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ONLINE_STATUS)
                 .setChunkingFilter(ChunkingFilter.ALL)
