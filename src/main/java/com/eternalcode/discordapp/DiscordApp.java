@@ -135,6 +135,6 @@ public class DiscordApp {
 
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
-        timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(5L).toMillis());
+        timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
     }
 }
