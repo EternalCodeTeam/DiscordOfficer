@@ -61,12 +61,15 @@ public class DiscordApp {
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
 
-        Sentry.init(options -> {
-            options.setDsn(config.sentryDsn);
-            options.setTracesSampleRate(1.0);
-            options.setDebug(true);
-            options.setAttachStacktrace(true);
-        });
+
+        if (!config.sentryDsn.isEmpty()) {
+            Sentry.init(options -> {
+                options.setDsn(config.sentryDsn);
+                options.setTracesSampleRate(1.0);
+                options.setDebug(true);
+                options.setAttachStacktrace(true);
+            });
+        }
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
