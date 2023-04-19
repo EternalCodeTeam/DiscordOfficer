@@ -21,6 +21,7 @@ import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
 import com.eternalcode.discordapp.experience.data.UserOnVoiceChannel;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
+import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
@@ -109,6 +110,7 @@ public class DiscordApp {
                         // Experience system
                         new ExperienceMessageListener(experienceRepository, experienceConfig),
                         new ExperienceVoiceListener(experienceRepository, experienceConfig, userOnVoiceChannel, dataManager),
+                        new ExperienceReactionListener(experienceRepository, experienceConfig),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)

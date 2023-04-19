@@ -9,7 +9,6 @@ LABEL org.label-schema.name="eternalcode/discordofficer"
 LABEL org.label-schema.description="EternalCode DiscordOfficer official image"
 LABEL org.label-schema.url="http://eternalcode.pl/"
 LABEL org.label-schema.vcs-url="https://github.com/EternalCodeTeam/DiscordOfficer/issues"
-LABEL org.label-schema.docker.cmd="docker run -e OFFICER_TOKEN=TOKEN -e OFFICER_OWNER=OWNER_ID -d eternalcode/discordofficer"
 
 WORKDIR /home/eternalcode
 COPY --from=build /app/build/libs/ /home/eternalcode/build

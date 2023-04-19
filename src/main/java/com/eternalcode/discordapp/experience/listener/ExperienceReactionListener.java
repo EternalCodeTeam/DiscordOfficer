@@ -2,6 +2,7 @@ package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,11 +20,11 @@ public class ExperienceReactionListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        // TODO: Add experience
+        ExperienceService.addPoints(this.experienceRepository, event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
     }
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        // TODO: Remove experience
+        ExperienceService.removePoints(this.experienceRepository, event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
     }
 }
