@@ -76,7 +76,6 @@ public class AppConfig implements CdnConfig {
                 "# {EMOJIS_SIZE} - the number of emojis",
                 "# {BOOSTS_SIZE} - the number of boosts",
                 "# {BOOST_TIER} - the boost tier",
-                "# Template: \"<channel_id>: <message_template>\"",
         })
         public Map<Long, String> channelNames = new HashMap<>(Map.of(
                 1043190619729842217L, "Members: {MEMBERS_SIZE}",

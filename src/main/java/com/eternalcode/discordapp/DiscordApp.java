@@ -18,7 +18,7 @@ import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
-import com.eternalcode.discordapp.experience.data.UserOnVoiceChannel;
+import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
@@ -66,11 +66,11 @@ public class DiscordApp {
         configManager.load(experienceConfig);
 
         ConfigManager dataManager = new ConfigManager(new File("data"));
-        UserOnVoiceChannel userOnVoiceChannel = new UserOnVoiceChannel();
-        dataManager.load(userOnVoiceChannel);
+        UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
+        dataManager.load(usersVoiceActivityData);
 
-        userOnVoiceChannel.addUserOnVoiceChannel(0L, Instant.now());
-        dataManager.save(userOnVoiceChannel);
+        usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now().toEpochMilli());
+        dataManager.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -128,7 +128,7 @@ public class DiscordApp {
 
                         // Experience system
                         new ExperienceMessageListener(experienceRepository, experienceConfig),
-                        new ExperienceVoiceListener(experienceRepository, experienceConfig, userOnVoiceChannel, dataManager),
+                        new ExperienceVoiceListener(experienceRepository, experienceConfig, usersVoiceActivityData, dataManager),
                         new ExperienceReactionListener(experienceRepository, experienceConfig),
 
                         // Message filter

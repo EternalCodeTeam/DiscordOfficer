@@ -9,7 +9,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
 
-public class UserOnVoiceChannel implements CdnConfig {
+public class UsersVoiceActivityData implements CdnConfig {
 
     @Description({
             "# The map of users on voice channels",
@@ -18,22 +18,6 @@ public class UserOnVoiceChannel implements CdnConfig {
             "# It's automatically generated, don't touch it!"
     })
     public HashMap<Long, Long> usersOnVoiceChannel = new HashMap<>();
-
-    public long getUserTimeSpendOnVoiceChannel(long userId) {
-        return this.usersOnVoiceChannel.getOrDefault(userId, 0L);
-    }
-
-    public void addUserOnVoiceChannel(long userId, Instant instant) {
-        if(this.usersOnVoiceChannel.containsKey(userId)) {
-            this.usersOnVoiceChannel.replace(userId, instant.getEpochSecond());
-        } else {
-            this.usersOnVoiceChannel.put(userId, instant.getEpochSecond());
-        }
-    }
-
-    public void removeUserOnVoiceChannel(long userId) {
-        this.usersOnVoiceChannel.remove(userId);
-    }
 
     @Override
     public Resource resource(File folder) {

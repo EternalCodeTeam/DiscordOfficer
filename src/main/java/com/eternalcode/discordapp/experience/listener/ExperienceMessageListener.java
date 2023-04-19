@@ -12,16 +12,18 @@ public class ExperienceMessageListener extends ListenerAdapter {
 
     private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
+    private final ExperienceService experienceService;
 
     public ExperienceMessageListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
         this.experienceRepository = experienceRepository;
         this.experienceConfig = experienceConfig;
+        this.experienceService = new ExperienceService(this.experienceRepository);
     }
 
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if(event.isWebhookMessage() || event.getAuthor().isBot()) {
+        if (event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
 
@@ -43,7 +45,7 @@ public class ExperienceMessageListener extends ListenerAdapter {
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.messageExperience.multiplier;
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
 
-        ExperienceService.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
+        this.experienceService.addPoints(event.getAuthor().getIdLong(), points);
     }
 
 }

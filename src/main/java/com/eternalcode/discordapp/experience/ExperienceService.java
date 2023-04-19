@@ -1,9 +1,14 @@
 package com.eternalcode.discordapp.experience;
 
 public class ExperienceService {
+    private ExperienceRepository experienceRepository;
 
-    public static void addPoints(ExperienceRepository experienceRepository, long userId, double points) {
-        experienceRepository.find(userId).whenComplete((experience, expierienceThrowable) -> {
+    public ExperienceService(ExperienceRepository experienceRepository) {
+        this.experienceRepository = experienceRepository;
+    }
+
+    public void addPoints(long userId, double points) {
+        this.experienceRepository.find(userId).whenComplete((experience, expierienceThrowable) -> {
             if (expierienceThrowable != null) {
                 expierienceThrowable.printStackTrace();
                 return;
@@ -11,7 +16,7 @@ public class ExperienceService {
 
             experience.addPoints(points);
 
-            experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
+            this.experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
                 if (saveExperienceThrowable != null) {
                     saveExperienceThrowable.printStackTrace();
                 }
@@ -19,8 +24,8 @@ public class ExperienceService {
         });
     }
 
-    public static void removePoints(ExperienceRepository experienceRepository, long userId, double points) {
-        experienceRepository.find(userId).whenComplete((experience, expierienceThrowable) -> {
+    public void removePoints(long userId, double points) {
+        this.experienceRepository.find(userId).whenComplete((experience, expierienceThrowable) -> {
             if (expierienceThrowable != null) {
                 expierienceThrowable.printStackTrace();
                 return;
@@ -28,7 +33,7 @@ public class ExperienceService {
 
             experience.removePoints(points);
 
-            experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
+            this.experienceRepository.saveExperience(experience).whenComplete((saveExperience, saveExperienceThrowable) -> {
                 if (saveExperienceThrowable != null) {
                     saveExperienceThrowable.printStackTrace();
                 }

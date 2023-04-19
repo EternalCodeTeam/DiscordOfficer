@@ -11,20 +11,22 @@ public class ExperienceReactionListener extends ListenerAdapter {
 
     private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
+    private final ExperienceService experienceService;
 
     public ExperienceReactionListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
         this.experienceRepository = experienceRepository;
         this.experienceConfig = experienceConfig;
+        this.experienceService = new ExperienceService(this.experienceRepository);
     }
-
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        ExperienceService.addPoints(this.experienceRepository, event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
+        this.experienceService.addPoints(event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
     }
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        ExperienceService.removePoints(this.experienceRepository, event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
+        this.experienceService.removePoints(event.getUserIdLong(), this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier);
     }
+
 }
