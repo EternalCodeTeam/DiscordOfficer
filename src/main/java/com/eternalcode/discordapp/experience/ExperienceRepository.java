@@ -9,9 +9,4 @@ public interface ExperienceRepository {
     CompletableFuture<Experience> find(long id);
 
     CompletableFuture<Dao.CreateOrUpdateStatus> saveExperience(Experience user);
-
-    CompletableFuture<Integer> deleteUser(Experience user);
-
-    CompletableFuture<Integer> deleteUserById(long id);
-
 }

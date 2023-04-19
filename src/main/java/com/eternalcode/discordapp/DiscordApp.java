@@ -19,7 +19,9 @@ import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.data.UserOnVoiceChannel;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
+import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
@@ -39,6 +41,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Timer;
 
@@ -56,6 +59,13 @@ public class DiscordApp {
         configManager.load(config);
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
+
+        ConfigManager dataManager = new ConfigManager(new File("data"));
+        UserOnVoiceChannel userOnVoiceChannel = new UserOnVoiceChannel();
+        dataManager.load(userOnVoiceChannel);
+
+        userOnVoiceChannel.addUserOnVoiceChannel(0L, Instant.now());
+        dataManager.save(userOnVoiceChannel);
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
@@ -98,6 +108,7 @@ public class DiscordApp {
 
                         // Experience system
                         new ExperienceMessageListener(experienceRepository, experienceConfig),
+                        new ExperienceVoiceListener(experienceRepository, experienceConfig, userOnVoiceChannel, dataManager),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)

@@ -27,4 +27,15 @@ public class ConfigManager {
 
         this.configs.add(config);
     }
+
+    public <T extends CdnConfig> void save(T config) {
+        CDN.render(config, config.resource(this.folder))
+                .orThrow(RuntimeException::new);
+    }
+
+    public void reload() {
+        for (CdnConfig config : this.configs) {
+            this.load(config);
+        }
+    }
 }

@@ -38,14 +38,4 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
         return this.save(ExperienceWrapper.from(user));
     }
 
-    @Override
-    public CompletableFuture<Integer> deleteUser(Experience user) {
-        return this.delete(ExperienceWrapper.from(user));
-    }
-
-    @Override
-    public CompletableFuture<Integer> deleteUserById(long id) {
-        return this.deleteById(id);
-    }
-
 }

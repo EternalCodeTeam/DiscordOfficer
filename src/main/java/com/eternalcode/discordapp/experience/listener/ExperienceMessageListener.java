@@ -2,7 +2,7 @@ package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
-import com.eternalcode.discordapp.experience.ExperienceUtil;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -21,6 +21,10 @@ public class ExperienceMessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if(event.isWebhookMessage() || event.getAuthor().isBot()) {
+            return;
+        }
+
         try {
             this.givePoints(event);
         }
@@ -39,7 +43,7 @@ public class ExperienceMessageListener extends ListenerAdapter {
         double basePoints = experienceConfig.basePoints * experienceConfig.messageExperience.multiplier;
         double points = (double) message.length / experienceConfig.messageExperience.howManyWords * basePoints;
 
-        ExperienceUtil.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
+        ExperienceService.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
     }
 
 }
