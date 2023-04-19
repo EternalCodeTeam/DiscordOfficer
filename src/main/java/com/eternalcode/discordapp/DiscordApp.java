@@ -14,10 +14,12 @@ import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
+import com.eternalcode.discordapp.data.DataManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
@@ -65,7 +67,7 @@ public class DiscordApp {
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
 
-        ConfigManager dataManager = new ConfigManager(new File("data"));
+        DataManager dataManager = new DataManager(new File("data"));
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
         dataManager.load(usersVoiceActivityData);
 
@@ -96,6 +98,7 @@ public class DiscordApp {
 
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
+        ExperienceService experienceService = new ExperienceService(experienceRepository);
 
         GitHubReviewService gitHubReviewService = new GitHubReviewService(config);
 
@@ -127,9 +130,9 @@ public class DiscordApp {
                         commandClient,
 
                         // Experience system
-                        new ExperienceMessageListener(experienceRepository, experienceConfig),
-                        new ExperienceVoiceListener(experienceRepository, experienceConfig, usersVoiceActivityData, dataManager),
-                        new ExperienceReactionListener(experienceRepository, experienceConfig),
+                        new ExperienceMessageListener(experienceConfig, experienceService),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, dataManager, experienceService),
+                        new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)

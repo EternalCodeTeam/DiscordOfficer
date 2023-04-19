@@ -10,14 +10,12 @@ import java.util.concurrent.ExecutionException;
 
 public class ExperienceMessageListener extends ListenerAdapter {
 
-    private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
     private final ExperienceService experienceService;
 
-    public ExperienceMessageListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
-        this.experienceRepository = experienceRepository;
+    public ExperienceMessageListener(ExperienceConfig experienceConfig, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
-        this.experienceService = new ExperienceService(this.experienceRepository);
+        this.experienceService = experienceService;
     }
 
 
@@ -44,8 +42,9 @@ public class ExperienceMessageListener extends ListenerAdapter {
 
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.messageExperience.multiplier;
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
+        long userId = event.getAuthor().getIdLong();
 
-        this.experienceService.addPoints(event.getAuthor().getIdLong(), points);
+        this.experienceService.addPoints(userId, points);
     }
 
 }
