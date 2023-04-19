@@ -32,10 +32,4 @@ public class ConfigManager {
         CDN.render(config, config.resource(this.folder))
                 .orThrow(RuntimeException::new);
     }
-
-    public void reload() {
-        for (CdnConfig config : this.configs) {
-            this.load(config);
-        }
-    }
 }
