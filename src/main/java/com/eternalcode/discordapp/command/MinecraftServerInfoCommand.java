@@ -24,16 +24,19 @@ public class MinecraftServerInfoCommand extends SlashCommand {
     private static final String API_URL = "https://api.mcsrvstat.us/2/%s";
     private static final String IMAGE_API_URL = "https://api.mcsrvstat.us/icon/%s";
 
-    private static final OkHttpClient OK_HTTP_CLIENT = new OkHttpClient();
     private static final Gson GSON = new Gson();
 
-    public MinecraftServerInfoCommand() {
+    private final OkHttpClient httpClient;
+
+    public MinecraftServerInfoCommand(OkHttpClient httpClient) {
         this.name = "minecraft";
         this.aliases = new String[]{ "mc", "mcserver" };
         this.options = List.of(
                 new OptionData(OptionType.STRING, "address", "The domain/IP address of the Minecraft server")
                         .setRequired(true)
         );
+
+        this.httpClient = httpClient;
     }
 
     @Override
@@ -95,7 +98,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
                 .get()
                 .build();
 
-        try (Response response = OK_HTTP_CLIENT.newCall(request).execute()) {
+        try (Response response = this.httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
             }

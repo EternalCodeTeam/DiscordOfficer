@@ -36,12 +36,12 @@ public class ExperienceMessageListener extends ListenerAdapter {
     private void givePoints(MessageReceivedEvent event) throws ExecutionException, InterruptedException {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
-        if (message.length < experienceConfig.messageExperience.howManyWords) {
+        if (message.length < this.experienceConfig.messageExperience.howManyWords) {
             return;
         }
 
-        double basePoints = experienceConfig.basePoints * experienceConfig.messageExperience.multiplier;
-        double points = (double) message.length / experienceConfig.messageExperience.howManyWords * basePoints;
+        double basePoints = this.experienceConfig.basePoints * this.experienceConfig.messageExperience.multiplier;
+        double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
 
         ExperienceService.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
     }

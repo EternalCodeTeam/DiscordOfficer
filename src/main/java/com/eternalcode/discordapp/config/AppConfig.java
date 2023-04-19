@@ -20,11 +20,20 @@ public class AppConfig implements CdnConfig {
     @Description("# The ID of guild")
     public long guildId = System.getenv("OFFICER_GUILD") != null ? Long.parseLong(System.getenv("OFFICER_GUILD")) : 1043190618526068767L;
 
+    @Description("# The app discord token")
+    public String githubToken = System.getenv("OFFICER_GITHUB_TOKEN") != null ? System.getenv("OFFICER_GITHUB_TOKEN") : "PASTE_GITHUB_TOKEN_HERE";
+
+    @Description("# Sentry DSN")
+    public String sentryDsn = System.getenv("OFFICER_SENTRY_DSN") != null ? System.getenv("OFFICER_SENTRY_DSN") : "PASTE_SENTRY_DSN_HERE";
+
     @Description("# The settings of embeds")
     public EmbedSettings embedSettings = new EmbedSettings();
 
     @Description("# The settings of voice channel statistics")
     public VoiceChannelStatistics voiceChannelStatistics = new VoiceChannelStatistics();
+
+    @Description("# The settings of review system")
+    public ReviewSystem reviewSystem = new ReviewSystem();
 
     @Override
     public Resource resource(File folder) {
@@ -79,6 +88,22 @@ public class AppConfig implements CdnConfig {
                 1088951320033112095L, "Boosts: {BOOSTS_SIZE}",
                 1088951327964528723L, "Boost Tier: {BOOST_TIER}",
                 1088951511662460988L, "Online Users: {ONLINE_MEMBERS_SIZE}"
+        ));
+    }
+
+    @Contextual
+    public static class ReviewSystem {
+        public long reviewForumId = 1090383282744590396L;
+
+        public Map<String, Long> reviewers = new HashMap<>(Map.of(
+                "vLuckyyy", 852920601969950760L,
+                "Embrejs", 887998351239413821L,
+                "eripe14", 406091568378937344L,
+                "Hyd3r1", 1038402657594908712L,
+                "Jakubk15", 533345209434767372L,
+                "Kamicjusz", 477473823546015744L,
+                "Osnixer", 719653565026664628L,
+                "Rollczi", 534018824559788032L
         ));
     }
 }
