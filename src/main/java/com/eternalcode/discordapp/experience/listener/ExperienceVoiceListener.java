@@ -65,10 +65,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
     private double calculatePoints(GuildVoiceUpdateEvent event) {
         long userId = event.getMember().getIdLong();
-        long time = Instant.now().getEpochSecond() - this.usersVoiceActivityData.usersOnVoiceChannel.get(userId);
-        Instant instant = Instant.ofEpochSecond(time);
+        
+        long timeSpentOnChannel = Instant.now().getEpochSecond() - this.usersVoiceActivityData.usersOnVoiceChannel.get(userId);
+        Instant instant = Instant.ofEpochSecond(timeSpentOnChannel);
         LocalTime localTime = LocalTime.ofInstant(instant, ZoneId.systemDefault());
+        
         double points = (this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier) * localTime.getMinute() / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
+        
         return points;
     }
 
