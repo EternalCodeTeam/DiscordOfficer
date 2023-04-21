@@ -111,6 +111,11 @@ public class GitHubReviewService {
         String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, pullRequest.toUrl());
 
         ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
+
+        if (threadChannel == null) {
+            return;
+        }
+
         threadChannel.sendMessage(message).queue();
     }
 
