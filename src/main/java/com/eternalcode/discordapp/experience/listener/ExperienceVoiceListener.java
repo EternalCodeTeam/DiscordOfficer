@@ -1,7 +1,6 @@
 package com.eternalcode.discordapp.experience.listener;
 
-import com.eternalcode.discordapp.config.ConfigManager;
-import com.eternalcode.discordapp.data.DataManager;
+import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
@@ -17,13 +16,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
     private final ExperienceConfig experienceConfig;
 
     private final UsersVoiceActivityData usersVoiceActivityData;
-    private final DataManager dataManager;
+    private final YamlFilesManager yamlFilesManager;
     private final ExperienceService experienceService;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, DataManager dataManager, ExperienceService experienceService) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
-        this.dataManager = dataManager;
+        this.yamlFilesManager = yamlFilesManager;
         this.experienceService = experienceService;
     }
 
@@ -37,7 +36,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             this.leaveVoiceChannel(event);
             this.joinVoiceChannel(event);
 
-            this.dataManager.save(this.usersVoiceActivityData);
+            this.yamlFilesManager.save(this.usersVoiceActivityData);
         }
         catch (Exception exception) {
             throw new RuntimeException(exception);
@@ -45,11 +44,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
     }
 
     private void leaveVoiceChannel(GuildVoiceUpdateEvent event) {
-        if (event.getChannelLeft() != null) {
-            long userId = event.getMember().getIdLong();
-            this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
-            this.experienceService.addPoints(userId, this.calculatePoints(event));
+        if (event.getChannelLeft() == null) {
+           return;
         }
+
+        long userId = event.getMember().getIdLong();
+        this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
+        this.experienceService.addPoints(userId, this.calculatePoints(event));
     }
 
     private void joinVoiceChannel(GuildVoiceUpdateEvent event) {
@@ -58,9 +59,11 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannelJoined() != null) {
-            this.usersVoiceActivityData.usersOnVoiceChannel.put(userId, Instant.now().toEpochMilli());
+        if (event.getChannelJoined() == null) {
+            return;
         }
+
+        this.usersVoiceActivityData.usersOnVoiceChannel.put(userId, Instant.now().toEpochMilli());
     }
 
     private double calculatePoints(GuildVoiceUpdateEvent event) {

@@ -12,9 +12,8 @@ import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.AppConfig;
-import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
-import com.eternalcode.discordapp.data.DataManager;
+import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
@@ -57,7 +56,7 @@ public class DiscordApp {
     private static ExperienceRepository experienceRepository;
 
     public static void main(String... args) throws InterruptedException {
-        ConfigManager configManager = new ConfigManager(new File("config"));
+        YamlFilesManager configManager = new YamlFilesManager("config");
 
         AppConfig config = new AppConfig();
         DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -67,12 +66,12 @@ public class DiscordApp {
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
 
-        DataManager dataManager = new DataManager(new File("data"));
+        YamlFilesManager yamlFilesManager = new YamlFilesManager("data");
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
-        dataManager.load(usersVoiceActivityData);
+        yamlFilesManager.load(usersVoiceActivityData);
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now().toEpochMilli());
-        dataManager.save(usersVoiceActivityData);
+        yamlFilesManager.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -131,7 +130,7 @@ public class DiscordApp {
 
                         // Experience system
                         new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, dataManager, experienceService),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, yamlFilesManager, experienceService),
                         new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter

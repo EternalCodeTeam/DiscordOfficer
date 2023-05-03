@@ -8,15 +8,14 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DataManager {
+public class YamlFilesManager {
 
     private static final Cdn CDN = CdnFactory.createYamlLike().getSettings().build();
 
-    private final Set<CdnConfig> dataFiles = new HashSet<>();
     private final File folder;
 
-    public DataManager(File folder) {
-        this.folder = folder;
+    public YamlFilesManager(String directory) {
+        this.folder = new File(directory);
     }
 
     public <T extends CdnConfig> void load(T dataFile) {
@@ -25,8 +24,6 @@ public class DataManager {
 
         CDN.render(dataFile, dataFile.resource(this.folder))
                 .orThrow(RuntimeException::new);
-
-        this.dataFiles.add(dataFile);
     }
 
     public <T extends CdnConfig> void save(T config) {
