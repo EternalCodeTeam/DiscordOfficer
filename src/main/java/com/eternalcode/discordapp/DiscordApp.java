@@ -70,7 +70,7 @@ public class DiscordApp {
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
         yamlFilesManager.load(usersVoiceActivityData);
 
-        usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now().toEpochMilli());
+        usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
         yamlFilesManager.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
