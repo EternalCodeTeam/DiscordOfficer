@@ -17,7 +17,7 @@ public class UsersVoiceActivityData implements CdnConfig {
             "# Value - time in seconds",
             "# It's automatically generated, don't touch it!"
     })
-    public HashMap<Long, Long> usersOnVoiceChannel = new HashMap<>();
+    public HashMap<Long, Instant> usersOnVoiceChannel = new HashMap<>();
 
     @Override
     public Resource resource(File folder) {

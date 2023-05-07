@@ -7,6 +7,7 @@ import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -63,17 +64,15 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             return;
         }
 
-        this.usersVoiceActivityData.usersOnVoiceChannel.put(userId, Instant.now().toEpochMilli());
+        this.usersVoiceActivityData.usersOnVoiceChannel.put(userId, Instant.now());
     }
 
     private double calculatePoints(GuildVoiceUpdateEvent event) {
         long userId = event.getMember().getIdLong();
         
-        long timeSpentOnChannel = Instant.now().getEpochSecond() - this.usersVoiceActivityData.usersOnVoiceChannel.get(userId);
-        Instant instant = Instant.ofEpochSecond(timeSpentOnChannel);
-        LocalTime localTime = LocalTime.ofInstant(instant, ZoneId.systemDefault());
+        long minutes = Duration.between(this.usersVoiceActivityData.usersOnVoiceChannel.get(userId), Instant.now()).toMinutes();
         
-        double points = (this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier) * localTime.getMinute() / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
+        double points = (this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier) * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
         
         return points;
     }

@@ -1,16 +1,20 @@
 package com.eternalcode.discordapp.data;
 
+import com.eternalcode.discordapp.composer.InstantComposer;
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.Cdn;
 import net.dzikoysk.cdn.CdnFactory;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Instant;
 
 public class YamlFilesManager {
 
-    private static final Cdn CDN = CdnFactory.createYamlLike().getSettings().build();
+    private static final Cdn CDN = CdnFactory
+            .createYamlLike()
+            .getSettings()
+            .withComposer(Instant.class, new InstantComposer())
+            .build();
 
     private final File folder;
 
