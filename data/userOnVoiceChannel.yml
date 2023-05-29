@@ -1,6 +1,0 @@
-# The map of users on voice channels
-# Key - user ID
-# Value - time in seconds
-# It's automatically generated, don't touch it!
-usersOnVoiceChannel:
-  0: 1683492955073
