@@ -38,4 +38,18 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
         return this.save(ExperienceWrapper.from(user));
     }
 
+    @Override
+    public CompletableFuture<Dao.CreateOrUpdateStatus> modifyPoints(long id, double points, boolean add) {
+        return this.find(id).thenCompose(experience -> {
+            if (add) {
+                experience.addPoints(points);
+            }
+            else {
+                experience.removePoints(points);
+            }
+
+            return this.saveExperience(experience);
+        });
+    }
+
 }

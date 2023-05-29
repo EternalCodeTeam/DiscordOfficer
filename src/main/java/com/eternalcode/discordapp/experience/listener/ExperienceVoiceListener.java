@@ -2,15 +2,13 @@ package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceService;
+import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
 
 public class ExperienceVoiceListener extends ListenerAdapter {
 
@@ -18,13 +16,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
     private final UsersVoiceActivityData usersVoiceActivityData;
     private final YamlFilesManager yamlFilesManager;
-    private final ExperienceService experienceService;
+    private final ExperienceRepository experienceRepository;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceService experienceService) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceRepository experienceRepository) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
         this.yamlFilesManager = yamlFilesManager;
-        this.experienceService = experienceService;
+        this.experienceRepository = experienceRepository;
     }
 
     @Override
@@ -51,7 +49,11 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
         long userId = event.getMember().getIdLong();
         this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
-        this.experienceService.addPoints(userId, this.calculatePoints(event));
+        this.experienceRepository.modifyPoints(userId, this.calculatePoints(event), true).whenComplete((status, throwable) -> {
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        });
     }
 
     private void joinVoiceChannel(GuildVoiceUpdateEvent event) {
@@ -69,11 +71,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
     private double calculatePoints(GuildVoiceUpdateEvent event) {
         long userId = event.getMember().getIdLong();
-        
-        long minutes = Duration.between(this.usersVoiceActivityData.usersOnVoiceChannel.get(userId), Instant.now()).toMinutes();
-        
-        double points = (this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier) * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
-        
+
+        Instant joined = this.usersVoiceActivityData.usersOnVoiceChannel.get(userId);
+        long minutes = Duration.between(joined, Instant.now()).toMinutes();
+
+        double basePoints = this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier;
+        double points = basePoints * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
+
         return points;
     }
 

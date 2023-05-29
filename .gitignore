@@ -4,6 +4,7 @@
 .gradle
 build/
 database/
+data/
 logs/
 config
 gradle-app.setting
