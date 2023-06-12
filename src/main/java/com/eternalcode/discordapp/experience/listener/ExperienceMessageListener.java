@@ -2,7 +2,6 @@ package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
-import com.eternalcode.discordapp.experience.ExperienceUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -10,17 +9,21 @@ import java.util.concurrent.ExecutionException;
 
 public class ExperienceMessageListener extends ListenerAdapter {
 
-    private final ExperienceRepository experienceRepository;
     private final ExperienceConfig experienceConfig;
+    private final ExperienceRepository experienceRepository;
 
-    public ExperienceMessageListener(ExperienceRepository experienceRepository, ExperienceConfig experienceConfig) {
-        this.experienceRepository = experienceRepository;
+    public ExperienceMessageListener(ExperienceConfig experienceConfig, ExperienceRepository experienceRepository) {
         this.experienceConfig = experienceConfig;
+        this.experienceRepository = experienceRepository;
     }
 
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.isWebhookMessage() || event.getAuthor().isBot()) {
+            return;
+        }
+
         try {
             this.givePoints(event);
         }
@@ -38,8 +41,13 @@ public class ExperienceMessageListener extends ListenerAdapter {
 
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.messageExperience.multiplier;
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
+        long userId = event.getAuthor().getIdLong();
 
-        ExperienceUtil.addPoints(this.experienceRepository, event.getAuthor().getIdLong(), points);
+        this.experienceRepository.modifyPoints(userId, points, true).whenComplete((status, throwable) -> {
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        });
     }
 
 }

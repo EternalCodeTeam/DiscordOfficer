@@ -12,13 +12,16 @@ import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.AppConfig;
-import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
+import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
+import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
+import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
@@ -43,6 +46,7 @@ import okhttp3.OkHttpClient;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Timer;
 
@@ -51,7 +55,7 @@ public class DiscordApp {
     private static ExperienceRepository experienceRepository;
 
     public static void main(String... args) throws InterruptedException {
-        ConfigManager configManager = new ConfigManager(new File("config"));
+        YamlFilesManager configManager = new YamlFilesManager("config");
 
         AppConfig config = new AppConfig();
         DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -61,6 +65,12 @@ public class DiscordApp {
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
 
+        YamlFilesManager yamlFilesManager = new YamlFilesManager("data");
+        UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
+        yamlFilesManager.load(usersVoiceActivityData);
+
+        usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
+        yamlFilesManager.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -117,7 +127,9 @@ public class DiscordApp {
                         commandClient,
 
                         // Experience system
-                        new ExperienceMessageListener(experienceRepository, experienceConfig),
+                        new ExperienceMessageListener(experienceConfig, experienceRepository),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, yamlFilesManager, experienceRepository),
+                        new ExperienceReactionListener(experienceConfig, experienceRepository),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)

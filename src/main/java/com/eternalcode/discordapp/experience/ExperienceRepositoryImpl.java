@@ -39,13 +39,17 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     }
 
     @Override
-    public CompletableFuture<Integer> deleteUser(Experience user) {
-        return this.delete(ExperienceWrapper.from(user));
-    }
+    public CompletableFuture<Dao.CreateOrUpdateStatus> modifyPoints(long id, double points, boolean add) {
+        return this.find(id).thenCompose(experience -> {
+            if (add) {
+                experience.addPoints(points);
+            }
+            else {
+                experience.removePoints(points);
+            }
 
-    @Override
-    public CompletableFuture<Integer> deleteUserById(long id) {
-        return this.deleteById(id);
+            return this.saveExperience(experience);
+        });
     }
 
 }
