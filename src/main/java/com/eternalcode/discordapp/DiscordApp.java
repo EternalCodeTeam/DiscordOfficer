@@ -27,6 +27,9 @@ import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
+import com.eternalcode.discordapp.leveling.LevelConfig;
+import com.eternalcode.discordapp.leveling.LevelRepository;
+import com.eternalcode.discordapp.leveling.LevelRepositoryImpl;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
@@ -53,6 +56,7 @@ import java.util.Timer;
 public class DiscordApp {
 
     private static ExperienceRepository experienceRepository;
+    private static LevelRepository levelRepository;
 
     public static void main(String... args) throws InterruptedException {
         YamlFilesManager configManager = new YamlFilesManager("config");
@@ -60,10 +64,12 @@ public class DiscordApp {
         AppConfig config = new AppConfig();
         DatabaseConfig databaseConfig = new DatabaseConfig();
         ExperienceConfig experienceConfig = new ExperienceConfig();
+        LevelConfig levelConfig = new LevelConfig();
 
         configManager.load(config);
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
+        configManager.load(levelConfig);
 
         YamlFilesManager yamlFilesManager = new YamlFilesManager("data");
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
@@ -87,6 +93,7 @@ public class DiscordApp {
             UserRepositoryImpl.create(databaseManager);
 
             experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
+            levelRepository = LevelRepositoryImpl.create(databaseManager);
         }
         catch (SQLException exception) {
             exception.printStackTrace();

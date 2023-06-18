@@ -47,7 +47,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
             else {
                 experience.removePoints(points);
             }
-
+            
             return this.saveExperience(experience);
         });
     }
