@@ -37,12 +37,13 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     }
 
     @Override
-    public CompletableFuture<Dao.CreateOrUpdateStatus> saveExperience(Experience user) {
-        return this.save(ExperienceWrapper.from(user));
+    public CompletableFuture<Experience> saveExperience(Experience experience) {
+        this.save(ExperienceWrapper.from(experience));
+        return CompletableFuture.completedFuture(experience);
     }
 
     @Override
-    public CompletableFuture<Dao.CreateOrUpdateStatus> modifyPoints(long id, double points, boolean add) {
+    public CompletableFuture<Experience> modifyPoints(long id, double points, boolean add) {
         return this.find(id).thenCompose(experience -> {
             if (add) {
                 experience.addPoints(points);

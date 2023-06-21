@@ -21,7 +21,7 @@ class ExperienceWrapper {
     }
 
     public static ExperienceWrapper from(Experience userPoints) {
-        return new ExperienceWrapper(userPoints.getId(), userPoints.getPoints());
+        return new ExperienceWrapper(userPoints.getUserId(), userPoints.getPoints());
     }
 
     public Experience toExperience() {

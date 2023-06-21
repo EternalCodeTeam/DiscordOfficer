@@ -2,16 +2,16 @@ package com.eternalcode.discordapp.experience;
 
 public class Experience {
 
-    private final long id;
+    private final long userId;
     private double points;
 
-    public Experience(long id, double points) {
-        this.id = id;
+    public Experience(long userId, double points) {
+        this.userId = userId;
         this.points = points;
     }
 
-    public long getId() {
-        return this.id;
+    public long getUserId() {
+        return this.userId;
     }
 
     public double getPoints() {

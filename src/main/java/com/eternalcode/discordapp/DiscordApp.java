@@ -15,9 +15,11 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
@@ -28,8 +30,10 @@ import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.leveling.LevelConfig;
+import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelRepository;
 import com.eternalcode.discordapp.leveling.LevelRepositoryImpl;
+import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
@@ -59,6 +63,7 @@ public class DiscordApp {
     private static LevelRepository levelRepository;
 
     public static void main(String... args) throws InterruptedException {
+        ObserverRegistry observerRegistry = new ObserverRegistry();
         YamlFilesManager configManager = new YamlFilesManager("config");
 
         AppConfig config = new AppConfig();
@@ -98,6 +103,10 @@ public class DiscordApp {
         catch (SQLException exception) {
             exception.printStackTrace();
         }
+
+        ExperienceService experienceService = new ExperienceService(experienceRepository, observerRegistry);
+
+        observerRegistry.observe(ExperienceChangeEvent.class, new LevelController());
 
         OkHttpClient httpClient = new OkHttpClient();
 
