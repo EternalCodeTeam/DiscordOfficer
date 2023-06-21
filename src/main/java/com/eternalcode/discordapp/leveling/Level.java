@@ -1,13 +1,10 @@
 package com.eternalcode.discordapp.leveling;
 
-import com.eternalcode.discordapp.experience.Experience;
-
 public class Level {
 
     private final long id;
 
     private int level;
-
 
     public Level(long id, int level) {
         this.id = id;
@@ -25,6 +22,4 @@ public class Level {
     public void setLevel(int level) {
         this.level = level;
     }
-
-
 }

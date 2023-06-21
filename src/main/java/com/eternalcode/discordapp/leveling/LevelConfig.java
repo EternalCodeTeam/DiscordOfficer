@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.leveling;
 
 import com.eternalcode.discordapp.config.CdnConfig;
+import net.dzikoysk.cdn.entity.Contextual;
 import net.dzikoysk.cdn.entity.Description;
 import net.dzikoysk.cdn.source.Resource;
 import net.dzikoysk.cdn.source.Source;
@@ -11,8 +12,12 @@ public class LevelConfig implements CdnConfig {
     @Description("# The count of points that will be added to the user's level")
     public int points = 100;
 
+    @Description("# Channel where the message will be sent")
+    public long channel = 0;
 
+    public Message message = new Message();
 
+    @Contextual
     public static class Message {
         @Description("# Color of embed")
         public String color = "#00ff00";

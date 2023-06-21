@@ -6,7 +6,9 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapper, Long> implements ExperienceRepository {
 
@@ -21,6 +23,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
         catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
+
 
         return new ExperienceRepositoryImpl(databaseManager);
     }
@@ -47,9 +50,17 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
             else {
                 experience.removePoints(points);
             }
-            
+
             return this.saveExperience(experience);
         });
+    }
+
+    @Override
+    public CompletableFuture<List<Experience>> findAll() {
+        return this.selectAll().thenApply(experienceWrappers -> experienceWrappers.stream()
+                .map(ExperienceWrapper::toExperience)
+                .collect(Collectors.toList())
+        );
     }
 
 }
