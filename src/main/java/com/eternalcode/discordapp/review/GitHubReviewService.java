@@ -2,17 +2,14 @@ package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import panda.std.Result;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,9 +99,7 @@ public class GitHubReviewService {
                 try {
                     privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl())).queue();
                 }
-                catch (Exception ignored) {
-
-                }
+                catch (Exception ignored) {}
             });
 
             reviewersMention.append(user.getAsMention()).append(" ");
@@ -195,7 +190,6 @@ public class GitHubReviewService {
     }
 
     public List<Map.Entry<String, Long>> getListOfUsers() {
-        List<Map.Entry<String, Long>> users = new ArrayList<>(this.discordAppConfig.reviewSystem.reviewers.entrySet());
-        return users;
+        return new ArrayList<>(this.discordAppConfig.reviewSystem.reviewers.entrySet());
     }
 }
