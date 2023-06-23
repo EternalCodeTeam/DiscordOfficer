@@ -27,9 +27,9 @@ import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
-import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
+import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -65,12 +65,12 @@ public class DiscordApp {
         configManager.load(databaseConfig);
         configManager.load(experienceConfig);
 
-        ConfigManager yamlFilesManager = new ConfigManager("data");
+        ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
-        yamlFilesManager.load(usersVoiceActivityData);
+        data.load(usersVoiceActivityData);
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
-        yamlFilesManager.save(usersVoiceActivityData);
+        data.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -113,7 +113,7 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(gitHubReviewService, config)
+                        new GitHubReviewCommand(gitHubReviewService)
                 )
                 .setOwnerId(config.topOwnerId)
                 .forceGuildOnly(config.guildId)
