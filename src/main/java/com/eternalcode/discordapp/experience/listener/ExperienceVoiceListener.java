@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.experience.listener;
 
-import com.eternalcode.discordapp.data.YamlFilesManager;
+import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
 import com.eternalcode.discordapp.experience.ExperienceRepository;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
@@ -15,13 +15,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
     private final ExperienceConfig experienceConfig;
 
     private final UsersVoiceActivityData usersVoiceActivityData;
-    private final YamlFilesManager yamlFilesManager;
+    private final ConfigManager configManager;
     private final ExperienceRepository experienceRepository;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceRepository experienceRepository) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, ConfigManager configManager, ExperienceRepository experienceRepository) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
-        this.yamlFilesManager = yamlFilesManager;
+        this.configManager = configManager;
         this.experienceRepository = experienceRepository;
     }
 
@@ -35,7 +35,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             this.leaveVoiceChannel(event);
             this.joinVoiceChannel(event);
 
-            this.yamlFilesManager.save(this.usersVoiceActivityData);
+            this.configManager.save(this.usersVoiceActivityData);
         }
         catch (Exception exception) {
             throw new RuntimeException(exception);

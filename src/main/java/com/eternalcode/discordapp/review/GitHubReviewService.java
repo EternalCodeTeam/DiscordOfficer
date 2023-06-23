@@ -1,25 +1,32 @@
 package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.config.ConfigManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import panda.std.Result;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GitHubReviewService {
 
     private final AppConfig discordAppConfig;
+    private final ConfigManager configManager;
     private final GitHubReviewMentionRepository mentionRepository = new GitHubReviewMentionRepositoryImpl();
 
-    public GitHubReviewService(AppConfig discordAppConfig) {
+    public GitHubReviewService(AppConfig discordAppConfig, ConfigManager configManager) {
         this.discordAppConfig = discordAppConfig;
+        this.configManager = configManager;
     }
 
     public String createReview(Guild guild, String url, JDA jda) {
@@ -175,5 +182,20 @@ public class GitHubReviewService {
         catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public void addUserToSystem(Long discordId, String githubUsername) {
+        this.discordAppConfig.reviewSystem.reviewers.put(githubUsername, discordId);
+        this.configManager.save(this.discordAppConfig);
+    }
+
+    public void removeUserFromSystem(Long discordId) {
+        this.discordAppConfig.reviewSystem.reviewers.entrySet().removeIf(entry -> entry.getValue().equals(discordId));
+        this.configManager.save(this.discordAppConfig);
+    }
+
+    public List<Map.Entry<String, Long>> getListOfUsers() {
+        List<Map.Entry<String, Long>> users = new ArrayList<>(this.discordAppConfig.reviewSystem.reviewers.entrySet());
+        return users;
     }
 }

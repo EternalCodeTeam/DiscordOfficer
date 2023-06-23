@@ -43,6 +43,7 @@ dependencies {
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
+    implementation("pw.chew:jda-chewtils-menu:2.0-SNAPSHOT")
 
     // Sentry.io integration
     implementation("io.sentry:sentry:6.17.0")
