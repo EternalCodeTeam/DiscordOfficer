@@ -29,10 +29,14 @@ public class RemoveChild extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        Long discordId = event.getOption("user").getAsUser().getIdLong();
+        try {
+            Long discordId = event.getOption("user").getAsUser().getIdLong();
 
-
-        this.gitHubReviewService.removeUserFromSystem(discordId);
-        event.reply("User removed from the system").setEphemeral(true).queue();
+            this.gitHubReviewService.removeUserFromSystem(discordId);
+            event.reply("User removed from the system").setEphemeral(true).queue();
+        }
+        catch (Exception exception) {
+            event.reply("An error occurred while removing the user from the system").setEphemeral(true).queue();
+        }
     }
 }

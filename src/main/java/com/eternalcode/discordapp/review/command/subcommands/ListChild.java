@@ -4,8 +4,6 @@ import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 import java.util.Map;
@@ -23,13 +21,18 @@ public class ListChild extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        List<Map.Entry<String, Long>> listOfUsers = this.gitHubReviewService.getListOfUsers();
+        try {
+            List<Map.Entry<String, Long>> listOfUsers = this.gitHubReviewService.getListOfUsers();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        for (Map.Entry<String, Long> user : listOfUsers) {
-            embedBuilder.addField(user.getKey(), String.valueOf(user.getValue()), false);
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            for (Map.Entry<String, Long> user : listOfUsers) {
+                embedBuilder.addField(user.getKey(), String.valueOf(user.getValue()), false);
+            }
+
+            event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
         }
-
-        event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
+        catch (Exception exception) {
+            event.reply("An error occurred while listing the users").setEphemeral(true).queue();
+        }
     }
 }

@@ -31,10 +31,15 @@ public class AddChild extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        Long discordUsername = event.getOption("user").getAsUser().getIdLong();
-        String githubUsername = event.getOption("github-username").getAsString();
+        try {
+            Long discordUsername = event.getOption("user").getAsUser().getIdLong();
+            String githubUsername = event.getOption("github-username").getAsString();
 
-        this.gitHubReviewService.addUserToSystem(discordUsername, githubUsername);
-        event.reply("User added to the system").setEphemeral(true).queue();
+            this.gitHubReviewService.addUserToSystem(discordUsername, githubUsername);
+            event.reply("User added to the system").setEphemeral(true).queue();
+        }
+        catch (Exception exception) {
+            event.reply("An error occurred while adding the user to the system").setEphemeral(true).queue();
+        }
     }
 }

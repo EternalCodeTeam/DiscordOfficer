@@ -9,20 +9,15 @@ import com.eternalcode.discordapp.review.command.subcommands.RequestChild;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
 
 public class GitHubReviewCommand extends SlashCommand {
 
     private final GitHubReviewService gitHubReviewService;
 
-    public GitHubReviewCommand(GitHubReviewService gitHubReviewService, AppConfig appConfig) {
+    public GitHubReviewCommand(GitHubReviewService gitHubReviewService) {
         this.name = "review";
         this.help = "Review a GitHub pull request";
         this.userPermissions = new Permission[]{ Permission.MESSAGE_MANAGE };
-
 
         this.gitHubReviewService = gitHubReviewService;
 
