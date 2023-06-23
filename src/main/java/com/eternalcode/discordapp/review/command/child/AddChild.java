@@ -39,7 +39,7 @@ public class AddChild extends SlashCommand {
             event.reply("User added to the system").setEphemeral(true).queue();
         }
         catch (Exception exception) {
-            event.reply("An error occurred while adding the user to the system").setEphemeral(true).queue();
+            event.reply("An error occurred while adding user to the system").setEphemeral(true).queue();
         }
     }
 }
