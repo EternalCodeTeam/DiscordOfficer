@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.review.command.subcommands;
+package com.eternalcode.discordapp.review.command.child;
 
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.jagrosh.jdautilities.command.SlashCommand;

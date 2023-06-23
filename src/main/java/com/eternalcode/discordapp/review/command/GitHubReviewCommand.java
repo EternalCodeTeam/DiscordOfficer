@@ -1,11 +1,10 @@
 package com.eternalcode.discordapp.review.command;
 
-import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.review.GitHubReviewService;
-import com.eternalcode.discordapp.review.command.subcommands.AddChild;
-import com.eternalcode.discordapp.review.command.subcommands.ListChild;
-import com.eternalcode.discordapp.review.command.subcommands.RemoveChild;
-import com.eternalcode.discordapp.review.command.subcommands.RequestChild;
+import com.eternalcode.discordapp.review.command.child.AddChild;
+import com.eternalcode.discordapp.review.command.child.ListChild;
+import com.eternalcode.discordapp.review.command.child.RemoveChild;
+import com.eternalcode.discordapp.review.command.child.RequestChild;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
