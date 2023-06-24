@@ -1,12 +1,16 @@
 package com.eternalcode.discordapp.config;
 
+import com.eternalcode.discordapp.review.GitHubReviewUser;
 import net.dzikoysk.cdn.entity.Contextual;
 import net.dzikoysk.cdn.entity.Description;
 import net.dzikoysk.cdn.source.Resource;
 import net.dzikoysk.cdn.source.Source;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AppConfig implements CdnConfig {
@@ -94,15 +98,9 @@ public class AppConfig implements CdnConfig {
     public static class ReviewSystem {
         public long reviewForumId = 1090383282744590396L;
 
-        public Map<String, Long> reviewers = new HashMap<>(Map.of(
-                "vLuckyyy", 852920601969950760L,
-                "Embrejs", 887998351239413821L,
-                "eripe14", 406091568378937344L,
-                "Hyd3r1", 1038402657594908712L,
-                "Jakubk15", 533345209434767372L,
-                "Kamicjusz", 477473823546015744L,
-                "Osnixer", 719653565026664628L,
-                "Rollczi", 534018824559788032L
+
+        public List<GitHubReviewUser> reviewers = new ArrayList<>(Collections.singletonList(
+                new GitHubReviewUser(852920601969950760L, "vluckyyy")
         ));
     }
 }

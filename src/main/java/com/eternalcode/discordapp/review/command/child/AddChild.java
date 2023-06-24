@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.review.command.child;
 
 import com.eternalcode.discordapp.review.GitHubReviewService;
+import com.eternalcode.discordapp.review.GitHubReviewUser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
@@ -35,11 +36,15 @@ public class AddChild extends SlashCommand {
             Long discordUsername = event.getOption("user").getAsUser().getIdLong();
             String githubUsername = event.getOption("github-username").getAsString();
 
-            this.gitHubReviewService.addUserToSystem(discordUsername, githubUsername);
+            GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername);
+
+            this.gitHubReviewService.addUserToSystem(gitHubReviewUser);
+            System.out.println(gitHubReviewUser.discordId() + " " + gitHubReviewUser.githubUsername());
             event.reply("User added to the system").setEphemeral(true).queue();
         }
         catch (Exception exception) {
             event.reply("An error occurred while adding user to the system").setEphemeral(true).queue();
+            exception.printStackTrace();
         }
     }
 }

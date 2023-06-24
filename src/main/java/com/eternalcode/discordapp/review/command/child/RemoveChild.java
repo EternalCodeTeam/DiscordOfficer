@@ -37,6 +37,8 @@ public class RemoveChild extends SlashCommand {
         }
         catch (Exception exception) {
             event.reply("An error occurred while removing the user from the system").setEphemeral(true).queue();
+            exception.printStackTrace();
         }
     }
+
 }
