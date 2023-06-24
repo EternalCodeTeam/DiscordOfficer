@@ -1,24 +1,25 @@
-package com.eternalcode.discordapp.data;
+package com.eternalcode.discordapp.config;
 
 import com.eternalcode.discordapp.composer.InstantComposer;
-import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.Cdn;
 import net.dzikoysk.cdn.CdnFactory;
+import net.dzikoysk.cdn.reflect.Visibility;
 
 import java.io.File;
 import java.time.Instant;
 
-public class YamlFilesManager {
+public class ConfigManager {
 
     private static final Cdn CDN = CdnFactory
             .createYamlLike()
             .getSettings()
             .withComposer(Instant.class, new InstantComposer())
+            .withMemberResolver(Visibility.PRIVATE)
             .build();
 
     private final File folder;
 
-    public YamlFilesManager(String directory) {
+    public ConfigManager(String directory) {
         this.folder = new File(directory);
     }
 

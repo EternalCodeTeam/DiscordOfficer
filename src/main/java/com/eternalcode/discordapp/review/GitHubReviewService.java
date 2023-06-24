@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.config.ConfigManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -16,10 +17,12 @@ import java.util.List;
 public class GitHubReviewService {
 
     private final AppConfig discordAppConfig;
+    private final ConfigManager configManager;
     private final GitHubReviewMentionRepository mentionRepository = new GitHubReviewMentionRepositoryImpl();
 
-    public GitHubReviewService(AppConfig discordAppConfig) {
+    public GitHubReviewService(AppConfig discordAppConfig, ConfigManager configManager) {
         this.discordAppConfig = discordAppConfig;
+        this.configManager = configManager;
     }
 
     public String createReview(Guild guild, String url, JDA jda) {
@@ -77,7 +80,12 @@ public class GitHubReviewService {
 
         StringBuilder reviewersMention = new StringBuilder();
         for (String reviewer : assignedReviewers) {
-            Long discordId = this.discordAppConfig.reviewSystem.reviewers.get(reviewer);
+            GitHubReviewUser gitHubReviewUser = this.getReviewUserByUsername(reviewer);
+            if (gitHubReviewUser == null) {
+                continue;
+            }
+
+            Long discordId = gitHubReviewUser.discordId();
             if (discordId == null) {
                 continue;
             }
@@ -151,7 +159,6 @@ public class GitHubReviewService {
         return false;
     }
 
-
     public void deleteMergedPullRequests(JDA jda) {
         try {
             Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
@@ -175,5 +182,26 @@ public class GitHubReviewService {
         catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public void addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+        this.discordAppConfig.reviewSystem.reviewers.add(gitHubReviewUser);
+        this.configManager.save(this.discordAppConfig);
+    }
+
+    public void removeUserFromSystem(Long discordId) {
+        this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.discordId().equals(discordId));
+        this.configManager.save(this.discordAppConfig);
+    }
+
+    public List<GitHubReviewUser> getListOfUsers() {
+        return new ArrayList<>(this.discordAppConfig.reviewSystem.reviewers);
+    }
+
+    public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
+        return this.discordAppConfig.reviewSystem.reviewers.stream()
+                .filter(user -> user.githubUsername().equals(githubUsername))
+                .findFirst()
+                .orElse(null);
     }
 }

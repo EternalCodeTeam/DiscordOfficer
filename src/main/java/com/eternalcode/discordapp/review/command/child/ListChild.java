@@ -1,0 +1,39 @@
+package com.eternalcode.discordapp.review.command.child;
+
+import com.eternalcode.discordapp.review.GitHubReviewService;
+import com.eternalcode.discordapp.review.GitHubReviewUser;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.util.List;
+
+public class ListChild extends SlashCommand {
+
+    private final GitHubReviewService gitHubReviewService;
+
+    public ListChild(GitHubReviewService gitHubReviewService) {
+        this.name = "list";
+        this.help = "List all users in review system";
+
+        this.gitHubReviewService = gitHubReviewService;
+    }
+
+    @Override
+    public void execute(SlashCommandEvent event) {
+        try {
+            List<GitHubReviewUser> listOfUsers = this.gitHubReviewService.getListOfUsers();
+
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            for (GitHubReviewUser user : listOfUsers) {
+                embedBuilder.addField(user.githubUsername(), String.valueOf(user.discordId()), false);
+            }
+
+            event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
+        }
+        catch (Exception exception) {
+            event.reply("An error occurred while listing the users").setEphemeral(true).queue();
+            exception.printStackTrace();
+        }
+    }
+}
