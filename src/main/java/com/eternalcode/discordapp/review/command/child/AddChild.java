@@ -21,10 +21,10 @@ public class AddChild extends SlashCommand {
         this.userPermissions = new Permission[]{ Permission.ADMINISTRATOR };
 
         this.options = List.of(
-                new OptionData(OptionType.USER, "user", "Add user to reviewers list")
-                        .setRequired(true),
-                new OptionData(OptionType.STRING, "github-username", "GitHub username of the user")
-                        .setRequired(true)
+            new OptionData(OptionType.USER, "user", "Add user to reviewers list")
+                .setRequired(true),
+            new OptionData(OptionType.STRING, "github-username", "GitHub username of the user")
+                .setRequired(true)
         );
 
         this.gitHubReviewService = gitHubReviewService;
@@ -38,8 +38,8 @@ public class AddChild extends SlashCommand {
 
             GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername);
 
-            this.gitHubReviewService.addUserToSystem(gitHubReviewUser);
-            event.reply("User added to the system").setEphemeral(true).queue();
+            String addUserToSystem = this.gitHubReviewService.addUserToSystem(gitHubReviewUser);
+            event.reply(addUserToSystem).setEphemeral(true).queue();
         }
         catch (Exception exception) {
             event.reply("An error occurred while adding user to the system").setEphemeral(true).queue();

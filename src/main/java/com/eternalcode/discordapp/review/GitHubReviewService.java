@@ -184,14 +184,37 @@ public class GitHubReviewService {
         }
     }
 
-    public void addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+    public String addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+        if (isUserExist(gitHubReviewUser)) {
+            return "User already exists";
+        }
+
         this.discordAppConfig.reviewSystem.reviewers.add(gitHubReviewUser);
         this.configManager.save(this.discordAppConfig);
+
+        return "User added";
     }
 
-    public void removeUserFromSystem(Long discordId) {
+    public String removeUserFromSystem(Long discordId) {
+        if (!isUserExist(discordId)) {
+            // User does not exist
+            return "User does not exist, nothing to remove";
+        }
+
         this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.discordId().equals(discordId));
         this.configManager.save(this.discordAppConfig);
+
+        return "User removed";
+    }
+
+    private boolean isUserExist(Long discordId) {
+        return this.discordAppConfig.reviewSystem.reviewers.stream()
+            .anyMatch(user -> user.discordId().equals(discordId));
+    }
+
+    private boolean isUserExist(GitHubReviewUser gitHubReviewUser) {
+        return this.discordAppConfig.reviewSystem.reviewers.stream()
+            .anyMatch(user -> user.discordId().equals(gitHubReviewUser.discordId()));
     }
 
     public List<GitHubReviewUser> getListOfUsers() {
@@ -200,8 +223,8 @@ public class GitHubReviewService {
 
     public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-                .filter(user -> user.githubUsername().equals(githubUsername))
-                .findFirst()
-                .orElse(null);
+            .filter(user -> user.githubUsername().equals(githubUsername))
+            .findFirst()
+            .orElse(null);
     }
 }
