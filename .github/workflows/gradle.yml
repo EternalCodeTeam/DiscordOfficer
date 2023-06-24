@@ -26,7 +26,7 @@ jobs:
       - name: Run checkstyle
         run: ./gradlew checkstyleMain
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        uses: gradle/gradle-build-action@1b2daf58338ede8c62b0fa54355d1f515f659ad8
         with:
           arguments: shadowJar
       - name: Upload a Build Artifact
