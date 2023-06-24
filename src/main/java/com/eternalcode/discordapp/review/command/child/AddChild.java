@@ -39,7 +39,6 @@ public class AddChild extends SlashCommand {
             GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername);
 
             this.gitHubReviewService.addUserToSystem(gitHubReviewUser);
-            System.out.println(gitHubReviewUser.discordId() + " " + gitHubReviewUser.githubUsername());
             event.reply("User added to the system").setEphemeral(true).queue();
         }
         catch (Exception exception) {
