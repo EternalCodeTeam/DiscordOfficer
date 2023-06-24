@@ -32,8 +32,13 @@ public class RemoveChild extends SlashCommand {
         try {
             Long discordId = event.getOption("user").getAsUser().getIdLong();
 
-            String removeUserFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
-            event.reply(removeUserFromSystem).setEphemeral(true).queue();
+            boolean userFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
+
+            if (userFromSystem) {
+                event.reply( "User does not exist, nothing to remove").setEphemeral(true).queue();
+            }
+
+            event.reply("User removed").setEphemeral(true).queue();
         }
         catch (Exception exception) {
             event.reply("An error occurred while removing the user from the system").setEphemeral(true).queue();

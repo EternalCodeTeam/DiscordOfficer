@@ -184,27 +184,26 @@ public class GitHubReviewService {
         }
     }
 
-    public String addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+    public boolean addUserToSystem(GitHubReviewUser gitHubReviewUser) {
         if (this.isUserExist(gitHubReviewUser)) {
-            return "User already exists";
+            return false;
         }
 
         this.discordAppConfig.reviewSystem.reviewers.add(gitHubReviewUser);
         this.configManager.save(this.discordAppConfig);
 
-        return "User added";
+        return true;
     }
 
-    public String removeUserFromSystem(Long discordId) {
+    public boolean removeUserFromSystem(Long discordId) {
         if (!this.isUserExist(discordId)) {
-            // User does not exist
-            return "User does not exist, nothing to remove";
+            return false;
         }
 
         this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.discordId().equals(discordId));
         this.configManager.save(this.discordAppConfig);
 
-        return "User removed";
+        return true;
     }
 
     private boolean isUserExist(Long discordId) {
