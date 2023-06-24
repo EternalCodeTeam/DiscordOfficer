@@ -29,6 +29,7 @@ checkstyle {
     maxErrors = 0
     maxWarnings = 0
 }
+
 dependencies {
     // JDA
     implementation("net.dv8tion:JDA:5.0.0-beta.11")  {
