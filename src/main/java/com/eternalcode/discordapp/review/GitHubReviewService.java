@@ -185,7 +185,7 @@ public class GitHubReviewService {
     }
 
     public String addUserToSystem(GitHubReviewUser gitHubReviewUser) {
-        if (isUserExist(gitHubReviewUser)) {
+        if (this.isUserExist(gitHubReviewUser)) {
             return "User already exists";
         }
 
@@ -196,7 +196,7 @@ public class GitHubReviewService {
     }
 
     public String removeUserFromSystem(Long discordId) {
-        if (!isUserExist(discordId)) {
+        if (!this.isUserExist(discordId)) {
             // User does not exist
             return "User does not exist, nothing to remove";
         }
