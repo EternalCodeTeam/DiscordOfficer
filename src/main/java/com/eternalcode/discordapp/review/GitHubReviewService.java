@@ -184,14 +184,36 @@ public class GitHubReviewService {
         }
     }
 
-    public void addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+    public boolean addUserToSystem(GitHubReviewUser gitHubReviewUser) {
+        if (this.isUserExist(gitHubReviewUser)) {
+            return false;
+        }
+
         this.discordAppConfig.reviewSystem.reviewers.add(gitHubReviewUser);
         this.configManager.save(this.discordAppConfig);
+
+        return true;
     }
 
-    public void removeUserFromSystem(Long discordId) {
+    public boolean removeUserFromSystem(Long discordId) {
+        if (!this.isUserExist(discordId)) {
+            return false;
+        }
+
         this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.discordId().equals(discordId));
         this.configManager.save(this.discordAppConfig);
+
+        return true;
+    }
+
+    private boolean isUserExist(Long discordId) {
+        return this.discordAppConfig.reviewSystem.reviewers.stream()
+            .anyMatch(user -> user.discordId().equals(discordId));
+    }
+
+    private boolean isUserExist(GitHubReviewUser gitHubReviewUser) {
+        return this.discordAppConfig.reviewSystem.reviewers.stream()
+            .anyMatch(user -> user.discordId().equals(gitHubReviewUser.discordId()));
     }
 
     public List<GitHubReviewUser> getListOfUsers() {
@@ -200,8 +222,8 @@ public class GitHubReviewService {
 
     public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-                .filter(user -> user.githubUsername().equals(githubUsername))
-                .findFirst()
-                .orElse(null);
+            .filter(user -> user.githubUsername().equals(githubUsername))
+            .findFirst()
+            .orElse(null);
     }
 }

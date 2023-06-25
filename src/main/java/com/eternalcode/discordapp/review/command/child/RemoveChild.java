@@ -20,8 +20,8 @@ public class RemoveChild extends SlashCommand {
         this.userPermissions = new Permission[]{ Permission.ADMINISTRATOR };
 
         this.options = List.of(
-                new OptionData(OptionType.USER, "user", "User to remove from review system")
-                        .setRequired(true)
+            new OptionData(OptionType.USER, "user", "User to remove from review system")
+                .setRequired(true)
         );
 
         this.gitHubReviewService = gitHubReviewService;
@@ -32,8 +32,13 @@ public class RemoveChild extends SlashCommand {
         try {
             Long discordId = event.getOption("user").getAsUser().getIdLong();
 
-            this.gitHubReviewService.removeUserFromSystem(discordId);
-            event.reply("User removed from the system").setEphemeral(true).queue();
+            boolean userFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
+
+            if (userFromSystem) {
+                event.reply( "User does not exist, nothing to remove").setEphemeral(true).queue();
+            }
+
+            event.reply("User removed").setEphemeral(true).queue();
         }
         catch (Exception exception) {
             event.reply("An error occurred while removing the user from the system").setEphemeral(true).queue();
