@@ -17,8 +17,6 @@ import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceRepository;
-import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
 import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
@@ -31,8 +29,7 @@ import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.leveling.LevelConfig;
 import com.eternalcode.discordapp.leveling.LevelController;
-import com.eternalcode.discordapp.leveling.LevelRepository;
-import com.eternalcode.discordapp.leveling.LevelRepositoryImpl;
+import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
@@ -58,9 +55,8 @@ import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
-
-    private static ExperienceRepository experienceRepository;
-    private static LevelRepository levelRepository;
+    private static ExperienceService experienceService;
+    private static LevelService levelService;
 
     public static void main(String... args) throws InterruptedException {
         ObserverRegistry observerRegistry = new ObserverRegistry();
@@ -97,16 +93,12 @@ public class DiscordApp {
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
 
-            experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
-            levelRepository = LevelRepositoryImpl.create(databaseManager);
+            experienceService = new ExperienceService(databaseManager, observerRegistry);
+            levelService = new LevelService(databaseManager);
         }
         catch (SQLException exception) {
             exception.printStackTrace();
         }
-
-        ExperienceService experienceService = new ExperienceService(experienceRepository, observerRegistry);
-
-        observerRegistry.observe(ExperienceChangeEvent.class, new LevelController());
 
         OkHttpClient httpClient = new OkHttpClient();
 
@@ -143,9 +135,9 @@ public class DiscordApp {
                         commandClient,
 
                         // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceRepository),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, yamlFilesManager, experienceRepository),
-                        new ExperienceReactionListener(experienceConfig, experienceRepository),
+                        new ExperienceMessageListener(experienceConfig, experienceService),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, yamlFilesManager, experienceService),
+                        new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)
@@ -162,6 +154,7 @@ public class DiscordApp {
                 .build()
                 .awaitReady();
 
+        observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 
         Timer timer = new Timer();

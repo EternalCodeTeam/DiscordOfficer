@@ -2,7 +2,7 @@ package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,13 +16,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
     private final UsersVoiceActivityData usersVoiceActivityData;
     private final YamlFilesManager yamlFilesManager;
-    private final ExperienceRepository experienceRepository;
+    private final ExperienceService experienceService;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceRepository experienceRepository) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, YamlFilesManager yamlFilesManager, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
         this.yamlFilesManager = yamlFilesManager;
-        this.experienceRepository = experienceRepository;
+        this.experienceService = experienceService;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
         long userId = event.getMember().getIdLong();
         this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
-        this.experienceRepository.modifyPoints(userId, this.calculatePoints(event), true).whenComplete((status, throwable) -> {
+        this.experienceService.modifyPoints(userId, this.calculatePoints(event), true).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }

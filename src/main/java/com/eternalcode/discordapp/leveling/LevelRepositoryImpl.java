@@ -2,7 +2,6 @@ package com.eternalcode.discordapp.leveling;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
@@ -35,7 +34,9 @@ public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> 
 
 
     @Override
-    public CompletableFuture<Dao.CreateOrUpdateStatus> saveLevel(Level level) {
-        return this.save(LevelWrapper.from(level));
+    public CompletableFuture<Level> saveLevel(Level level) {
+        this.save(LevelWrapper.from(level));
+
+        return CompletableFuture.completedFuture(level);
     }
 }

@@ -1,7 +1,7 @@
 package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -9,18 +9,18 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class ExperienceReactionListener extends ListenerAdapter {
 
     private final ExperienceConfig experienceConfig;
-    private final ExperienceRepository experienceRepository;
+    private final ExperienceService experienceService;
 
-    public ExperienceReactionListener(ExperienceConfig experienceConfig, ExperienceRepository experienceRepository) {
+    public ExperienceReactionListener(ExperienceConfig experienceConfig, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
-        this.experienceRepository = experienceRepository;
+        this.experienceService = experienceService;
     }
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
-        this.experienceRepository.modifyPoints(userId, points, true).whenComplete((status, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }
@@ -31,7 +31,7 @@ public class ExperienceReactionListener extends ListenerAdapter {
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
-        this.experienceRepository.modifyPoints(userId, points, false).whenComplete((status, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }

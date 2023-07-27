@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.experience;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface ExperienceRepository {
+interface ExperienceRepository {
     CompletableFuture<Experience> find(long id);
 
     CompletableFuture<Experience> saveExperience(Experience experience);
