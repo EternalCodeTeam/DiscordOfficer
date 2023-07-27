@@ -18,11 +18,11 @@ public class ExperienceVoiceListener extends ListenerAdapter {
     private final ConfigManager configManager;
     private final ExperienceService experienceService;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, ConfigManager configManager, ExperienceService experienceRepository) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, ConfigManager configManager, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
         this.configManager = configManager;
-        this.experienceRepository = experienceRepository;
+        this.experienceService = experienceService;
     }
 
     @Override
