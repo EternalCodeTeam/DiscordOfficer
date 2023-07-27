@@ -31,7 +31,6 @@ import com.eternalcode.discordapp.leveling.LevelConfig;
 import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
-import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
