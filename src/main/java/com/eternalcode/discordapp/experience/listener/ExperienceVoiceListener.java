@@ -16,9 +16,9 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
     private final UsersVoiceActivityData usersVoiceActivityData;
     private final ConfigManager configManager;
-    private final ExperienceRepository experienceRepository;
+    private final ExperienceService experienceService;
 
-    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, ConfigManager configManager, ExperienceRepository experienceRepository) {
+    public ExperienceVoiceListener(ExperienceConfig experienceConfig, UsersVoiceActivityData usersVoiceActivityData, ConfigManager configManager, ExperienceService experienceRepository) {
         this.experienceConfig = experienceConfig;
         this.usersVoiceActivityData = usersVoiceActivityData;
         this.configManager = configManager;

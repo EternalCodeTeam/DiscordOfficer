@@ -137,7 +137,7 @@ public class DiscordApp {
 
                         // Experience system
                         new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, yamlFilesManager, experienceService),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
                         new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter
