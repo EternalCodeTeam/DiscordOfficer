@@ -12,8 +12,8 @@ import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
-import com.eternalcode.discordapp.data.YamlFilesManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
@@ -34,6 +34,7 @@ import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
+import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -60,7 +61,7 @@ public class DiscordApp {
 
     public static void main(String... args) throws InterruptedException {
         ObserverRegistry observerRegistry = new ObserverRegistry();
-        YamlFilesManager configManager = new YamlFilesManager("config");
+        ConfigManager configManager = new ConfigManager("config");
 
         AppConfig config = new AppConfig();
         DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -72,12 +73,12 @@ public class DiscordApp {
         configManager.load(experienceConfig);
         configManager.load(levelConfig);
 
-        YamlFilesManager yamlFilesManager = new YamlFilesManager("data");
+        ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
-        yamlFilesManager.load(usersVoiceActivityData);
+        data.load(usersVoiceActivityData);
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
-        yamlFilesManager.save(usersVoiceActivityData);
+        data.save(usersVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -105,7 +106,7 @@ public class DiscordApp {
         FilterService filterService = new FilterService()
                 .registerFilter(new RenovateForcedPushFilter());
 
-        GitHubReviewService gitHubReviewService = new GitHubReviewService(config);
+        GitHubReviewService gitHubReviewService = new GitHubReviewService(config, configManager);
 
         CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
