@@ -35,7 +35,7 @@ public class RemoveChild extends SlashCommand {
             boolean userFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
 
             if (userFromSystem) {
-                event.reply( "User does not exist, nothing to remove").setEphemeral(true).queue();
+                event.reply("User does not exist, nothing to remove").setEphemeral(true).queue();
             }
 
             event.reply("User removed").setEphemeral(true).queue();

@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import panda.utilities.text.Formatter;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class LevelController implements Observer<ExperienceChangeEvent> {
 
@@ -28,7 +28,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         int level = (int) Math.round(this.levelConfig.points / experience.getPoints());
 
         this.levelService.find(experience.getUserId()).thenApply(userLevel -> {
-            if(level > userLevel.getLevel()) {
+            if (level > userLevel.getLevel()) {
                 userLevel.setLevel(level);
                 this.levelService.saveLevel(userLevel);
                 EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -47,7 +47,8 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
                         .queue();
 
                 return userLevel;
-            } else {
+            }
+            else {
                 return null;
             }
         });
