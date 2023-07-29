@@ -62,19 +62,13 @@ public class DiscordApp {
         ObserverRegistry observerRegistry = new ObserverRegistry();
         ConfigManager configManager = new ConfigManager("config");
 
-        AppConfig config = new AppConfig();
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-        ExperienceConfig experienceConfig = new ExperienceConfig();
-        LevelConfig levelConfig = new LevelConfig();
-
-        configManager.load(config);
-        configManager.load(databaseConfig);
-        configManager.load(experienceConfig);
-        configManager.load(levelConfig);
+        AppConfig config = configManager.load(new AppConfig());
+        DatabaseConfig databaseConfig = configManager.load(new DatabaseConfig());
+        ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
+        LevelConfig levelConfig = configManager.load(new LevelConfig());
 
         ConfigManager data = new ConfigManager("data");
-        UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
-        data.load(usersVoiceActivityData);
+        UsersVoiceActivityData usersVoiceActivityData = configManager.load(new UsersVoiceActivityData());
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
         data.save(usersVoiceActivityData);

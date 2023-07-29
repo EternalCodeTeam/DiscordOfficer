@@ -31,17 +31,18 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
             if (level > userLevel.getLevel()) {
                 userLevel.setLevel(level);
                 this.levelService.saveLevel(userLevel);
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setTitle(this.levelConfig.message.title);
-                embedBuilder.setDescription(
-                        new Formatter()
-                                .register("{user}", this.jda.getUserById(experience.getUserId()).getAsMention())
-                                .register("{level}", String.valueOf(level))
-                                .format(this.levelConfig.message.description)
-                );
-                embedBuilder.setColor(Color.decode(this.levelConfig.message.color));
-                embedBuilder.setThumbnail(this.levelConfig.message.thumbnail);
-                embedBuilder.setFooter(this.levelConfig.message.footer);
+                String description = new Formatter()
+                        .register("{user}", this.jda.getUserById(experience.getUserId()).getAsMention())
+                        .register("{level}", String.valueOf(level))
+                        .format(this.levelConfig.message.description);
+
+                EmbedBuilder embedBuilder = new EmbedBuilder()
+                        .setThumbnail(this.levelConfig.message.thumbnail)
+                        .setColor(Color.decode(this.levelConfig.message.color))
+                        .setTitle(this.levelConfig.message.title)
+                        .setDescription(description)
+                        .setFooter(this.levelConfig.message.footer);
+
                 this.jda.getTextChannelById(this.levelConfig.channel)
                         .sendMessageEmbeds(embedBuilder.build())
                         .queue();

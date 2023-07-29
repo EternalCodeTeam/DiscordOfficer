@@ -23,12 +23,14 @@ public class ConfigManager {
         this.folder = new File(directory);
     }
 
-    public <T extends CdnConfig> void load(T dataFile) {
+    public <T extends CdnConfig> T load(T dataFile) {
         CDN.load(dataFile.resource(this.folder), dataFile)
                 .orThrow(RuntimeException::new);
 
         CDN.render(dataFile, dataFile.resource(this.folder))
                 .orThrow(RuntimeException::new);
+
+        return dataFile;
     }
 
     public <T extends CdnConfig> void save(T config) {
