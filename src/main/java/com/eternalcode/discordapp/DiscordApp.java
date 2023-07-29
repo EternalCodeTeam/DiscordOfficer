@@ -58,9 +58,10 @@ import java.util.Timer;
 public class DiscordApp {
     private static ExperienceService experienceService;
     private static LevelService levelService;
+    private static ObserverRegistry observerRegistry;
 
     public static void main(String... args) throws InterruptedException {
-        ObserverRegistry observerRegistry = new ObserverRegistry();
+        observerRegistry = new ObserverRegistry();
         ConfigManager configManager = new ConfigManager("config");
 
         AppConfig config = configManager.load(new AppConfig());
@@ -150,6 +151,7 @@ public class DiscordApp {
                 .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
+
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 
         Timer timer = new Timer();
