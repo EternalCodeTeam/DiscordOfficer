@@ -25,7 +25,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
     public void update(ExperienceChangeEvent experienceChangeEvent) {
         Experience experience = experienceChangeEvent.experience();
 
-        int level = (int) Math.round(this.levelConfig.points / experience.getPoints());
+        int level = (int) Math.round(experience.getPoints() / this.levelConfig.points);
 
         this.levelService.find(experience.getUserId()).thenApply(userLevel -> {
             if (level > userLevel.getLevel()) {

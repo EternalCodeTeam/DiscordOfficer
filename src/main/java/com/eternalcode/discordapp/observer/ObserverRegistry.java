@@ -17,7 +17,7 @@ public class ObserverRegistry {
     public <EVENT> void publish(EVENT event) {
         Class<EVENT> typeEvent = (Class<EVENT>) event.getClass();
 
-        for (Observer<?> observer : this.observers.computeIfAbsent(typeEvent, key -> Set.of())) {
+        for (Observer<?> observer : this.observers.computeIfAbsent(typeEvent, key -> new HashSet<>())) {
             Observer<EVENT> eventObserver = (Observer<EVENT>) observer;
             eventObserver.update(event);
         }
