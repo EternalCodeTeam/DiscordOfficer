@@ -1,12 +1,11 @@
 package com.eternalcode.discordapp.observer;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class ObserverRegistry {
 
-    private final Map<Class<?>, Set<Observer<?>>> observers = new HashMap<>();
+    private final HashMap<Class<?>, Set<Observer<?>>> observers = new HashMap<>();
 
     public <EVENT> void observe(Class<EVENT> eventType, Observer<EVENT> observer) {
         this.observers.computeIfAbsent(eventType, key -> Set.of()).add(observer);

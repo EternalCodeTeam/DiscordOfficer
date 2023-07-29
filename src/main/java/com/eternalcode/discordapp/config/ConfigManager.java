@@ -14,7 +14,6 @@ public class ConfigManager {
             .createYamlLike()
             .getSettings()
             .withComposer(Instant.class, new InstantComposer())
-            .withMemberResolver(Visibility.PRIVATE)
             .build();
 
     private final File folder;

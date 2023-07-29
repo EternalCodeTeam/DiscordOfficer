@@ -30,6 +30,7 @@ import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.leveling.LevelConfig;
 import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelService;
+import com.eternalcode.discordapp.leveling.command.LevelCommand;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
@@ -68,7 +69,7 @@ public class DiscordApp {
         LevelConfig levelConfig = configManager.load(new LevelConfig());
 
         ConfigManager data = new ConfigManager("data");
-        UsersVoiceActivityData usersVoiceActivityData = configManager.load(new UsersVoiceActivityData());
+        UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
         data.save(usersVoiceActivityData);
@@ -115,10 +116,10 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(gitHubReviewService)
+                        new GitHubReviewCommand(gitHubReviewService),
+                        new LevelCommand(levelService)
                 )
                 .setOwnerId(config.topOwnerId)
-                .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"))
                 .useHelpBuilder(false)
                 .build();
