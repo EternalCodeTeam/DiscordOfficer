@@ -21,7 +21,7 @@ public class Top10LevelCommand extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        List<Level> top = this.levelService.getTop(10).join();
+        List<Level> top = this.levelService.getTop(10, 0).join();
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Top 10 users in level ranking")

@@ -23,7 +23,7 @@ public class Top10ExperienceCommand extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        List<Experience> top = this.experienceService.getTop(10).join();
+        List<Experience> top = this.experienceService.getTop(10, 0).join();
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Top 10 users in experience ranking")

@@ -12,5 +12,5 @@ interface ExperienceRepository {
 
     CompletableFuture<List<Experience>> findAll();
 
-    CompletableFuture<List<Experience>> getTop(int limit);
+    CompletableFuture<List<Experience>> getTop(int limit, long offset);
 }

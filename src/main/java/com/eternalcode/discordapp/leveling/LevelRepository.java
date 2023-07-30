@@ -9,5 +9,5 @@ interface LevelRepository {
 
     CompletableFuture<Level> saveLevel(Level level);
 
-    CompletableFuture<List<Level>> getTop(int limit);
+    CompletableFuture<List<Level>> getTop(int limit, long offset);
 }

@@ -34,8 +34,8 @@ public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> 
     }
 
     @Override
-    public CompletableFuture<List<Level>> getTop(int limit) {
-        return this.action(dao -> dao.queryBuilder().orderBy("level", false).limit((long) limit).query())
+    public CompletableFuture<List<Level>> getTop(int limit, long offset) {
+        return this.action(dao -> dao.queryBuilder().orderBy("level", false).limit((long) limit).offset(offset).query())
                 .thenApply(levels -> {
                     return levels.stream().map(LevelWrapper::toLevel).toList();
                 });

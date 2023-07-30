@@ -107,6 +107,7 @@ public class DiscordApp {
         CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
                 .addSlashCommands(
+                        // Standard
                         new AvatarCommand(config),
                         new BanCommand(config),
                         new BotInfoCommand(config),
@@ -118,8 +119,14 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
+
+                        // GitHub review
                         new GitHubReviewCommand(gitHubReviewService),
+
+                        // Level/Experience
                         new LevelCommand(levelService),
+
+
                         // Tops
                         new TopCommand(levelService, experienceService)
                 )

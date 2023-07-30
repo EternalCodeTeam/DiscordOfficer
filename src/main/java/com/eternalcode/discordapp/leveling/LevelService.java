@@ -21,7 +21,7 @@ public class LevelService {
         return this.levelRepository.find(id);
     }
 
-    public CompletableFuture<List<Level>> getTop(int limit) {
-        return this.levelRepository.getTop(limit);
+    public CompletableFuture<List<Level>> getTop(int limit, long offset) {
+        return this.levelRepository.getTop(limit, offset);
     }
 }

@@ -32,8 +32,8 @@ public class ExperienceService {
         });
     }
 
-    public CompletableFuture<List<Experience>> getTop(int limit) {
-        return this.experienceRepository.getTop(limit);
+    public CompletableFuture<List<Experience>> getTop(int limit, long offset) {
+        return this.experienceRepository.getTop(limit, offset);
     }
 
 }
