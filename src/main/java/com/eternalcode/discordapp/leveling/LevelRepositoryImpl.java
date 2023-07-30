@@ -1,0 +1,42 @@
+package com.eternalcode.discordapp.leveling;
+
+import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.database.repository.AbstractRepository;
+import com.j256.ormlite.table.TableUtils;
+
+import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
+
+public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> implements LevelRepository {
+
+    protected LevelRepositoryImpl(DatabaseManager databaseManager) {
+        super(databaseManager, LevelWrapper.class);
+    }
+
+    public static LevelRepository create(DatabaseManager databaseManager) {
+        try {
+            TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), LevelWrapper.class);
+        }
+        catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
+        return new LevelRepositoryImpl(databaseManager);
+    }
+
+    @Override
+    public CompletableFuture<Level> find(long id) {
+        return this.select(id).thenApply(levelOptional ->
+            levelOptional.map(LevelWrapper::toLevel)
+                    .orElse(new Level(id, 0))
+        );
+    }
+
+
+    @Override
+    public CompletableFuture<Level> saveLevel(Level level) {
+        this.save(LevelWrapper.from(level));
+
+        return CompletableFuture.completedFuture(level);
+    }
+}

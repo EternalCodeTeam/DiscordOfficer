@@ -15,9 +15,9 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceRepository;
-import com.eternalcode.discordapp.experience.ExperienceRepositoryImpl;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
 import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
@@ -27,6 +27,11 @@ import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
+import com.eternalcode.discordapp.leveling.LevelConfig;
+import com.eternalcode.discordapp.leveling.LevelController;
+import com.eternalcode.discordapp.leveling.LevelService;
+import com.eternalcode.discordapp.leveling.command.LevelCommand;
+import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
@@ -51,23 +56,21 @@ import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
-
-    private static ExperienceRepository experienceRepository;
+    private static ExperienceService experienceService;
+    private static LevelService levelService;
+    private static ObserverRegistry observerRegistry;
 
     public static void main(String... args) throws InterruptedException {
+        observerRegistry = new ObserverRegistry();
         ConfigManager configManager = new ConfigManager("config");
 
-        AppConfig config = new AppConfig();
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-        ExperienceConfig experienceConfig = new ExperienceConfig();
-
-        configManager.load(config);
-        configManager.load(databaseConfig);
-        configManager.load(experienceConfig);
+        AppConfig config = configManager.load(new AppConfig());
+        DatabaseConfig databaseConfig = configManager.load(new DatabaseConfig());
+        ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
+        LevelConfig levelConfig = configManager.load(new LevelConfig());
 
         ConfigManager data = new ConfigManager("data");
-        UsersVoiceActivityData usersVoiceActivityData = new UsersVoiceActivityData();
-        data.load(usersVoiceActivityData);
+        UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
         data.save(usersVoiceActivityData);
@@ -86,7 +89,8 @@ public class DiscordApp {
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
 
-            experienceRepository = ExperienceRepositoryImpl.create(databaseManager);
+            experienceService = new ExperienceService(databaseManager, observerRegistry);
+            levelService = new LevelService(databaseManager);
         }
         catch (SQLException exception) {
             exception.printStackTrace();
@@ -113,10 +117,10 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
-                        new GitHubReviewCommand(gitHubReviewService)
+                        new GitHubReviewCommand(gitHubReviewService),
+                        new LevelCommand(levelService)
                 )
                 .setOwnerId(config.topOwnerId)
-                .forceGuildOnly(config.guildId)
                 .setActivity(Activity.playing("IntelliJ IDEA"))
                 .useHelpBuilder(false)
                 .build();
@@ -127,9 +131,9 @@ public class DiscordApp {
                         commandClient,
 
                         // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceRepository),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceRepository),
-                        new ExperienceReactionListener(experienceConfig, experienceRepository),
+                        new ExperienceMessageListener(experienceConfig, experienceService),
+                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
+                        new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter
                         new FilterMessageEmbedController(filterService)
@@ -145,6 +149,8 @@ public class DiscordApp {
 
                 .build()
                 .awaitReady();
+
+        observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
 
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 

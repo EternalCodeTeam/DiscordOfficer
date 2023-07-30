@@ -6,7 +6,9 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapper, Long> implements ExperienceRepository {
 
@@ -22,6 +24,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
             throw new RuntimeException(sqlException);
         }
 
+
         return new ExperienceRepositoryImpl(databaseManager);
     }
 
@@ -34,12 +37,13 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     }
 
     @Override
-    public CompletableFuture<Dao.CreateOrUpdateStatus> saveExperience(Experience user) {
-        return this.save(ExperienceWrapper.from(user));
+    public CompletableFuture<Experience> saveExperience(Experience experience) {
+        this.save(ExperienceWrapper.from(experience));
+        return CompletableFuture.completedFuture(experience);
     }
 
     @Override
-    public CompletableFuture<Dao.CreateOrUpdateStatus> modifyPoints(long id, double points, boolean add) {
+    public CompletableFuture<Experience> modifyPoints(long id, double points, boolean add) {
         return this.find(id).thenCompose(experience -> {
             if (add) {
                 experience.addPoints(points);
@@ -50,6 +54,14 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
 
             return this.saveExperience(experience);
         });
+    }
+
+    @Override
+    public CompletableFuture<List<Experience>> findAll() {
+        return this.selectAll().thenApply(experienceWrappers -> experienceWrappers.stream()
+                .map(ExperienceWrapper::toExperience)
+                .collect(Collectors.toList())
+        );
     }
 
 }

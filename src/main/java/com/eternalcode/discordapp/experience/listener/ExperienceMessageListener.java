@@ -1,7 +1,7 @@
 package com.eternalcode.discordapp.experience.listener;
 
 import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceRepository;
+import com.eternalcode.discordapp.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -10,11 +10,11 @@ import java.util.concurrent.ExecutionException;
 public class ExperienceMessageListener extends ListenerAdapter {
 
     private final ExperienceConfig experienceConfig;
-    private final ExperienceRepository experienceRepository;
+    private final ExperienceService experienceService;
 
-    public ExperienceMessageListener(ExperienceConfig experienceConfig, ExperienceRepository experienceRepository) {
+    public ExperienceMessageListener(ExperienceConfig experienceConfig, ExperienceService experienceService) {
         this.experienceConfig = experienceConfig;
-        this.experienceRepository = experienceRepository;
+        this.experienceService = experienceService;
     }
 
 
@@ -43,7 +43,7 @@ public class ExperienceMessageListener extends ListenerAdapter {
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
         long userId = event.getAuthor().getIdLong();
 
-        this.experienceRepository.modifyPoints(userId, points, true).whenComplete((status, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }
