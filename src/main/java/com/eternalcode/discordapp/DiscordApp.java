@@ -32,6 +32,7 @@ import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.leveling.command.LevelCommand;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
+import com.eternalcode.discordapp.ranking.TopCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
@@ -118,7 +119,9 @@ public class DiscordApp {
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
                         new GitHubReviewCommand(gitHubReviewService),
-                        new LevelCommand(levelService)
+                        new LevelCommand(levelService),
+                        // Tops
+                        new TopCommand(levelService, experienceService)
                 )
                 .setOwnerId(config.topOwnerId)
                 .setActivity(Activity.playing("IntelliJ IDEA"))

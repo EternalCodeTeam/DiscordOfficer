@@ -2,6 +2,8 @@ package com.eternalcode.discordapp.experience;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
+import com.eternalcode.discordapp.leveling.Level;
+import com.eternalcode.discordapp.leveling.LevelWrapper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
@@ -54,6 +56,14 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
 
             return this.saveExperience(experience);
         });
+    }
+
+    @Override
+    public CompletableFuture<List<Experience>> getTop(int limit) {
+        return this.action(dao -> dao.queryBuilder().orderBy("points", false).limit((long) limit).query())
+                .thenApply(experiences -> {
+                    return experiences.stream().map(ExperienceWrapper::toExperience).toList();
+                });
     }
 
     @Override
