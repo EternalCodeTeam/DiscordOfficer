@@ -25,6 +25,10 @@ import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
+import com.eternalcode.discordapp.games.CodeImageGameData;
+import com.eternalcode.discordapp.games.configuration.CodeGameConfiguration;
+import com.eternalcode.discordapp.games.listener.CodeGameAnwserListener;
+import com.eternalcode.discordapp.games.task.GenerateImageWithCode;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
 import com.eternalcode.discordapp.leveling.LevelConfig;
@@ -70,10 +74,12 @@ public class DiscordApp {
         DatabaseConfig databaseConfig = configManager.load(new DatabaseConfig());
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
+        CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
         RankingConfiguration rankingConfiguration = configManager.load(new RankingConfiguration());
 
         ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
+        CodeImageGameData codeImageGameData = data.load(new CodeImageGameData());
 
         usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
         data.save(usersVoiceActivityData);
@@ -148,7 +154,10 @@ public class DiscordApp {
                         new ExperienceReactionListener(experienceConfig, experienceService),
 
                         // Message filter
-                        new FilterMessageEmbedController(filterService)
+                        new FilterMessageEmbedController(filterService),
+
+                        // Experience games
+                        new CodeGameAnwserListener(codeImageGameData, codeGameConfiguration, data, experienceService)
                 )
 
                 .setAutoReconnect(true)
@@ -169,5 +178,8 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
         timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
+
+        // Games
+        timer.schedule(new GenerateImageWithCode(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
     }
 }

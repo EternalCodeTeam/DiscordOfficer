@@ -25,7 +25,15 @@ public class GuildStatisticsService {
             String value = entry.getValue();
 
             Guild guild = this.jda.getGuildById(this.config.guildId);
+            if (guild == null) {
+                continue;
+            }
+
             VoiceChannel channel = guild.getVoiceChannelById(key);
+
+            if (channel == null) {
+                continue;
+            }
 
             Formatter formatter = new Formatter()
                     .register("{MEMBERS_SIZE}", guild.getMemberCache().stream()
