@@ -8,7 +8,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import panda.utilities.text.Formatter;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 
 public class Top10LevelCommand extends SlashCommand {

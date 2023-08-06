@@ -2,14 +2,13 @@ package com.eternalcode.discordapp.experience.command;
 
 import com.eternalcode.discordapp.experience.Experience;
 import com.eternalcode.discordapp.experience.ExperienceService;
-import com.eternalcode.discordapp.leveling.Level;
 import com.eternalcode.discordapp.ranking.RankingConfiguration;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import panda.utilities.text.Formatter;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 
 public class Top10ExperienceCommand extends SlashCommand {
