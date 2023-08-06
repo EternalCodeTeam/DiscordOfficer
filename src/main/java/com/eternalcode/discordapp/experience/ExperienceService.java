@@ -3,6 +3,7 @@ package com.eternalcode.discordapp.experience;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ExperienceService {
@@ -29,6 +30,10 @@ public class ExperienceService {
                 this.observerRegistry.publish(new ExperienceChangeEvent(experience));
             }
         });
+    }
+
+    public CompletableFuture<List<Experience>> getTop(int limit, long offset) {
+        return this.experienceRepository.getTop(limit, offset);
     }
 
 }

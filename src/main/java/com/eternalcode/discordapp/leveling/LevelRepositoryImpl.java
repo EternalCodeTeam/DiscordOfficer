@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> implements LevelRepository {
@@ -30,6 +31,14 @@ public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> 
             levelOptional.map(LevelWrapper::toLevel)
                     .orElse(new Level(id, 0))
         );
+    }
+
+    @Override
+    public CompletableFuture<List<Level>> getTop(int limit, long offset) {
+        return this.action(dao -> dao.queryBuilder().orderBy("level", false).limit((long) limit).offset(offset).query())
+                .thenApply(levels -> {
+                    return levels.stream().map(LevelWrapper::toLevel).toList();
+                });
     }
 
 
