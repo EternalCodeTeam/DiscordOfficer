@@ -2,7 +2,7 @@ package com.eternalcode.discordapp.games.task;
 
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.games.CodeImageGameData;
-import com.eternalcode.discordapp.games.config.CodeGameConfiguration;
+import com.eternalcode.discordapp.games.configuration.CodeGameConfiguration;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.lang3.RandomStringUtils;

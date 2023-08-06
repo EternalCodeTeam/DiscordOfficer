@@ -26,7 +26,7 @@ import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
 import com.eternalcode.discordapp.games.CodeImageGameData;
-import com.eternalcode.discordapp.games.config.CodeGameConfiguration;
+import com.eternalcode.discordapp.games.configuration.CodeGameConfiguration;
 import com.eternalcode.discordapp.games.listener.CodeGameAnwserListener;
 import com.eternalcode.discordapp.games.task.GenerateImageWithCode;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
