@@ -6,7 +6,7 @@ build/
 database/
 data/
 logs/
-config
+config/
 gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
