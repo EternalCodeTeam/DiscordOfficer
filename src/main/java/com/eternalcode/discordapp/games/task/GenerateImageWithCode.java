@@ -43,7 +43,8 @@ public class GenerateImageWithCode extends TimerTask {
         File file = new File("data/game.png");
         try {
             ImageIO.write(image, "png", file);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
         FileUpload fileUpload = FileUpload.fromData(file, "game.png");

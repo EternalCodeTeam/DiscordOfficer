@@ -25,13 +25,13 @@ public class GuildStatisticsService {
             String value = entry.getValue();
 
             Guild guild = this.jda.getGuildById(this.config.guildId);
-            if(guild == null) {
+            if (guild == null) {
                 continue;
             }
 
             VoiceChannel channel = guild.getVoiceChannelById(key);
 
-            if(channel == null) {
+            if (channel == null) {
                 continue;
             }
 

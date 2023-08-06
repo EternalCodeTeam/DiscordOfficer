@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import panda.utilities.text.Formatter;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
@@ -32,23 +32,24 @@ public class CodeGameAnwserListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+
         if (event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
 
-        if(event.getChannel().getIdLong() != this.codeGameConfiguration.channelId) {
+        if (event.getChannel().getIdLong() != this.codeGameConfiguration.channelId) {
             return;
         }
 
-        if(!this.codeImageGameData.gameActive) {
+        if (!this.codeImageGameData.gameActive) {
             return;
         }
 
-        if(this.codeImageGameData.isUsed) {
+        if (this.codeImageGameData.isUsed) {
             return;
         }
 
-        if(event.getMessage().getContentRaw().equalsIgnoreCase(this.codeImageGameData.code)) {
+        if (event.getMessage().getContentRaw().equalsIgnoreCase(this.codeImageGameData.code)) {
             this.codeImageGameData.isUsed = true;
             this.codeImageGameData.gameActive = false;
             this.dataManager.save(this.codeImageGameData);
@@ -74,5 +75,6 @@ public class CodeGameAnwserListener extends ListenerAdapter {
 
             event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
         }
+
     }
 }

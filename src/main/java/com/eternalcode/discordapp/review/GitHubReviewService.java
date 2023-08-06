@@ -130,7 +130,7 @@ public class GitHubReviewService {
     public void mentionReviewersOnAllReviewChannels(JDA jda) {
         Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
 
-        if(guild == null) {
+        if (guild == null) {
             return;
         }
 
@@ -167,7 +167,7 @@ public class GitHubReviewService {
         try {
             Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
 
-            if(guild == null) {
+            if (guild == null) {
                 return;
             }
 
