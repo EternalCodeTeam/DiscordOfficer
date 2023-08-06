@@ -9,13 +9,13 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 public class TopCommand extends SlashCommand {
 
-    public TopCommand(LevelService levelService, ExperienceService experienceService) {
+    public TopCommand(LevelService levelService, ExperienceService experienceService, RankingConfiguration rankingConfiguration) {
         this.name = "top";
-        this.help = "Shows the top 10 users with selected ranking type";
+        this.help = String.format("Shows the top %s users with selected ranking type", rankingConfiguration.records);
 
         this.children = new SlashCommand[] {
-                new Top10LevelCommand(levelService),
-                new Top10ExperienceCommand(experienceService)
+                new Top10LevelCommand(levelService, rankingConfiguration),
+                new Top10ExperienceCommand(experienceService, rankingConfiguration)
         };
     }
 
