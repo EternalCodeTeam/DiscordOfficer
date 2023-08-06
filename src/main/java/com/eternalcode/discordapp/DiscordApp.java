@@ -36,6 +36,8 @@ import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.leveling.command.LevelCommand;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
+import com.eternalcode.discordapp.ranking.RankingConfiguration;
+import com.eternalcode.discordapp.ranking.TopCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
@@ -73,6 +75,7 @@ public class DiscordApp {
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
         CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
+        RankingConfiguration rankingConfiguration = configManager.load(new RankingConfiguration());
 
         ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
@@ -112,6 +115,7 @@ public class DiscordApp {
         CommandClient commandClient = new CommandClientBuilder()
                 // slash commands registry
                 .addSlashCommands(
+                        // Standard
                         new AvatarCommand(config),
                         new BanCommand(config),
                         new BotInfoCommand(config),
@@ -123,8 +127,16 @@ public class DiscordApp {
                         new ServerCommand(config),
                         new MinecraftServerInfoCommand(httpClient),
                         new SayCommand(),
+
+                        // GitHub review
                         new GitHubReviewCommand(gitHubReviewService),
-                        new LevelCommand(levelService)
+
+                        // Level/Experience
+                        new LevelCommand(levelService),
+
+
+                        // Tops
+                        new TopCommand(levelService, experienceService, rankingConfiguration)
                 )
                 .setOwnerId(config.topOwnerId)
                 .setActivity(Activity.playing("IntelliJ IDEA"))

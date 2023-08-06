@@ -11,4 +11,6 @@ interface ExperienceRepository {
     CompletableFuture<Experience> modifyPoints(long id, double points, boolean add);
 
     CompletableFuture<List<Experience>> findAll();
+
+    CompletableFuture<List<Experience>> getTop(int limit, long offset);
 }
