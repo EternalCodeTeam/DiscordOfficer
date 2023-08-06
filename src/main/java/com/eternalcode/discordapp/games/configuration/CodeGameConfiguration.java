@@ -49,6 +49,6 @@ public class CodeGameConfiguration implements CdnConfig {
 
     @Override
     public Resource resource(File folder) {
-        return Source.of(folder, "games/code.yml");
+        return Source.of(folder, "games" + File.separator + "code.yml");
     }
 }

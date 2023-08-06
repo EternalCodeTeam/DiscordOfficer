@@ -21,6 +21,6 @@ public class CodeImageGameData implements CdnConfig {
 
     @Override
     public Resource resource(File folder) {
-        return Source.of(folder, "games/imageCode.yml");
+        return Source.of(folder, "games" + File.separator + "imageCode.yml");
     }
 }

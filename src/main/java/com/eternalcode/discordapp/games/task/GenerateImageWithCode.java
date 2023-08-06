@@ -40,7 +40,7 @@ public class GenerateImageWithCode extends TimerTask {
         image.getGraphics().drawString(this.codeImageGameData.code, 120, 128);
 
 
-        File file = new File("data/game.png");
+        File file = new File("data" + File.separator + "game.png");
         try {
             ImageIO.write(image, "png", file);
         }
