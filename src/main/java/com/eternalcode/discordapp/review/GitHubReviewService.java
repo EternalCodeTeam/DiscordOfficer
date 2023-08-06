@@ -130,6 +130,10 @@ public class GitHubReviewService {
     public void mentionReviewersOnAllReviewChannels(JDA jda) {
         Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
 
+        if(guild == null) {
+            return;
+        }
+
         for (ForumChannel forumChannel : guild.getForumChannels()) {
             for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
                 Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(threadChannel.getName());
@@ -162,6 +166,10 @@ public class GitHubReviewService {
     public void deleteMergedPullRequests(JDA jda) {
         try {
             Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
+
+            if(guild == null) {
+                return;
+            }
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
