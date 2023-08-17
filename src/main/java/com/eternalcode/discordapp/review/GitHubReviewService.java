@@ -46,7 +46,8 @@ public class GitHubReviewService {
             this.mentionReviewers(jda, pullRequest, messageId);
 
             return "Review created";
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             exception.printStackTrace();
             return "Something went wrong";
         }
@@ -103,8 +104,8 @@ public class GitHubReviewService {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
                     privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl())).queue();
-                } catch (Exception ignored) {
-
+                }
+                catch (Exception ignored) {
                 }
             });
 
@@ -186,7 +187,8 @@ public class GitHubReviewService {
                     }
                 }
             }
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             exception.printStackTrace();
         }
     }
