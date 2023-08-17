@@ -29,7 +29,6 @@ public class CodeGameAnwserListener extends ListenerAdapter {
         this.experienceService = experienceService;
     }
 
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 

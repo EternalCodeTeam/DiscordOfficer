@@ -36,9 +36,10 @@ public class CodeGameConfiguration implements CdnConfig {
         @Description("# {winner} - The winner of the game")
         @Description("# {points} - The points of the winner")
         @Description("# {time} - The time of the game")
-        public String description = "The winner is: {winner}\n" +
-                "Points: {points}\n" +
-                "Time: {time} minutes";
+        public String description = """
+                The winner is: {winner}
+                Points: {points}
+                Time: {time} minutes""";
 
         @Description("# Color of the embed")
         public String color = "#00ff00";

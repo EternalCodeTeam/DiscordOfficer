@@ -9,6 +9,7 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 
 public class LevelConfig implements CdnConfig {
+
     @Description("# The count of points that will be added to the user's level")
     public int points = 100;
 

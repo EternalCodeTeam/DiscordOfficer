@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.ranking;
 import com.eternalcode.discordapp.experience.ExperienceService;
 import com.eternalcode.discordapp.experience.command.Top10ExperienceCommand;
 import com.eternalcode.discordapp.leveling.LevelService;
-import com.eternalcode.discordapp.leveling.command.Top10LevelCommand;
+import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
@@ -14,7 +14,7 @@ public class TopCommand extends SlashCommand {
         this.help = String.format("Shows the top %s users with selected ranking type", rankingConfiguration.records);
 
         this.children = new SlashCommand[] {
-                new Top10LevelCommand(levelService, rankingConfiguration),
+                new LeaderboardCommand(levelService, rankingConfiguration),
                 new Top10ExperienceCommand(experienceService, rankingConfiguration)
         };
     }
