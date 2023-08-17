@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import panda.std.Result;
 
@@ -45,8 +46,7 @@ public class GitHubReviewService {
             this.mentionReviewers(jda, pullRequest, messageId);
 
             return "Review created";
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             exception.printStackTrace();
             return "Something went wrong";
         }
@@ -62,13 +62,14 @@ public class GitHubReviewService {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.discordAppConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(this.discordAppConfig.reviewSystem.reviewForumId);
 
-        MessageCreateData createData = MessageCreateData.fromContent(pullRequest.toUrl());
+        MessageCreateData createData = MessageCreateData.fromContent(GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.discordAppConfig.githubToken));
 
         return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
-                .setName(pullRequest.toUrl())
-                .complete()
-                .getThreadChannel()
-                .getIdLong();
+            .setName(pullRequest.toUrl())
+            .setTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.inReviewForumTagId))
+            .complete()
+            .getThreadChannel()
+            .getIdLong();
     }
 
     public void mentionReviewers(JDA jda, GitHubPullRequest pullRequest, long forumId) {
@@ -102,8 +103,7 @@ public class GitHubReviewService {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
                     privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl())).queue();
-                }
-                catch (Exception ignored) {
+                } catch (Exception ignored) {
 
                 }
             });
@@ -163,7 +163,7 @@ public class GitHubReviewService {
         return false;
     }
 
-    public void deleteMergedPullRequests(JDA jda) {
+    public void archiveMergedPullRequest(JDA jda) {
         try {
             Guild guild = jda.getGuildById(this.discordAppConfig.guildId);
 
@@ -182,12 +182,11 @@ public class GitHubReviewService {
 
                     GitHubPullRequest pullRequest = result.get();
                     if (GitHubReviewUtil.isPullRequestMerged(pullRequest, this.discordAppConfig.githubToken)) {
-                        threadChannel.getManager().setLocked(true).setArchived(true).queue();
+                        threadChannel.getManager().setLocked(true).setArchived(true).setAppliedTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.mergedTagId)).queue();
                     }
                 }
             }
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
     }

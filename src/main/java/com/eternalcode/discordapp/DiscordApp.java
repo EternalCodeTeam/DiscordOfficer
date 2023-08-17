@@ -129,7 +129,7 @@ public class DiscordApp {
                         new SayCommand(),
 
                         // GitHub review
-                        new GitHubReviewCommand(gitHubReviewService),
+                        new GitHubReviewCommand(gitHubReviewService, config),
 
                         // Level/Experience
                         new LevelCommand(levelService),

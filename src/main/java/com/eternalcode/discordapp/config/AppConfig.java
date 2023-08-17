@@ -98,6 +98,14 @@ public class AppConfig implements CdnConfig {
     public static class ReviewSystem {
         public long reviewForumId = 1090383282744590396L;
 
+        @Description({
+            "# Currently, as of writing this comment (17.08.2023 ^^), the only way to obtain a list of forum's ID ",
+            "# tags is by using the appropriate JDA method (ForumTag#getAvailableTags). ",
+            "# For simplicity, I decided to create a simple /review get-forum-tags-id command, which will return a list of tags. ",
+        })
+        public long mergedTagId = 1141531024795373578L;
+        public long inReviewForumTagId = 1141531024795373578L;
+
 
         public List<GitHubReviewUser> reviewers = new ArrayList<>(Collections.singletonList(
                 new GitHubReviewUser(852920601969950760L, "vluckyyy")

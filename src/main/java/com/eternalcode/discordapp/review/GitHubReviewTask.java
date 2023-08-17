@@ -16,7 +16,7 @@ public class GitHubReviewTask extends TimerTask {
 
     @Override
     public void run() {
-        this.gitHubReviewService.deleteMergedPullRequests(this.jda);
+        this.gitHubReviewService.archiveMergedPullRequest(this.jda);
         this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda);
     }
 }
