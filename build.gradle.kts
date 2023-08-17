@@ -22,7 +22,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.12.0"
+    toolVersion = "10.12.2"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -32,7 +32,7 @@ checkstyle {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.11")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.13")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -40,13 +40,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.4.8")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.24.0")
+    implementation("io.sentry:sentry:6.28.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -58,15 +58,15 @@ dependencies {
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("com.h2database:h2:2.1.214")
+    implementation("com.h2database:h2:2.2.220")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
