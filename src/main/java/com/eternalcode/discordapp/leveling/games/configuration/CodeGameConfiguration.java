@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.games.configuration;
+package com.eternalcode.discordapp.leveling.games.configuration;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.entity.Contextual;
@@ -9,6 +9,7 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 
 public class CodeGameConfiguration implements CdnConfig {
+
     @Description("# Channel id where the game will be played")
     public Long channelId = 0L;
 
@@ -17,7 +18,6 @@ public class CodeGameConfiguration implements CdnConfig {
 
     @Description("# The time in minutes to generate new code - default: 5")
     public int timeToNextQuestion = 5;
-
 
     @Description("# The text in message with code")
     public String codeText = "The code is: ";

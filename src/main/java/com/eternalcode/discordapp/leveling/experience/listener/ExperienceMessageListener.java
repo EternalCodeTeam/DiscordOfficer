@@ -1,7 +1,7 @@
-package com.eternalcode.discordapp.experience.listener;
+package com.eternalcode.discordapp.leveling.experience.listener;
 
-import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceService;
+import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
+import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 

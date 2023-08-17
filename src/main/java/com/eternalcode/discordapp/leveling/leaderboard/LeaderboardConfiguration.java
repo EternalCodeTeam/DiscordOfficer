@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.ranking;
+package com.eternalcode.discordapp.leveling.leaderboard;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.entity.Contextual;
@@ -8,7 +8,8 @@ import net.dzikoysk.cdn.source.Source;
 
 import java.io.File;
 
-public class RankingConfiguration implements CdnConfig {
+public class LeaderboardConfiguration implements CdnConfig {
+
     @Description("# How many records should be displayed on the ranking")
     public int records = 10;
 
@@ -29,9 +30,7 @@ public class RankingConfiguration implements CdnConfig {
         public String thumbnail = "https://i.imgur.com/2oTkWsr.png";
 
         @Description("# The title of the embed")
-        @Description("# {ranking} - the name of the ranking")
-        @Description("# {records} - the number of records")
-        public String title = "TOP{records} of {ranking}";
+        public String title = "Leaderboard";
     }
 
     @Override

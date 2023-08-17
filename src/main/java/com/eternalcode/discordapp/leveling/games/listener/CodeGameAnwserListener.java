@@ -1,9 +1,9 @@
-package com.eternalcode.discordapp.games.listener;
+package com.eternalcode.discordapp.leveling.games.listener;
 
 import com.eternalcode.discordapp.config.ConfigManager;
-import com.eternalcode.discordapp.experience.ExperienceService;
-import com.eternalcode.discordapp.games.CodeImageGameData;
-import com.eternalcode.discordapp.games.configuration.CodeGameConfiguration;
+import com.eternalcode.discordapp.leveling.experience.ExperienceService;
+import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
+import com.eternalcode.discordapp.leveling.games.configuration.CodeGameConfiguration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Random;
 
 public class CodeGameAnwserListener extends ListenerAdapter {
+
     private final CodeImageGameData codeImageGameData;
 
     private final CodeGameConfiguration codeGameConfiguration;
@@ -56,21 +57,22 @@ public class CodeGameAnwserListener extends ListenerAdapter {
             int points = new Random().nextInt(1, this.codeGameConfiguration.maxPoints + 1);
 
             Formatter formatter = new Formatter()
-                    .register("{winner}", event.getAuthor().getAsMention())
-                    .register("{points}", points)
-                    .register("{time}", Duration.between(this.codeImageGameData.lastUpdated, Instant.now()).toMinutes());
+                .register("{winner}", event.getAuthor().getAsMention())
+                .register("{points}", points)
+                .register("{time}", Duration.between(this.codeImageGameData.lastUpdated, Instant.now()).toMinutes());
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle(this.codeGameConfiguration.embedSettings.title)
-                    .setColor(Color.decode(this.codeGameConfiguration.embedSettings.color))
-                    .setDescription(formatter.format(this.codeGameConfiguration.embedSettings.description))
-                    .setFooter(this.codeGameConfiguration.embedSettings.footer);
+                .setTitle(this.codeGameConfiguration.embedSettings.title)
+                .setColor(Color.decode(this.codeGameConfiguration.embedSettings.color))
+                .setDescription(formatter.format(this.codeGameConfiguration.embedSettings.description))
+                .setFooter(this.codeGameConfiguration.embedSettings.footer);
 
-            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true).whenComplete((experience, throwable) -> {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
-            });
+            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true)
+                .whenComplete((experience, throwable) -> {
+                    if (throwable != null) {
+                        throwable.printStackTrace();
+                    }
+                });
 
             event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
         }

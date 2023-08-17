@@ -1,13 +1,12 @@
 package com.eternalcode.discordapp.leveling;
 
-import com.eternalcode.discordapp.experience.Experience;
-import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
+import com.eternalcode.discordapp.leveling.experience.Experience;
+import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.observer.Observer;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import panda.utilities.text.Formatter;
-
-import java.awt.Color;
 
 public class LevelController implements Observer<ExperienceChangeEvent> {
 
@@ -21,38 +20,58 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         this.jda = jda;
     }
 
+    /**
+     * This method is called when an ExperienceChangeEvent occurs. It updates the user's level based on their experience points
+     * and sends a message to a designated TextChannel when the user levels up.
+     * <p>
+     * It calculates the next level using the formula: N = P * L^2 + P * L + P
+     * where:
+     * <p> - N represents the points needed to reach the next level,
+     * <p> - P is the points needed for one level (provided by LevelConfig),
+     * <p> - L is the current level.
+     * <p>
+     * Example level calculations:
+     * <p> Level 1: N = 100 * 1^2 + 100 * 1 + 100 = 300
+     * <p> Level 2: N = 100 * 2^2 + 100 * 2 + 100 = 700
+     * <p> Level 3: N = 100 * 3^2 + 100 * 3 + 100 = 1200
+     * <p> Level 4: N = 100 * 4^2 + 100 * 4 + 100 = 1700
+     * <p> Level 5: N = 100 * 5^2 + 100 * 5 + 100 = 2300
+     */
+
     @Override
     public void update(ExperienceChangeEvent experienceChangeEvent) {
         Experience experience = experienceChangeEvent.experience();
+        long userId = experience.getUserId();
 
-        int level = (int) Math.round(experience.getPoints() / this.levelConfig.points);
+        double currentPoints = experience.getPoints();
+        int pointsPerLevel = this.levelConfig.points;
 
-        this.levelService.find(experience.getUserId()).thenApply(userLevel -> {
-            if (level > userLevel.getLevel()) {
-                userLevel.setLevel(level);
-                this.levelService.saveLevel(userLevel);
-                String description = new Formatter()
-                        .register("{user}", this.jda.getUserById(experience.getUserId()).getAsMention())
-                        .register("{level}", String.valueOf(level))
-                        .format(this.levelConfig.message.description);
+        int nextLevel = (int) (Math.sqrt(currentPoints / pointsPerLevel) + 1);
 
-                EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setThumbnail(this.levelConfig.message.thumbnail)
-                        .setColor(Color.decode(this.levelConfig.message.color))
-                        .setTitle(this.levelConfig.message.title)
-                        .setDescription(description)
-                        .setFooter(this.levelConfig.message.footer);
-
-                this.jda.getTextChannelById(this.levelConfig.channel)
-                        .sendMessageEmbeds(embedBuilder.build())
-                        .queue();
-
-                return userLevel;
-            }
-            else {
+        this.levelService.find(userId).thenApply(userLevel -> {
+            if (nextLevel <= userLevel.getLevel()) {
                 return null;
             }
+
+            userLevel.setLevel(nextLevel);
+            this.levelService.saveLevel(userLevel);
+
+            User user = this.jda.getUserById(userId);
+            if (user == null) {
+                return null;
+            }
+
+            String messageContent = new Formatter()
+                .register("{user}", user.getAsMention())
+                .register("{level}", String.valueOf(nextLevel))
+                .format(this.levelConfig.message.description);
+
+            TextChannel levelChannel = this.jda.getTextChannelById(this.levelConfig.channel);
+            if (levelChannel != null) {
+                levelChannel.sendMessage(messageContent).queue();
+            }
+
+            return userLevel;
         });
     }
-
 }

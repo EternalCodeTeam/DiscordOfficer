@@ -1,10 +1,7 @@
-package com.eternalcode.discordapp.experience;
+package com.eternalcode.discordapp.leveling.experience;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
-import com.eternalcode.discordapp.leveling.Level;
-import com.eternalcode.discordapp.leveling.LevelWrapper;
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
