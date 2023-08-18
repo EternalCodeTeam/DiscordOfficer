@@ -20,7 +20,7 @@ public class LevelConfig implements CdnConfig {
 
     @Contextual
     public static class Message {
-        @Description({"# Description of embed", "# {user} - mention user", "# {level} - level"})
+        @Description({ "# Description of embed", "# {user} - mention user", "# {level} - level" })
         public String description = "{user} has reached level {level}!";
     }
 

@@ -31,8 +31,8 @@ public class GenerateImageWithCode extends TimerTask {
 
     @Override
     public void run() {
-        BufferedImage image = generateCodeImage();
-        sendCodeImageMessage(image);
+        BufferedImage image = this.generateCodeImage();
+        this.sendCodeImageMessage(image);
     }
 
     private BufferedImage generateCodeImage() {
@@ -63,7 +63,7 @@ public class GenerateImageWithCode extends TimerTask {
             return;
         }
 
-        TextChannel channel = jda.getTextChannelById(this.codeGameConfiguration.channelId);
+        TextChannel channel = this.jda.getTextChannelById(this.codeGameConfiguration.channelId);
         if (channel != null) {
             FileUpload fileUpload = FileUpload.fromData(baos.toByteArray(), "game.png");
             channel.sendMessage(this.codeGameConfiguration.codeText)

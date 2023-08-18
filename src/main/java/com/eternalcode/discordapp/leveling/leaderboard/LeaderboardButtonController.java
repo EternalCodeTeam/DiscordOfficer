@@ -28,7 +28,7 @@ public class LeaderboardButtonController extends ListenerAdapter {
         String componentId = event.getComponentId();
         long messageId = event.getMessage().getIdLong();
 
-        int currentPage = currentPageMap.getOrDefault(messageId, 1);
+        int currentPage = this.currentPageMap.getOrDefault(messageId, 1);
 
         if (componentId.equals("leaderboard_next")) {
             currentPage++;
@@ -40,13 +40,13 @@ public class LeaderboardButtonController extends ListenerAdapter {
             currentPage = 1;
         }
         if (componentId.equals("leaderboard_last")) {
-            currentPage = leaderboardService.getTotalPages();
+            currentPage = this.leaderboardService.getTotalPages();
         }
 
-        currentPage = Math.max(1, Math.min(currentPage, leaderboardService.getTotalPages()));
-        currentPageMap.put(messageId, currentPage);
+        currentPage = Math.max(1, Math.min(currentPage, this.leaderboardService.getTotalPages()));
+        this.currentPageMap.put(messageId, currentPage);
 
-        updateLeaderboard(event, currentPage);
+        this.updateLeaderboard(event, currentPage);
     }
 
     private void updateLeaderboard(ButtonInteractionEvent event, int currentPage) {
@@ -55,15 +55,15 @@ public class LeaderboardButtonController extends ListenerAdapter {
         int startIndex = (currentPage - 1) * PAGE_SIZE;
         int endIndex = Math.min(startIndex + PAGE_SIZE, this.leaderboardConfiguration.records);
 
-        List<Level> top = leaderboardService.getLeaderboard(startIndex, endIndex);
+        List<Level> top = this.leaderboardService.getLeaderboard(startIndex, endIndex);
 
-        EmbedBuilder embedBuilder = leaderboardService.createEmbedBuilder(currentPage, totalPages);
+        EmbedBuilder embedBuilder = this.leaderboardService.createEmbedBuilder(currentPage, totalPages);
         int index = startIndex + 1;
         StringBuilder leaderboardContent = new StringBuilder();
 
         for (Level level : top) {
             int userLevel = level.getLevel();
-            leaderboardContent.append(leaderboardService.formatLeaderboardEntry(index, event.getGuild().getMemberById(level.getId()).getEffectiveName(), userLevel)).append("\n");
+            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, event.getGuild().getMemberById(level.getId()).getEffectiveName(), userLevel)).append("\n");
             index++;
         }
 

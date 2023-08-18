@@ -27,8 +27,8 @@ public class LeaderboardService {
 
     public EmbedBuilder createEmbedBuilder(int currentPage, int totalPages) {
         return new net.dv8tion.jda.api.EmbedBuilder()
-            .setTitle(leaderboardConfiguration.embedSettings.title)
-            .setColor(Color.decode(leaderboardConfiguration.embedSettings.color))
+            .setTitle(this.leaderboardConfiguration.embedSettings.title)
+            .setColor(Color.decode(this.leaderboardConfiguration.embedSettings.color))
             .setFooter(String.format("Page %d/%d", currentPage, totalPages));
     }
 
@@ -37,6 +37,6 @@ public class LeaderboardService {
     }
 
     public int getTotalPages() {
-        return (int) Math.ceil((double) leaderboardConfiguration.records / PAGE_SIZE);
+        return (int) Math.ceil((double) this.leaderboardConfiguration.records / PAGE_SIZE);
     }
 }

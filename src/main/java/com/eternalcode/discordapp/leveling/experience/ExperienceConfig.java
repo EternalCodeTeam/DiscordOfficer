@@ -11,7 +11,7 @@ import java.io.File;
 public class ExperienceConfig implements CdnConfig {
 
     @Description("# Base number of point that will be multiplied by the multiplier")
-    public int basePoints = 10;
+    public int basePoints = 5;
 
     @Description("# Message experience settings")
     public MessageExperience messageExperience = new MessageExperience();
@@ -26,16 +26,16 @@ public class ExperienceConfig implements CdnConfig {
     @Contextual
     public static class MessageExperience {
         @Description("# The number of words to get experience")
-        public int howManyWords = 5;
+        public int howManyWords = 3;
 
         @Description("# The multiplier of points that will be added to the user's experience")
-        public double multiplier = 10;
+        public double multiplier = 1.0;
     }
 
     @Contextual
     public static class ReactionExperience {
         @Description("# The multiplier of points that will be added to the user's experience")
-        public double multiplier = 10;
+        public double multiplier = 0.5;
     }
 
     @Contextual
@@ -44,7 +44,7 @@ public class ExperienceConfig implements CdnConfig {
         public int howLongTimeSpendInVoiceChannel = 10;
 
         @Description("# The multiplier of points that will be added to the user's experience")
-        public double multiplier = 10;
+        public double multiplier = 1.2;
     }
 
     @Override

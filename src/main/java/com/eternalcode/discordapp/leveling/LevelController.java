@@ -43,17 +43,25 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         Experience experience = experienceChangeEvent.experience();
         long userId = experience.getUserId();
 
-        double currentPoints = experience.getPoints();
-        int pointsPerLevel = this.levelConfig.points;
+        double experiencePoints = experience.getPoints();
+        System.out.println(experiencePoints);
 
-        int nextLevel = (int) (Math.sqrt(currentPoints / pointsPerLevel) + 1);
+        double pointsNeededForOneLevel = this.levelConfig.points;
 
         this.levelService.find(userId).thenApply(userLevel -> {
-            if (nextLevel <= userLevel.getLevel()) {
+            int currentLevel = userLevel.getLevel();
+
+            int pointsNeededForNextLevel = (int) (pointsNeededForOneLevel * Math.pow(currentLevel + 1, 2)
+                + pointsNeededForOneLevel * (currentLevel + 1)
+                + pointsNeededForOneLevel);
+
+            if (experiencePoints <= pointsNeededForNextLevel) {
                 return null;
             }
 
-            userLevel.setLevel(nextLevel);
+            int newLevel = currentLevel + 1;
+
+            userLevel.setLevel(newLevel);
             this.levelService.saveLevel(userLevel);
 
             User user = this.jda.getUserById(userId);
@@ -63,7 +71,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
             String messageContent = new Formatter()
                 .register("{user}", user.getAsMention())
-                .register("{level}", String.valueOf(nextLevel))
+                .register("{level}", String.valueOf(newLevel))
                 .format(this.levelConfig.message.description);
 
             TextChannel levelChannel = this.jda.getTextChannelById(this.levelConfig.channel);

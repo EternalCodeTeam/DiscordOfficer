@@ -14,30 +14,6 @@ public class LevelService {
         this.levelRepository = LevelRepositoryImpl.create(databaseManager);
     }
 
-
-    public CompletableFuture<Void> generateRandomLevels(int count) {
-        Random random = new Random();
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        for (int i = 0; i < count; i++) {
-            long id = random.nextLong();
-            int level = random.nextInt(100);
-
-            Level randomLevel = new Level(id, level);
-            int currentIndex = i; // Create a separate variable to capture the current value of i
-
-            saveLevel(randomLevel).thenAccept(savedLevel -> {
-                System.out.println("Saved level: " + savedLevel.getId() + ", " + savedLevel.getLevel());
-                if (currentIndex == count - 1) {
-                    future.complete(null);
-                }
-            });
-        }
-
-        return future;
-    }
-
-
     public CompletableFuture<Level> saveLevel(Level level) {
         return this.levelRepository.saveLevel(level);
     }
