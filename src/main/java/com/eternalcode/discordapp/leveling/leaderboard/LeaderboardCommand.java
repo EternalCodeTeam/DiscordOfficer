@@ -4,22 +4,20 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import panda.utilities.text.Formatter;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
-import java.awt.Color;
 import java.util.List;
 
 public class LeaderboardCommand extends SlashCommand {
 
     private static final int PAGE_SIZE = 10;
-    private final LeaderboardConfiguration leaderboardConfiguration;
     private final LeaderboardService leaderboardService;
+    private final LeaderboardConfiguration leaderboardConfiguration;
 
-    public LeaderboardCommand(LeaderboardConfiguration leaderboardConfiguration, LeaderboardService leaderboardService) {
-        this.leaderboardConfiguration = leaderboardConfiguration;
+    public LeaderboardCommand(LeaderboardService leaderboardService, LeaderboardConfiguration leaderboardConfiguration) {
         this.leaderboardService = leaderboardService;
+        this.leaderboardConfiguration = leaderboardConfiguration;
 
         this.name = "leaderboard";
         this.help = String.format("Shows the top %s users in level ranking", this.leaderboardConfiguration.records);
@@ -27,20 +25,18 @@ public class LeaderboardCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        int totalPages = (int) Math.ceil((double) leaderboardConfiguration.records / PAGE_SIZE);
+        int totalRecords = this.leaderboardConfiguration.records;
+        int totalPages = leaderboardService.getTotalPages();
         int page = 1;
 
         int startIndex = (page - 1) * PAGE_SIZE;
-        List<Level> top = leaderboardService.getLeaderboard(startIndex, PAGE_SIZE);
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+        List<Level> top = leaderboardService.getLeaderboard(startIndex, endIndex);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle(this.leaderboardConfiguration.embedSettings.title)
-                .setColor(Color.decode(this.leaderboardConfiguration.embedSettings.color))
-                .setFooter(String.format("Page %d/%d", page, totalPages), event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = leaderboardService.createEmbedBuilder(page, totalPages);
 
         if (top.isEmpty()) {
-            embedBuilder.setDescription("The leaderboard is empty.");
-            event.replyEmbeds(embedBuilder.build()).queue();
+            event.replyEmbeds(embedBuilder.setDescription("The leaderboard is empty.").build()).queue();
             return;
         }
 
@@ -49,22 +45,28 @@ public class LeaderboardCommand extends SlashCommand {
 
         for (Level level : top) {
             int userLevel = level.getLevel();
-
-            Formatter formatter = new Formatter()
-                    .register("{index}", index)
-                    .register("{user}", level.getId())
-                    .register("{level}", userLevel);
-
-            leaderboardContent.append(formatter.format("**{index}.** {user} - **LVL**: `{level}`")).append("\n");
+            leaderboardContent.append(leaderboardService.formatLeaderboardEntry(index, event.getGuild().getMemberById(level.getId()).getEffectiveName(), userLevel)).append("\n");
             index++;
         }
 
+        Button firstButton = Button.success("leaderboard_first", "First")
+                .withEmoji(Emoji.fromUnicode("U+23EE"))
+                .withDisabled(page == 1);
+
+        Button prevButton = Button.primary("leaderboard_prev", "Previous")
+                .withEmoji(Emoji.fromFormatted("U+25C0"))
+                .withDisabled(page <= 1);
+
+        Button nextButton = Button.primary("leaderboard_next", "Next")
+                .withEmoji(Emoji.fromUnicode("U+25B6"))
+                .withDisabled(page >= totalPages);
+
+        Button lastButton = Button.success("leaderboard_last", "Last")
+                .withEmoji(Emoji.fromUnicode("U+23ED"))
+                .withDisabled(page == totalPages);
+
         event.replyEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-                .addActionRow(
-                        Button.primary("leaderboard_prev", "Previous").withEmoji(Emoji.fromFormatted("U+23EA")),
-                        Button.primary("leaderboard_next", "Next").withEmoji(Emoji.fromUnicode("U+23E9"))
-                )
+                .addActionRow(firstButton, prevButton, nextButton, lastButton)
                 .queue();
     }
-
 }

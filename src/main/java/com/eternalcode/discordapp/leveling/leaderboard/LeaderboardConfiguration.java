@@ -11,7 +11,7 @@ import java.io.File;
 public class LeaderboardConfiguration implements CdnConfig {
 
     @Description("# How many records should be displayed on the ranking")
-    public int records = 10;
+    public int records = 100;
 
     @Description("# The settings of the embeds")
     public EmbedSettings embedSettings = new EmbedSettings();
@@ -22,12 +22,6 @@ public class LeaderboardConfiguration implements CdnConfig {
 
         @Description("# The color of the embed")
         public String color = "#e01947";
-
-        @Description("# Footer of the embed")
-        public String footer = "Ranking";
-
-        @Description("# Thumbnail of the embed")
-        public String thumbnail = "https://i.imgur.com/2oTkWsr.png";
 
         @Description("# The title of the embed")
         public String title = "Leaderboard";

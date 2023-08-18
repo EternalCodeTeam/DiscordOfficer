@@ -40,7 +40,6 @@ import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -98,7 +97,7 @@ public class DiscordApp {
             exception.printStackTrace();
         }
 
-        LeaderboardService leaderboardService = new LeaderboardService(levelService);
+        LeaderboardService leaderboardService = new LeaderboardService(leaderboardConfiguration, levelService);
 
         OkHttpClient httpClient = new OkHttpClient();
 
@@ -128,7 +127,7 @@ public class DiscordApp {
 
                 // Leveling
                 new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardConfiguration, leaderboardService)
+                new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
             )
             .setOwnerId(config.topOwnerId)
             .setActivity(Activity.playing("IntelliJ IDEA"))
