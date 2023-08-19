@@ -44,7 +44,6 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         long userId = experience.getUserId();
 
         double experiencePoints = experience.getPoints();
-        System.out.println(experiencePoints);
 
         double pointsNeededForOneLevel = this.levelConfig.points;
 

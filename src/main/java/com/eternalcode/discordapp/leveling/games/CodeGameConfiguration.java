@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.leveling.games.configuration;
+package com.eternalcode.discordapp.leveling.games;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.entity.Contextual;

@@ -1,9 +1,7 @@
-package com.eternalcode.discordapp.leveling.games.listener;
+package com.eternalcode.discordapp.leveling.games;
 
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
-import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
-import com.eternalcode.discordapp.leveling.games.configuration.CodeGameConfiguration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -14,7 +12,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
 
-public class CodeGameAnswerListener extends ListenerAdapter {
+public class CodeGameAnswerController extends ListenerAdapter {
 
     private static final Random RANDOM_CODE = new Random();
 
@@ -23,7 +21,7 @@ public class CodeGameAnswerListener extends ListenerAdapter {
     private final ConfigManager dataManager;
     private final ExperienceService experienceService;
 
-    public CodeGameAnswerListener(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager dataManager, ExperienceService experienceService) {
+    public CodeGameAnswerController(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager dataManager, ExperienceService experienceService) {
         this.codeImageGameData = codeImageGameData;
         this.codeGameConfiguration = codeGameConfiguration;
         this.dataManager = dataManager;

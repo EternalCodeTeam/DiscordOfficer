@@ -32,8 +32,8 @@ import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessage
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
-import com.eternalcode.discordapp.leveling.games.configuration.CodeGameConfiguration;
-import com.eternalcode.discordapp.leveling.games.listener.CodeGameAnswerListener;
+import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
+import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
 import com.eternalcode.discordapp.leveling.games.task.GenerateImageWithCode;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
@@ -158,7 +158,7 @@ public class DiscordApp {
                 new FilterMessageEmbedController(filterService),
 
                 // Experience games
-                new CodeGameAnswerListener(codeImageGameData, codeGameConfiguration, data, experienceService),
+                new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
                 new LeaderboardButtonController(leaderboardConfiguration, leaderboardService)
             )
