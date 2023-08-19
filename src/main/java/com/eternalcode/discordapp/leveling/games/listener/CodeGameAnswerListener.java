@@ -9,21 +9,21 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import panda.utilities.text.Formatter;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
 
-public class CodeGameAnwserListener extends ListenerAdapter {
+public class CodeGameAnswerListener extends ListenerAdapter {
+
+    private static final Random RANDOM_CODE = new Random();
 
     private final CodeImageGameData codeImageGameData;
-
     private final CodeGameConfiguration codeGameConfiguration;
-
     private final ConfigManager dataManager;
     private final ExperienceService experienceService;
 
-    public CodeGameAnwserListener(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager dataManager, ExperienceService experienceService) {
+    public CodeGameAnswerListener(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager dataManager, ExperienceService experienceService) {
         this.codeImageGameData = codeImageGameData;
         this.codeGameConfiguration = codeGameConfiguration;
         this.dataManager = dataManager;
@@ -32,7 +32,6 @@ public class CodeGameAnwserListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-
         if (event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
@@ -54,12 +53,14 @@ public class CodeGameAnwserListener extends ListenerAdapter {
             this.codeImageGameData.gameActive = false;
             this.dataManager.save(this.codeImageGameData);
 
-            int points = new Random().nextInt(1, this.codeGameConfiguration.maxPoints + 1);
+            int points = RANDOM_CODE.nextInt(this.codeGameConfiguration.maxPoints) + 1;
+            Instant now = Instant.now();
+            long timeDifferenceMinutes = Duration.between(this.codeImageGameData.lastUpdated, now).toMinutes();
 
             Formatter formatter = new Formatter()
                 .register("{winner}", event.getAuthor().getAsMention())
                 .register("{points}", points)
-                .register("{time}", Duration.between(this.codeImageGameData.lastUpdated, Instant.now()).toMinutes());
+                .register("{time}", timeDifferenceMinutes);
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle(this.codeGameConfiguration.embedSettings.title)
@@ -76,6 +77,5 @@ public class CodeGameAnwserListener extends ListenerAdapter {
 
             event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
         }
-
     }
 }

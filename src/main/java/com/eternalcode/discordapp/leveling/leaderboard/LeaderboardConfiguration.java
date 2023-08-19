@@ -10,7 +10,7 @@ import java.io.File;
 
 public class LeaderboardConfiguration implements CdnConfig {
 
-    @Description("# How many records should be displayed on the ranking")
+    @Description("# How many records should be displayed on the leaderboard")
     public int records = 100;
 
     @Description("# The settings of the embeds")
@@ -18,7 +18,7 @@ public class LeaderboardConfiguration implements CdnConfig {
 
     @Contextual
     public static class EmbedSettings {
-        @Description("# Settings of the ranking embeds")
+        @Description("# Settings of the leaderboard embeds")
 
         @Description("# The color of the embed")
         public String color = "#e01947";
@@ -29,6 +29,6 @@ public class LeaderboardConfiguration implements CdnConfig {
 
     @Override
     public Resource resource(File folder) {
-        return Source.of(folder, "rankings.yml");
+        return Source.of(folder, "leaderboard.yml");
     }
 }

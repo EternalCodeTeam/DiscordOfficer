@@ -12,6 +12,7 @@ import java.util.List;
 public class LeaderboardCommand extends SlashCommand {
 
     private static final int PAGE_SIZE = 10;
+
     private final LeaderboardService leaderboardService;
     private final LeaderboardConfiguration leaderboardConfiguration;
 
@@ -29,7 +30,7 @@ public class LeaderboardCommand extends SlashCommand {
         int totalPages = this.leaderboardService.getTotalPages();
         int page = 1;
 
-        int startIndex = (page - 1) * PAGE_SIZE;
+        int startIndex = 0;
         int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
         List<Level> top = this.leaderboardService.getLeaderboard(startIndex, endIndex);
 

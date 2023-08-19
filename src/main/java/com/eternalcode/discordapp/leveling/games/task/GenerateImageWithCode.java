@@ -54,9 +54,10 @@ public class GenerateImageWithCode extends TimerTask {
     }
 
     private void sendCodeImageMessage(BufferedImage image) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
         try {
-            ImageIO.write(image, "png", baos);
+            ImageIO.write(image, "png", byteArrayOutputStream);
         }
         catch (IOException exception) {
             exception.printStackTrace();
@@ -65,7 +66,7 @@ public class GenerateImageWithCode extends TimerTask {
 
         TextChannel channel = this.jda.getTextChannelById(this.codeGameConfiguration.channelId);
         if (channel != null) {
-            FileUpload fileUpload = FileUpload.fromData(baos.toByteArray(), "game.png");
+            FileUpload fileUpload = FileUpload.fromData(byteArrayOutputStream.toByteArray(), "game.png");
             channel.sendMessage(this.codeGameConfiguration.codeText)
                 .addFiles(fileUpload)
                 .queue();

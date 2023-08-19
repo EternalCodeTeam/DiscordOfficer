@@ -33,12 +33,12 @@ import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactio
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
 import com.eternalcode.discordapp.leveling.games.configuration.CodeGameConfiguration;
-import com.eternalcode.discordapp.leveling.games.listener.CodeGameAnwserListener;
+import com.eternalcode.discordapp.leveling.games.listener.CodeGameAnswerListener;
 import com.eternalcode.discordapp.leveling.games.task.GenerateImageWithCode;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
-import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardConfiguration;
+import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
@@ -102,8 +102,7 @@ public class DiscordApp {
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
-        }
-        catch (SQLException exception) {
+        } catch (SQLException exception) {
             exception.printStackTrace();
         }
 
@@ -120,39 +119,30 @@ public class DiscordApp {
             .setOwnerId(config.topOwnerId)
             .setActivity(Activity.playing("IntelliJ IDEA"))
             .useHelpBuilder(false)
+
+            // slash commands registry
+            .addSlashCommands(
+                // Standard
+                new AvatarCommand(config),
+                new BanCommand(config),
+                new BotInfoCommand(config),
+                new ClearCommand(config),
+                new CooldownCommand(config),
+                new EmbedCommand(),
+                new KickCommand(config),
+                new PingCommand(config),
+                new ServerCommand(config),
+                new MinecraftServerInfoCommand(httpClient),
+                new SayCommand(),
+
+                // GitHub review
+                new GitHubReviewCommand(gitHubReviewService, config),
+
+                // Leveling
+                new LevelCommand(levelService),
+                new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
+            )
             .build();
-
-                // slash commands registry
-                .addSlashCommands(
-                        // Standard
-                        new AvatarCommand(config),
-                        new BanCommand(config),
-                        new BotInfoCommand(config),
-                        new ClearCommand(config),
-                        new CooldownCommand(config),
-                        new EmbedCommand(),
-                        new KickCommand(config),
-                        new PingCommand(config),
-                        new ServerCommand(config),
-                        new MinecraftServerInfoCommand(httpClient),
-                        new SayCommand(),
-
-                        // GitHub review
-                        new GitHubReviewCommand(gitHubReviewService, config),
-
-                        // Level/Experience
-                        new LevelCommand(levelService),
-
-
-
-                        // Leveling
-                        new LevelCommand(levelService),
-                        new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
-                )
-                .setOwnerId(config.topOwnerId)
-                .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false)
-                .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
             .addEventListeners(
@@ -168,7 +158,7 @@ public class DiscordApp {
                 new FilterMessageEmbedController(filterService),
 
                 // Experience games
-                new CodeGameAnwserListener(codeImageGameData, codeGameConfiguration, data, experienceService),
+                new CodeGameAnswerListener(codeImageGameData, codeGameConfiguration, data, experienceService),
 
                 new LeaderboardButtonController(leaderboardConfiguration, leaderboardService)
             )

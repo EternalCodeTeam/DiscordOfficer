@@ -14,8 +14,10 @@ import java.util.Map;
 public class LeaderboardButtonController extends ListenerAdapter {
 
     private static final int PAGE_SIZE = 10;
+
     private final LeaderboardConfiguration leaderboardConfiguration;
     private final LeaderboardService leaderboardService;
+
     private final Map<Long, Integer> currentPageMap = new HashMap<>();
 
     public LeaderboardButtonController(LeaderboardConfiguration leaderboardConfiguration, LeaderboardService leaderboardService) {
@@ -33,12 +35,15 @@ public class LeaderboardButtonController extends ListenerAdapter {
         if (componentId.equals("leaderboard_next")) {
             currentPage++;
         }
+
         if (componentId.equals("leaderboard_prev")) {
             currentPage--;
         }
+
         if (componentId.equals("leaderboard_first")) {
             currentPage = 1;
         }
+
         if (componentId.equals("leaderboard_last")) {
             currentPage = this.leaderboardService.getTotalPages();
         }
