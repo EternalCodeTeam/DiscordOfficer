@@ -39,6 +39,10 @@ public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> 
                 .thenApply(levels -> levels.stream().map(LevelWrapper::toLevel).toList());
     }
 
+    @Override
+    public CompletableFuture<Integer> getTotalRecordsCount() {
+        return this.action(dao -> Math.toIntExact(dao.queryBuilder().countOf()));
+    }
 
     @Override
     public CompletableFuture<Level> saveLevel(Level level) {

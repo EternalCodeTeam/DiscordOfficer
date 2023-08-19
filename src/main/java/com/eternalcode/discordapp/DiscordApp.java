@@ -37,7 +37,6 @@ import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
 import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
-import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardConfiguration;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
@@ -77,7 +76,6 @@ public class DiscordApp {
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
         CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
-        LeaderboardConfiguration leaderboardConfiguration = configManager.load(new LeaderboardConfiguration());
 
         ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
@@ -107,7 +105,7 @@ public class DiscordApp {
             exception.printStackTrace();
         }
 
-        LeaderboardService leaderboardService = new LeaderboardService(leaderboardConfiguration, levelService);
+        LeaderboardService leaderboardService = new LeaderboardService(levelService);
 
         OkHttpClient httpClient = new OkHttpClient();
 
@@ -141,7 +139,7 @@ public class DiscordApp {
 
                 // Leveling
                 new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
+                new LeaderboardCommand(leaderboardService)
             )
             .build();
 
@@ -161,7 +159,7 @@ public class DiscordApp {
                 // Experience games
                 new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
-                new LeaderboardButtonController(leaderboardConfiguration, leaderboardService)
+                new LeaderboardButtonController(leaderboardService)
             )
 
             .setAutoReconnect(true)

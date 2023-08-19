@@ -5,8 +5,6 @@ import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.concurrent.ExecutionException;
-
 public class ExperienceMessageListener extends ListenerAdapter {
 
     private final ExperienceConfig experienceConfig;
@@ -27,12 +25,12 @@ public class ExperienceMessageListener extends ListenerAdapter {
         try {
             this.givePoints(event);
         }
-        catch (ExecutionException | InterruptedException exception) {
+        catch (InterruptedException exception) {
             throw new RuntimeException(exception);
         }
     }
 
-    private void givePoints(MessageReceivedEvent event) throws ExecutionException, InterruptedException {
+    private void givePoints(MessageReceivedEvent event) throws InterruptedException {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
         if (message.length < this.experienceConfig.messageExperience.howManyWords) {

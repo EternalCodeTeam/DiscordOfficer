@@ -58,9 +58,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     @Override
     public CompletableFuture<List<Experience>> getTop(int limit, long offset) {
         return this.action(dao -> dao.queryBuilder().orderBy("points", false).limit((long) limit).offset(offset).query())
-                .thenApply(experiences -> {
-                    return experiences.stream().map(ExperienceWrapper::toExperience).toList();
-                });
+                .thenApply(experiences -> experiences.stream().map(ExperienceWrapper::toExperience).toList());
     }
 
     @Override

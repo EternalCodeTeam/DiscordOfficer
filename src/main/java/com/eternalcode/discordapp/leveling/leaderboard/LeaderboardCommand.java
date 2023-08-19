@@ -14,20 +14,19 @@ public class LeaderboardCommand extends SlashCommand {
     private static final int PAGE_SIZE = 10;
 
     private final LeaderboardService leaderboardService;
-    private final LeaderboardConfiguration leaderboardConfiguration;
 
-    public LeaderboardCommand(LeaderboardService leaderboardService, LeaderboardConfiguration leaderboardConfiguration) {
+    public LeaderboardCommand(LeaderboardService leaderboardService) {
         this.leaderboardService = leaderboardService;
-        this.leaderboardConfiguration = leaderboardConfiguration;
 
         this.name = "leaderboard";
-        this.help = String.format("Shows the top %s users in level ranking", this.leaderboardConfiguration.records);
+        this.help = "Shows the top users in level ranking";
     }
 
     @Override
     public void execute(SlashCommandEvent event) {
-        int totalRecords = this.leaderboardConfiguration.records;
-        int totalPages = this.leaderboardService.getTotalPages();
+        int totalRecords = this.leaderboardService.getTotalRecords();
+
+        int totalPages = this.leaderboardService.getTotalPages(totalRecords);
         int page = 1;
 
         int startIndex = 0;

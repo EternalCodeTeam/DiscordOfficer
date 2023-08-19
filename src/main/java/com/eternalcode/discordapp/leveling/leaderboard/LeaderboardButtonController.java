@@ -15,13 +15,11 @@ public class LeaderboardButtonController extends ListenerAdapter {
 
     private static final int PAGE_SIZE = 10;
 
-    private final LeaderboardConfiguration leaderboardConfiguration;
     private final LeaderboardService leaderboardService;
 
     private final Map<Long, Integer> currentPageMap = new HashMap<>();
 
-    public LeaderboardButtonController(LeaderboardConfiguration leaderboardConfiguration, LeaderboardService leaderboardService) {
-        this.leaderboardConfiguration = leaderboardConfiguration;
+    public LeaderboardButtonController(LeaderboardService leaderboardService) {
         this.leaderboardService = leaderboardService;
     }
 
@@ -29,6 +27,9 @@ public class LeaderboardButtonController extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String componentId = event.getComponentId();
         long messageId = event.getMessage().getIdLong();
+
+        int totalRecords = this.leaderboardService.getTotalRecords();
+        int totalPages = this.leaderboardService.getTotalPages(totalRecords);
 
         int currentPage = this.currentPageMap.getOrDefault(messageId, 1);
 
@@ -44,21 +45,23 @@ public class LeaderboardButtonController extends ListenerAdapter {
             currentPage = 1;
         }
 
+
         if (componentId.equals("leaderboard_last")) {
-            currentPage = this.leaderboardService.getTotalPages();
+            currentPage = totalPages;
         }
 
-        currentPage = Math.max(1, Math.min(currentPage, this.leaderboardService.getTotalPages()));
+        currentPage = Math.max(1, Math.min(currentPage, totalPages));
         this.currentPageMap.put(messageId, currentPage);
 
         this.updateLeaderboard(event, currentPage);
     }
 
     private void updateLeaderboard(ButtonInteractionEvent event, int currentPage) {
-        int totalPages = this.leaderboardService.getTotalPages();
+        int totalRecords = this.leaderboardService.getTotalRecords();
+        int totalPages = this.leaderboardService.getTotalPages(totalRecords);
 
         int startIndex = (currentPage - 1) * PAGE_SIZE;
-        int endIndex = Math.min(startIndex + PAGE_SIZE, this.leaderboardConfiguration.records);
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
 
         List<Level> top = this.leaderboardService.getLeaderboard(startIndex, endIndex);
 
@@ -73,23 +76,23 @@ public class LeaderboardButtonController extends ListenerAdapter {
         }
 
         Button firstButton = Button.success("leaderboard_first", "First")
-            .withEmoji(Emoji.fromUnicode("U+23EE"))
-            .withDisabled(currentPage == 1);
+                .withEmoji(Emoji.fromUnicode("U+23EE"))
+                .withDisabled(currentPage == 1);
 
         Button prevButton = Button.primary("leaderboard_prev", "Previous")
-            .withEmoji(Emoji.fromFormatted("U+25C0"))
-            .withDisabled(currentPage <= 1);
+                .withEmoji(Emoji.fromFormatted("U+25C0"))
+                .withDisabled(currentPage <= 1);
 
         Button nextButton = Button.primary("leaderboard_next", "Next")
-            .withEmoji(Emoji.fromUnicode("U+25B6"))
-            .withDisabled(currentPage >= totalPages);
+                .withEmoji(Emoji.fromUnicode("U+25B6"))
+                .withDisabled(currentPage >= totalPages);
 
         Button lastButton = Button.success("leaderboard_last", "Last")
-            .withEmoji(Emoji.fromUnicode("U+23ED"))
-            .withDisabled(currentPage == totalPages);
+                .withEmoji(Emoji.fromUnicode("U+23ED"))
+                .withDisabled(currentPage == totalPages);
 
         event.editMessageEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-            .setActionRow(firstButton, prevButton, nextButton, lastButton)
-            .queue();
+                .setActionRow(firstButton, prevButton, nextButton, lastButton)
+                .queue();
     }
 }

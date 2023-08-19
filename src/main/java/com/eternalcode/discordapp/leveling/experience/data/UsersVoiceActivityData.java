@@ -1,7 +1,6 @@
 package com.eternalcode.discordapp.leveling.experience.data;
 
 import com.eternalcode.discordapp.config.CdnConfig;
-import net.dzikoysk.cdn.entity.Description;
 import net.dzikoysk.cdn.source.Resource;
 import net.dzikoysk.cdn.source.Source;
 

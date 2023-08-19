@@ -76,9 +76,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
         long minutes = Duration.between(joined, Instant.now()).toMinutes();
 
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier;
-        double points = basePoints * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
-
-        return points;
+        return basePoints * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
     }
 
 }

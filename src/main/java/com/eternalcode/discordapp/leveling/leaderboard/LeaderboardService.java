@@ -4,18 +4,16 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.eternalcode.discordapp.leveling.LevelService;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.List;
 
 public class LeaderboardService {
 
     private static final int PAGE_SIZE = 10;
 
-    private final LeaderboardConfiguration leaderboardConfiguration;
     private final LevelService levelService;
 
-    public LeaderboardService(LeaderboardConfiguration leaderboardConfiguration, LevelService levelService) {
-        this.leaderboardConfiguration = leaderboardConfiguration;
+    public LeaderboardService(LevelService levelService) {
         this.levelService = levelService;
     }
 
@@ -27,16 +25,21 @@ public class LeaderboardService {
 
     public EmbedBuilder createEmbedBuilder(int currentPage, int totalPages) {
         return new EmbedBuilder()
-            .setTitle(this.leaderboardConfiguration.embedSettings.title)
-            .setColor(Color.decode(this.leaderboardConfiguration.embedSettings.color))
-            .setFooter(String.format("Page %d/%d", currentPage, totalPages));
+                .setTitle("👑 Leaderboard")
+                .setColor(Color.RED)
+                .setFooter(String.format("Page %d/%d", currentPage, totalPages));
     }
 
     public String formatLeaderboardEntry(int index, String userId, int userLevel) {
         return String.format("**%d.** %s - **LVL**: `%d`", index, userId, userLevel);
     }
 
-    public int getTotalPages() {
-        return (int) Math.ceil((double) this.leaderboardConfiguration.records / PAGE_SIZE);
+    public int getTotalPages(int totalRecords) {
+        return (int) Math.ceil((double) totalRecords / PAGE_SIZE);
     }
+
+    public int getTotalRecords() {
+        return this.levelService.getTotalRecordsCount().join();
+    }
+
 }

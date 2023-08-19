@@ -3,7 +3,6 @@ package com.eternalcode.discordapp.leveling;
 import com.eternalcode.discordapp.database.DatabaseManager;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class LevelService {
@@ -25,4 +24,9 @@ public class LevelService {
     public CompletableFuture<List<Level>> getTop(int limit, long offset) {
         return this.levelRepository.getTop(limit, offset);
     }
+
+    public CompletableFuture<Integer> getTotalRecordsCount() {
+        return this.levelRepository.getTotalRecordsCount();
+    }
+
 }
