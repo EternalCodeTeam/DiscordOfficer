@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.filter;
 
-public class FilterResult {
+public final class FilterResult {
 
     private static final FilterResult PASSED = new FilterResult(true);
     private static final FilterResult NOT_PASSED = new FilterResult(false);

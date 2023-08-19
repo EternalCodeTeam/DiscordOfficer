@@ -1,9 +1,9 @@
-package com.eternalcode.discordapp.experience.listener;
+package com.eternalcode.discordapp.leveling.experience.listener;
 
 import com.eternalcode.discordapp.config.ConfigManager;
-import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceService;
-import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
+import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
+import com.eternalcode.discordapp.leveling.experience.ExperienceService;
+import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -76,9 +76,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
         long minutes = Duration.between(joined, Instant.now()).toMinutes();
 
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier;
-        double points = basePoints * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
-
-        return points;
+        return basePoints * minutes / this.experienceConfig.voiceExperience.howLongTimeSpendInVoiceChannel;
     }
 
 }

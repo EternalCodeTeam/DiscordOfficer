@@ -1,7 +1,5 @@
-package com.eternalcode.discordapp.leveling.command;
+package com.eternalcode.discordapp.leveling;
 
-import com.eternalcode.discordapp.leveling.Level;
-import com.eternalcode.discordapp.leveling.LevelService;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -12,14 +10,14 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.List;
 
 public class LevelCommand extends SlashCommand {
+
     private final LevelService levelService;
 
     public LevelCommand(LevelService levelService) {
         this.name = "level";
         this.help = "Check your level or the level of another user";
-        this.options = List.of(
-                new OptionData(OptionType.USER, "user", "The user to check the level of")
-                        .setRequired(false)
+        this.options = List.of(new OptionData(OptionType.USER, "user", "The user to check the level of")
+                .setRequired(false)
         );
         this.levelService = levelService;
     }
@@ -28,14 +26,14 @@ public class LevelCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         User user = event.getOption("user") != null ? event.getOption("user").getAsUser() : event.getUser();
 
-        Level level = this.levelService.find(user.getIdLong()).join();
+        this.levelService.find(user.getIdLong()).thenAccept(level -> {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle("Level")
+                    .setDescription("Level of " + user.getAsMention())
+                    .addField("Level", String.valueOf(level.getLevel()), true)
+                    .setColor(0x00FF00);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle("Level")
-                .setDescription("Level of " + user.getAsMention())
-                .addField("Level", String.valueOf(level.getLevel()), true)
-                .setColor(0x00FF00);
-
-        event.replyEmbeds(embedBuilder.build()).queue();
+            event.replyEmbeds(embedBuilder.build()).queue();
+        });
     }
 }

@@ -1,10 +1,7 @@
-package com.eternalcode.discordapp.experience;
+package com.eternalcode.discordapp.leveling.experience;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
-import com.eternalcode.discordapp.leveling.Level;
-import com.eternalcode.discordapp.leveling.LevelWrapper;
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
@@ -61,9 +58,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     @Override
     public CompletableFuture<List<Experience>> getTop(int limit, long offset) {
         return this.action(dao -> dao.queryBuilder().orderBy("points", false).limit((long) limit).offset(offset).query())
-                .thenApply(experiences -> {
-                    return experiences.stream().map(ExperienceWrapper::toExperience).toList();
-                });
+                .thenApply(experiences -> experiences.stream().map(ExperienceWrapper::toExperience).toList());
     }
 
     @Override

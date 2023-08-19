@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.experience;
+package com.eternalcode.discordapp.leveling.experience;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

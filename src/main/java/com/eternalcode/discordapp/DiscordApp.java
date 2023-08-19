@@ -15,29 +15,30 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.experience.ExperienceChangeEvent;
-import com.eternalcode.discordapp.experience.ExperienceConfig;
-import com.eternalcode.discordapp.experience.ExperienceService;
-import com.eternalcode.discordapp.experience.data.UsersVoiceActivityData;
-import com.eternalcode.discordapp.experience.listener.ExperienceMessageListener;
-import com.eternalcode.discordapp.experience.listener.ExperienceReactionListener;
-import com.eternalcode.discordapp.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.filter.FilterMessageEmbedController;
 import com.eternalcode.discordapp.filter.FilterService;
 import com.eternalcode.discordapp.filter.renovate.RenovateForcedPushFilter;
-import com.eternalcode.discordapp.games.CodeImageGameData;
-import com.eternalcode.discordapp.games.configuration.CodeGameConfiguration;
-import com.eternalcode.discordapp.games.listener.CodeGameAnwserListener;
-import com.eternalcode.discordapp.games.task.GenerateImageWithCode;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsService;
 import com.eternalcode.discordapp.guildstats.GuildStatisticsTask;
+import com.eternalcode.discordapp.leveling.LevelCommand;
 import com.eternalcode.discordapp.leveling.LevelConfig;
 import com.eternalcode.discordapp.leveling.LevelController;
 import com.eternalcode.discordapp.leveling.LevelService;
-import com.eternalcode.discordapp.leveling.command.LevelCommand;
+import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
+import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
+import com.eternalcode.discordapp.leveling.experience.ExperienceService;
+import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
+import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessageListener;
+import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
+import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceListener;
+import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
+import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
+import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
+import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
+import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
+import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
+import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
-import com.eternalcode.discordapp.ranking.RankingConfiguration;
-import com.eternalcode.discordapp.ranking.TopCommand;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
@@ -62,12 +63,12 @@ import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
+
     private static ExperienceService experienceService;
     private static LevelService levelService;
-    private static ObserverRegistry observerRegistry;
 
     public static void main(String... args) throws InterruptedException {
-        observerRegistry = new ObserverRegistry();
+        ObserverRegistry observerRegistry = new ObserverRegistry();
         ConfigManager configManager = new ConfigManager("config");
 
         AppConfig config = configManager.load(new AppConfig());
@@ -75,7 +76,6 @@ public class DiscordApp {
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
         CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
-        RankingConfiguration rankingConfiguration = configManager.load(new RankingConfiguration());
 
         ConfigManager data = new ConfigManager("data");
         UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
@@ -105,71 +105,74 @@ public class DiscordApp {
             exception.printStackTrace();
         }
 
+        LeaderboardService leaderboardService = new LeaderboardService(levelService);
+
         OkHttpClient httpClient = new OkHttpClient();
 
         FilterService filterService = new FilterService()
-                .registerFilter(new RenovateForcedPushFilter());
+            .registerFilter(new RenovateForcedPushFilter());
 
         GitHubReviewService gitHubReviewService = new GitHubReviewService(config, configManager);
 
         CommandClient commandClient = new CommandClientBuilder()
-                // slash commands registry
-                .addSlashCommands(
-                        // Standard
-                        new AvatarCommand(config),
-                        new BanCommand(config),
-                        new BotInfoCommand(config),
-                        new ClearCommand(config),
-                        new CooldownCommand(config),
-                        new EmbedCommand(),
-                        new KickCommand(config),
-                        new PingCommand(config),
-                        new ServerCommand(config),
-                        new MinecraftServerInfoCommand(httpClient),
-                        new SayCommand(),
+            .setOwnerId(config.topOwnerId)
+            .setActivity(Activity.playing("IntelliJ IDEA"))
+            .useHelpBuilder(false)
 
-                        // GitHub review
-                        new GitHubReviewCommand(gitHubReviewService, config),
+            // slash commands registry
+            .addSlashCommands(
+                // Standard
+                new AvatarCommand(config),
+                new BanCommand(config),
+                new BotInfoCommand(config),
+                new ClearCommand(config),
+                new CooldownCommand(config),
+                new EmbedCommand(),
+                new KickCommand(config),
+                new MinecraftServerInfoCommand(httpClient),
+                new PingCommand(config),
+                new SayCommand(),
+                new ServerCommand(config),
 
-                        // Level/Experience
-                        new LevelCommand(levelService),
+                // GitHub review
+                new GitHubReviewCommand(gitHubReviewService, config),
 
-
-                        // Tops
-                        new TopCommand(levelService, experienceService, rankingConfiguration)
-                )
-                .setOwnerId(config.topOwnerId)
-                .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false)
-                .build();
+                // Leveling
+                new LevelCommand(levelService),
+                new LeaderboardCommand(leaderboardService)
+            )
+            .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
-                .addEventListeners(
-                        // Slash commands
-                        commandClient,
+            .addEventListeners(
+                // Slash commands
+                commandClient,
 
-                        // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
-                        new ExperienceReactionListener(experienceConfig, experienceService),
+                // Experience system
+                new ExperienceMessageListener(experienceConfig, experienceService),
+                new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
+                new ExperienceReactionListener(experienceConfig, experienceService),
 
-                        // Message filter
-                        new FilterMessageEmbedController(filterService),
+                // Message filter
+                new FilterMessageEmbedController(filterService),
 
-                        // Experience games
-                        new CodeGameAnwserListener(codeImageGameData, codeGameConfiguration, data, experienceService)
-                )
+                // Experience games
+                new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
-                .setAutoReconnect(true)
-                .setHttpClient(httpClient)
+                // leaderboard
+                new LeaderboardButtonController(leaderboardService)
+            )
 
-                .enableIntents(EnumSet.allOf(GatewayIntent.class))
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS)
-                .setChunkingFilter(ChunkingFilter.ALL)
+            .setAutoReconnect(true)
+            .setHttpClient(httpClient)
 
-                .build()
-                .awaitReady();
+            .enableIntents(EnumSet.allOf(GatewayIntent.class))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableCache(CacheFlag.ONLINE_STATUS)
+            .setChunkingFilter(ChunkingFilter.ALL)
+
+            .build()
+            .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
 
@@ -178,8 +181,6 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
         timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
-
-        // Games
-        timer.schedule(new GenerateImageWithCode(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
+        timer.schedule(new GenerateImageWithCodeTask(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
     }
 }

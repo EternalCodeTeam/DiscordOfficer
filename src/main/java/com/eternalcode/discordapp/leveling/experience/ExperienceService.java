@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.experience;
+package com.eternalcode.discordapp.leveling.experience;
 
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
