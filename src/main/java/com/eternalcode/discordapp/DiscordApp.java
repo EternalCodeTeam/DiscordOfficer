@@ -34,7 +34,7 @@ import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceLi
 import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
 import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
 import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
-import com.eternalcode.discordapp.leveling.games.task.GenerateImageWithCode;
+import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardConfiguration;
@@ -102,7 +102,8 @@ public class DiscordApp {
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
-        } catch (SQLException exception) {
+        }
+        catch (SQLException exception) {
             exception.printStackTrace();
         }
 
@@ -181,6 +182,6 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
         timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
-        timer.schedule(new GenerateImageWithCode(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
+        timer.schedule(new GenerateImageWithCodeTask(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
     }
 }

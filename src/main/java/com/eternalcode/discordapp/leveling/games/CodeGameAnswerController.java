@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import panda.utilities.text.Formatter;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
