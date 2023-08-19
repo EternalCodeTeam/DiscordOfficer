@@ -4,7 +4,7 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.eternalcode.discordapp.leveling.LevelService;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 
 public class LeaderboardService {
