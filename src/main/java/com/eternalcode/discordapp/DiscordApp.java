@@ -117,32 +117,42 @@ public class DiscordApp {
         GitHubReviewService gitHubReviewService = new GitHubReviewService(config, configManager);
 
         CommandClient commandClient = new CommandClientBuilder()
-            // slash commands registry
-            .addSlashCommands(
-                // Standard
-                new AvatarCommand(config),
-                new BanCommand(config),
-                new BotInfoCommand(config),
-                new ClearCommand(config),
-                new CooldownCommand(config),
-                new EmbedCommand(),
-                new KickCommand(config),
-                new PingCommand(config),
-                new ServerCommand(config),
-                new MinecraftServerInfoCommand(httpClient),
-                new SayCommand(),
-
-                // GitHub review
-                new GitHubReviewCommand(gitHubReviewService),
-
-                // Leveling
-                new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
-            )
             .setOwnerId(config.topOwnerId)
             .setActivity(Activity.playing("IntelliJ IDEA"))
             .useHelpBuilder(false)
             .build();
+
+                // slash commands registry
+                .addSlashCommands(
+                        // Standard
+                        new AvatarCommand(config),
+                        new BanCommand(config),
+                        new BotInfoCommand(config),
+                        new ClearCommand(config),
+                        new CooldownCommand(config),
+                        new EmbedCommand(),
+                        new KickCommand(config),
+                        new PingCommand(config),
+                        new ServerCommand(config),
+                        new MinecraftServerInfoCommand(httpClient),
+                        new SayCommand(),
+
+                        // GitHub review
+                        new GitHubReviewCommand(gitHubReviewService, config),
+
+                        // Level/Experience
+                        new LevelCommand(levelService),
+
+
+
+                        // Leveling
+                        new LevelCommand(levelService),
+                        new LeaderboardCommand(leaderboardService, leaderboardConfiguration)
+                )
+                .setOwnerId(config.topOwnerId)
+                .setActivity(Activity.playing("IntelliJ IDEA"))
+                .useHelpBuilder(false)
+                .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
             .addEventListeners(
