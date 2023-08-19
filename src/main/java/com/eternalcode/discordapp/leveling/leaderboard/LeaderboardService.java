@@ -23,7 +23,7 @@ public class LeaderboardService {
         return this.levelService.getTop(pageSize, start).join();
     }
 
-    public EmbedBuilder createEmbedBuilder(int currentPage, int totalPages) {
+    public EmbedBuilder createLeaderboardEmbedBuilder(int currentPage, int totalPages) {
         return new EmbedBuilder()
                 .setTitle("👑 Leaderboard")
                 .setColor(Color.RED)

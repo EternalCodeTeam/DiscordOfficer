@@ -15,7 +15,6 @@ public class ExperienceMessageListener extends ListenerAdapter {
         this.experienceService = experienceService;
     }
 
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.isWebhookMessage() || event.getAuthor().isBot()) {

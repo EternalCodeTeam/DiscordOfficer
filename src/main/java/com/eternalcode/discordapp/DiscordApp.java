@@ -129,10 +129,10 @@ public class DiscordApp {
                 new CooldownCommand(config),
                 new EmbedCommand(),
                 new KickCommand(config),
-                new PingCommand(config),
-                new ServerCommand(config),
                 new MinecraftServerInfoCommand(httpClient),
+                new PingCommand(config),
                 new SayCommand(),
+                new ServerCommand(config),
 
                 // GitHub review
                 new GitHubReviewCommand(gitHubReviewService, config),
@@ -159,6 +159,7 @@ public class DiscordApp {
                 // Experience games
                 new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
+                // leaderboard
                 new LeaderboardButtonController(leaderboardService)
             )
 

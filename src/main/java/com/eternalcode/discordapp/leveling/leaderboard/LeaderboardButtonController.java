@@ -45,7 +45,6 @@ public class LeaderboardButtonController extends ListenerAdapter {
             currentPage = 1;
         }
 
-
         if (componentId.equals("leaderboard_last")) {
             currentPage = totalPages;
         }
@@ -65,13 +64,15 @@ public class LeaderboardButtonController extends ListenerAdapter {
 
         List<Level> top = this.leaderboardService.getLeaderboard(startIndex, endIndex);
 
-        EmbedBuilder embedBuilder = this.leaderboardService.createEmbedBuilder(currentPage, totalPages);
+        EmbedBuilder embedBuilder = this.leaderboardService.createLeaderboardEmbedBuilder(currentPage, totalPages);
         int index = startIndex + 1;
         StringBuilder leaderboardContent = new StringBuilder();
 
         for (Level level : top) {
             int userLevel = level.getLevel();
-            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, event.getGuild().getMemberById(level.getId()).getEffectiveName(), userLevel)).append("\n");
+            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+
+            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
             index++;
         }
 

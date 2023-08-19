@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.composer;
+package com.eternalcode.discordapp.config.composer;
 
 import net.dzikoysk.cdn.serdes.Composer;
 import net.dzikoysk.cdn.serdes.SimpleDeserializer;

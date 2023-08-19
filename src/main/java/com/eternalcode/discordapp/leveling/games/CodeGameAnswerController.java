@@ -18,13 +18,13 @@ public class CodeGameAnswerController extends ListenerAdapter {
 
     private final CodeImageGameData codeImageGameData;
     private final CodeGameConfiguration codeGameConfiguration;
-    private final ConfigManager dataManager;
+    private final ConfigManager configManager;
     private final ExperienceService experienceService;
 
-    public CodeGameAnswerController(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager dataManager, ExperienceService experienceService) {
+    public CodeGameAnswerController(CodeImageGameData codeImageGameData, CodeGameConfiguration codeGameConfiguration, ConfigManager configManager, ExperienceService experienceService) {
         this.codeImageGameData = codeImageGameData;
         this.codeGameConfiguration = codeGameConfiguration;
-        this.dataManager = dataManager;
+        this.configManager = configManager;
         this.experienceService = experienceService;
     }
 
@@ -49,7 +49,7 @@ public class CodeGameAnswerController extends ListenerAdapter {
         if (event.getMessage().getContentRaw().equalsIgnoreCase(this.codeImageGameData.code)) {
             this.codeImageGameData.isUsed = true;
             this.codeImageGameData.gameActive = false;
-            this.dataManager.save(this.codeImageGameData);
+            this.configManager.save(this.codeImageGameData);
 
             int points = RANDOM_CODE.nextInt(this.codeGameConfiguration.maxPoints) + 1;
             Instant now = Instant.now();

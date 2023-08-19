@@ -33,7 +33,7 @@ public class LeaderboardCommand extends SlashCommand {
         int endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
         List<Level> top = this.leaderboardService.getLeaderboard(startIndex, endIndex);
 
-        EmbedBuilder embedBuilder = this.leaderboardService.createEmbedBuilder(page, totalPages);
+        EmbedBuilder embedBuilder = this.leaderboardService.createLeaderboardEmbedBuilder(page, totalPages);
 
         if (top.isEmpty()) {
             event.replyEmbeds(embedBuilder.setDescription("The leaderboard is empty.").build()).queue();
@@ -45,7 +45,9 @@ public class LeaderboardCommand extends SlashCommand {
 
         for (Level level : top) {
             int userLevel = level.getLevel();
-            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, event.getGuild().getMemberById(level.getId()).getEffectiveName(), userLevel)).append("\n");
+            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+
+            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
             index++;
         }
 
