@@ -1,6 +1,6 @@
 package com.eternalcode.discordapp.config;
 
-import com.eternalcode.discordapp.composer.InstantComposer;
+import com.eternalcode.discordapp.config.composer.InstantComposer;
 import net.dzikoysk.cdn.Cdn;
 import net.dzikoysk.cdn.CdnFactory;
 import net.dzikoysk.cdn.reflect.Visibility;

@@ -12,14 +12,14 @@ public class FilterService {
         return this;
     }
 
-public FilterResult check(String... sources) {
-            for (Filter filter : this.filters) {
-                FilterResult result = filter.filter(sources);
+    public FilterResult check(String... sources) {
+        for (Filter filter : this.filters) {
+            FilterResult result = filter.filter(sources);
 
-                if (!result.isPassed()) {
-                    return FilterResult.notPassed();
-                }
+            if (!result.isPassed()) {
+                return FilterResult.notPassed();
             }
+        }
 
         return FilterResult.passed();
     }

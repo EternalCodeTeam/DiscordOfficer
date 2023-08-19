@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.experience;
+package com.eternalcode.discordapp.leveling.experience;
 
 public record ExperienceChangeEvent(Experience experience) {
 }

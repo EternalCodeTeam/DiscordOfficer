@@ -24,4 +24,9 @@ public class LevelService {
     public CompletableFuture<List<Level>> getTop(int limit, long offset) {
         return this.levelRepository.getTop(limit, offset);
     }
+
+    public CompletableFuture<Integer> getTotalRecordsCount() {
+        return this.levelRepository.getTotalRecordsCount();
+    }
+
 }

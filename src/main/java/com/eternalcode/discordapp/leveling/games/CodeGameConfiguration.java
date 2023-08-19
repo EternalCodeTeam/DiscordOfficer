@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.games.configuration;
+package com.eternalcode.discordapp.leveling.games;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.entity.Contextual;
@@ -9,6 +9,7 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 
 public class CodeGameConfiguration implements CdnConfig {
+
     @Description("# Channel id where the game will be played")
     public Long channelId = 0L;
 
@@ -17,7 +18,6 @@ public class CodeGameConfiguration implements CdnConfig {
 
     @Description("# The time in minutes to generate new code - default: 5")
     public int timeToNextQuestion = 5;
-
 
     @Description("# The text in message with code")
     public String codeText = "The code is: ";
@@ -36,9 +36,10 @@ public class CodeGameConfiguration implements CdnConfig {
         @Description("# {winner} - The winner of the game")
         @Description("# {points} - The points of the winner")
         @Description("# {time} - The time of the game")
-        public String description = "The winner is: {winner}\n" +
-                "Points: {points}\n" +
-                "Time: {time} minutes";
+        public String description = """
+                The winner is: {winner}
+                Points: {points}
+                Time: {time} minutes""";
 
         @Description("# Color of the embed")
         public String color = "#00ff00";
