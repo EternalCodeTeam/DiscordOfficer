@@ -43,7 +43,7 @@ public class ClearCommand extends SlashCommand {
                 .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("Cleared " + amount + " messages")
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 

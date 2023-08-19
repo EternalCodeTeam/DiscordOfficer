@@ -42,7 +42,7 @@ public class ServerCommand extends SlashCommand {
                 .addField("📊 Roles", roles, false)
                 .addField("📊 Channels", channels, false)
                 .addField("📅 Created At", createdAt, false)
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 
