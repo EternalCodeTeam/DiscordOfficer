@@ -26,7 +26,7 @@ public class LeaderboardService {
     }
 
     public EmbedBuilder createEmbedBuilder(int currentPage, int totalPages) {
-        return new net.dv8tion.jda.api.EmbedBuilder()
+        return new EmbedBuilder()
             .setTitle(this.leaderboardConfiguration.embedSettings.title)
             .setColor(Color.decode(this.leaderboardConfiguration.embedSettings.color))
             .setFooter(String.format("Page %d/%d", currentPage, totalPages));
