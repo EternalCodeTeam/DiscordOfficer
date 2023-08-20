@@ -45,10 +45,10 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
         return this.find(id).thenCompose(experience -> {
             if (add) {
                 experience.addPoints(points);
-            } else {
-                experience.removePoints(points);
+                return this.saveExperience(experience);
             }
 
+            experience.removePoints(points);
             return this.saveExperience(experience);
         });
     }

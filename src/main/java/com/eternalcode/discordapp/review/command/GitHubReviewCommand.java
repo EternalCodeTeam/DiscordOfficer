@@ -28,5 +28,7 @@ public class GitHubReviewCommand extends SlashCommand {
     }
 
     @Override
-    public void execute(SlashCommandEvent event) { /* This method is empty because uses children for sub-commands. */ }
+    public void execute(SlashCommandEvent event) {
+        /* This method is empty because uses children for sub-commands. */
+    }
 }
