@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,7 +47,21 @@ public class GenerateImageWithCodeTask extends TimerTask {
         this.dataManager.save(this.codeImageGameData);
 
         BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
-        image.getGraphics().drawString(code, 50, 80);
+        Graphics2D graphics = image.createGraphics();
+
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+
+        Font font = new Font("Arial", Font.BOLD, 24);
+        graphics.setFont(font);
+        graphics.setColor(Color.BLACK);
+
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+        int x = (image.getWidth() - fontMetrics.stringWidth(code)) / 2;
+        int y = (image.getHeight() - fontMetrics.getHeight()) / 2 + fontMetrics.getAscent();
+
+        graphics.drawString(code, x, y);
+        graphics.dispose();
 
         return image;
     }
@@ -66,8 +81,8 @@ public class GenerateImageWithCodeTask extends TimerTask {
         if (channel != null) {
             FileUpload fileUpload = FileUpload.fromData(byteArrayOutputStream.toByteArray(), "game.png");
             channel.sendMessage(this.codeGameConfiguration.codeText)
-                .addFiles(fileUpload)
-                .queue();
+                    .addFiles(fileUpload)
+                    .queue();
         }
     }
 

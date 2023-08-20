@@ -25,6 +25,6 @@ public class LevelWrapper {
     }
 
     public static LevelWrapper from(Level level) {
-        return new LevelWrapper(level.getId(), level.getLevel());
+        return new LevelWrapper(level.getId(), level.getCurrentLevel());
     }
 }

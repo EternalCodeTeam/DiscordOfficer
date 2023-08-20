@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.leveling.experience.listener;
 
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
+import com.eternalcode.discordapp.leveling.experience.ExperienceException;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -24,12 +25,12 @@ public class ExperienceMessageListener extends ListenerAdapter {
         try {
             this.givePoints(event);
         }
-        catch (InterruptedException exception) {
-            throw new RuntimeException(exception);
+        catch (Exception exception) {
+            throw new ExperienceException("An error occurred while giving points", exception);
         }
     }
 
-    private void givePoints(MessageReceivedEvent event) throws InterruptedException {
+    private void givePoints(MessageReceivedEvent event) {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
         if (message.length < this.experienceConfig.messageExperience.howManyWords) {

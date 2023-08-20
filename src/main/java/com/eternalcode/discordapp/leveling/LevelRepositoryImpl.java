@@ -19,7 +19,7 @@ public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> 
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), LevelWrapper.class);
         }
         catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            throw new LevelException("Failed to create table", sqlException);
         }
 
         return new LevelRepositoryImpl(databaseManager);

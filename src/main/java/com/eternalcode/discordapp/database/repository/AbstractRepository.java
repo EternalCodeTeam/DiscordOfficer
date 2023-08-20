@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.database.repository;
 
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.j256.ormlite.dao.Dao;
 import panda.std.function.ThrowingFunction;
@@ -46,7 +47,7 @@ public abstract class AbstractRepository<T, ID> {
                 return action.apply(dao);
             }
             catch (SQLException sqlException) {
-                throw new RuntimeException(sqlException);
+                throw new DataAccessException("Failed to execute database action", sqlException);
             }
         });
     }

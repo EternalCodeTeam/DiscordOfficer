@@ -4,22 +4,22 @@ public class Level {
 
     private final long id;
 
-    private int level;
+    private int currentLevel;
 
-    public Level(long id, int level) {
+    public Level(long id, int currentLevel) {
         this.id = id;
-        this.level = level;
+        this.currentLevel = currentLevel;
     }
 
     public long getId() {
         return this.id;
     }
 
-    public int getLevel() {
-        return this.level;
+    public int getCurrentLevel() {
+        return this.currentLevel;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setCurrentLevel(int currentLevel) {
+        this.currentLevel = currentLevel;
     }
 }

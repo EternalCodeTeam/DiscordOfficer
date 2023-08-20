@@ -44,7 +44,7 @@ public class LeaderboardCommand extends SlashCommand {
         int index = startIndex + 1;
 
         for (Level level : top) {
-            int userLevel = level.getLevel();
+            int userLevel = level.getCurrentLevel();
             String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
 
             leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");

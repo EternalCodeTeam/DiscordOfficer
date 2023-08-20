@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class GitHubPullRequest {
 
-    private static final Pattern GITHUB_PULL_REQUEST_REGEX = Pattern.compile("^https://github\\.com/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)/pull/([0-9]+)$");
+    private static final Pattern GITHUB_PULL_REQUEST_REGEX = Pattern.compile("^https://github\\.com/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)/pull/(\\d+)$");
 
     private static final String GITHUB_PULL_REQUEST_URL = "https://github.com/%s/%s/pull/%s";
     private static final String GITHUB_PULL_REQUEST_API_URL = "https://api.github.com/repos/%s/%s/pulls/%d";

@@ -9,16 +9,16 @@ public class ObserverRegistry {
 
     private final Map<Class<?>, Set<Observer<?>>> observers = new HashMap<>();
 
-    public <EVENT> void observe(Class<EVENT> eventType, Observer<EVENT> observer) {
+    public <E> void observe(Class<E> eventType, Observer<E> observer) {
         this.observers.computeIfAbsent(eventType, key -> new HashSet<>()).add(observer);
     }
 
     @SuppressWarnings("unchecked")
-    public <EVENT> void publish(EVENT event) {
-        Class<EVENT> typeEvent = (Class<EVENT>) event.getClass();
+    public <E> void publish(E event) {
+        Class<E> typeEvent = (Class<E>) event.getClass();
 
         for (Observer<?> observer : this.observers.computeIfAbsent(typeEvent, key -> new HashSet<>())) {
-            Observer<EVENT> eventObserver = (Observer<EVENT>) observer;
+            Observer<E> eventObserver = (Observer<E>) observer;
             eventObserver.update(event);
         }
     }

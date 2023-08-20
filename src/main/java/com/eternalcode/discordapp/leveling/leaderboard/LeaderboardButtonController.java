@@ -69,7 +69,7 @@ public class LeaderboardButtonController extends ListenerAdapter {
         StringBuilder leaderboardContent = new StringBuilder();
 
         for (Level level : top) {
-            int userLevel = level.getLevel();
+            int userLevel = level.getCurrentLevel();
             String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
 
             leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");

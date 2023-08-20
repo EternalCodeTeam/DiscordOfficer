@@ -5,14 +5,10 @@ public final class FilterResult {
     private static final FilterResult PASSED = new FilterResult(true);
     private static final FilterResult NOT_PASSED = new FilterResult(false);
 
-    private final boolean passed;
+    private final boolean isPassed;
 
-    private FilterResult(boolean passed) {
-        this.passed = passed;
-    }
-
-    public boolean isPassed() {
-        return this.passed;
+    private FilterResult(boolean isPassed) {
+        this.isPassed = isPassed;
     }
 
     public static FilterResult passed() {
@@ -21,6 +17,10 @@ public final class FilterResult {
 
     public static FilterResult notPassed() {
         return NOT_PASSED;
+    }
+
+    public boolean isPassed() {
+        return this.isPassed;
     }
 
 }
