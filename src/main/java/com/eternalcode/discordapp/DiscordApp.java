@@ -114,69 +114,69 @@ public class DiscordApp {
         OkHttpClient httpClient = new OkHttpClient();
 
         FilterService filterService = new FilterService()
-                .registerFilter(new RenovateForcedPushFilter());
+            .registerFilter(new RenovateForcedPushFilter());
 
         GitHubReviewService gitHubReviewService = new GitHubReviewService(config, configManager);
 
         CommandClient commandClient = new CommandClientBuilder()
-                .setOwnerId(config.topOwnerId)
-                .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false)
+            .setOwnerId(config.topOwnerId)
+            .setActivity(Activity.playing("IntelliJ IDEA"))
+            .useHelpBuilder(false)
 
-                // slash commands registry
-                .addSlashCommands(
-                        // Standard
-                        new AvatarCommand(config),
-                        new BanCommand(config),
-                        new BotInfoCommand(config),
-                        new ClearCommand(config),
-                        new CooldownCommand(config),
-                        new EmbedCommand(),
-                        new KickCommand(config),
-                        new MinecraftServerInfoCommand(httpClient),
-                        new PingCommand(config),
-                        new SayCommand(),
-                        new ServerCommand(config),
+            // slash commands registry
+            .addSlashCommands(
+                // Standard
+                new AvatarCommand(config),
+                new BanCommand(config),
+                new BotInfoCommand(config),
+                new ClearCommand(config),
+                new CooldownCommand(config),
+                new EmbedCommand(),
+                new KickCommand(config),
+                new MinecraftServerInfoCommand(httpClient),
+                new PingCommand(config),
+                new SayCommand(),
+                new ServerCommand(config),
 
-                        // GitHub review
-                        new GitHubReviewCommand(gitHubReviewService, config),
+                // GitHub review
+                new GitHubReviewCommand(gitHubReviewService, config),
 
-                        // Leveling
-                        new LevelCommand(levelService),
-                        new LeaderboardCommand(leaderboardService)
-                )
-                .build();
+                // Leveling
+                new LevelCommand(levelService),
+                new LeaderboardCommand(leaderboardService)
+            )
+            .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
-                .addEventListeners(
-                        // Slash commands
-                        commandClient,
+            .addEventListeners(
+                // Slash commands
+                commandClient,
 
-                        // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
-                        new ExperienceReactionListener(experienceConfig, experienceService),
+                // Experience system
+                new ExperienceMessageListener(experienceConfig, experienceService),
+                new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
+                new ExperienceReactionListener(experienceConfig, experienceService),
 
-                        // Message filter
-                        new FilterMessageEmbedController(filterService),
+                // Message filter
+                new FilterMessageEmbedController(filterService),
 
-                        // Experience games
-                        new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
+                // Experience games
+                new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
-                        // leaderboard
-                        new LeaderboardButtonController(leaderboardService)
-                )
+                // leaderboard
+                new LeaderboardButtonController(leaderboardService)
+            )
 
-                .setAutoReconnect(true)
-                .setHttpClient(httpClient)
+            .setAutoReconnect(true)
+            .setHttpClient(httpClient)
 
-                .enableIntents(EnumSet.allOf(GatewayIntent.class))
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS)
-                .setChunkingFilter(ChunkingFilter.ALL)
+            .enableIntents(EnumSet.allOf(GatewayIntent.class))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableCache(CacheFlag.ONLINE_STATUS)
+            .setChunkingFilter(ChunkingFilter.ALL)
 
-                .build()
-                .awaitReady();
+            .build()
+            .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
 

@@ -66,11 +66,11 @@ public class GitHubReviewService {
         MessageCreateData createData = MessageCreateData.fromContent(GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.discordAppConfig.githubToken));
 
         return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
-                .setName(pullRequest.toUrl())
-                .setTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.inReviewForumTagId))
-                .complete()
-                .getThreadChannel()
-                .getIdLong();
+            .setName(pullRequest.toUrl())
+            .setTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.inReviewForumTagId))
+            .complete()
+            .getThreadChannel()
+            .getIdLong();
     }
 
     public void mentionReviewers(JDA jda, GitHubPullRequest pullRequest, long forumId) {
@@ -98,7 +98,7 @@ public class GitHubReviewService {
                     String message = String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl());
 
                     user.openPrivateChannel()
-                            .queue(privateChannel -> privateChannel.sendMessage(message).queue());
+                        .queue(privateChannel -> privateChannel.sendMessage(message).queue());
 
                     reviewersMention.append(user.getAsMention()).append(" ");
                     this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
@@ -205,12 +205,12 @@ public class GitHubReviewService {
 
     private boolean isUserExist(Long discordId) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-                .anyMatch(user -> user.discordId().equals(discordId));
+            .anyMatch(user -> user.discordId().equals(discordId));
     }
 
     private boolean isUserExist(GitHubReviewUser gitHubReviewUser) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-                .anyMatch(user -> user.discordId().equals(gitHubReviewUser.discordId()));
+            .anyMatch(user -> user.discordId().equals(gitHubReviewUser.discordId()));
     }
 
     public List<GitHubReviewUser> getListOfUsers() {
@@ -219,8 +219,8 @@ public class GitHubReviewService {
 
     public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-                .filter(user -> user.githubUsername().equals(githubUsername))
-                .findFirst()
-                .orElse(null);
+            .filter(user -> user.githubUsername().equals(githubUsername))
+            .findFirst()
+            .orElse(null);
     }
 }

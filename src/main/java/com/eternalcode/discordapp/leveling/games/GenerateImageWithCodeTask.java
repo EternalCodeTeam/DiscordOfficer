@@ -84,8 +84,8 @@ public class GenerateImageWithCodeTask extends TimerTask {
         if (channel != null) {
             FileUpload fileUpload = FileUpload.fromData(byteArrayOutputStream.toByteArray(), "game.png");
             channel.sendMessage(this.codeGameConfiguration.codeText)
-                    .addFiles(fileUpload)
-                    .queue();
+                .addFiles(fileUpload)
+                .queue();
         }
     }
 
