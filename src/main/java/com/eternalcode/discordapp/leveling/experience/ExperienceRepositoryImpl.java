@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.leveling.experience;
 
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.table.TableUtils;
@@ -19,7 +20,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), ExperienceWrapper.class);
         }
         catch (SQLException sqlException) {
-            throw new ExperienceException("Failed to create table", sqlException);
+            throw new DataAccessException("Failed to create table", sqlException);
         }
 
 

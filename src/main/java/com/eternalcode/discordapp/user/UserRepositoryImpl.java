@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.user;
 
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.dao.Dao;
@@ -21,7 +22,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserWrapper.class);
         }
         catch (SQLException sqlException) {
-            throw new UserRepositoryException("Failed to create table", sqlException);
+            throw new DataAccessException("Failed to create table", sqlException);
         }
 
         return new UserRepositoryImpl(databaseManager);
