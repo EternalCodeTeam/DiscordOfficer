@@ -11,16 +11,16 @@ public final class FilterResult {
         this.passed = passed;
     }
 
-    public boolean isPassed() {
-        return this.passed;
-    }
-
     public static FilterResult passed() {
         return PASSED;
     }
 
     public static FilterResult notPassed() {
         return NOT_PASSED;
+    }
+
+    public boolean isPassed() {
+        return this.passed;
     }
 
 }

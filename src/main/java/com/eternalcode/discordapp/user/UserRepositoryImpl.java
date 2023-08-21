@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.user;
 
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.dao.Dao;
@@ -9,7 +10,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> implements UserRepository {
 
@@ -22,7 +22,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserWrapper.class);
         }
         catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            throw new DataAccessException("Failed to create table", sqlException);
         }
 
         return new UserRepositoryImpl(databaseManager);
@@ -45,7 +45,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
 
     @Override
     public CompletableFuture<List<User>> selectAllUsers() {
-        return this.selectAll().thenApply(users -> users.stream().map(UserWrapper::toUser).collect(Collectors.toList()));
+        return this.selectAll().thenApply(users -> users.stream().map(UserWrapper::toUser).toList());
     }
 
     @Override

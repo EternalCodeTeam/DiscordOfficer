@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.leveling.experience.listener;
 
 import com.eternalcode.discordapp.config.ConfigManager;
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
@@ -38,13 +39,13 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             this.configManager.save(this.usersVoiceActivityData);
         }
         catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new DataAccessException("Something went wrong while updating voice experience", exception);
         }
     }
 
     private void leaveVoiceChannel(GuildVoiceUpdateEvent event) {
         if (event.getChannelLeft() == null) {
-           return;
+            return;
         }
 
         long userId = event.getMember().getIdLong();

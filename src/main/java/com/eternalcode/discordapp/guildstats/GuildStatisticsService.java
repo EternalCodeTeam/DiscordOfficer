@@ -20,14 +20,14 @@ public class GuildStatisticsService {
     }
 
     public void displayStats() {
+        Guild guild = this.jda.getGuildById(this.config.guildId);
+        if (guild == null) {
+            return;
+        }
+
         for (Map.Entry<Long, String> entry : this.config.voiceChannelStatistics.channelNames.entrySet()) {
             Long key = entry.getKey();
             String value = entry.getValue();
-
-            Guild guild = this.jda.getGuildById(this.config.guildId);
-            if (guild == null) {
-                continue;
-            }
 
             VoiceChannel channel = guild.getVoiceChannelById(key);
 

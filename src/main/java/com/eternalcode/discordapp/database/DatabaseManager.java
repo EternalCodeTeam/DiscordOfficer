@@ -4,7 +4,6 @@ import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.DataSourceConnectionSource;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -16,12 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DatabaseManager {
 
     private final DatabaseConfig config;
-
-    private HikariDataSource hikariDataSource;
-    private ConnectionSource connectionSource;
-
     private final Map<Class<?>, Dao<?, ?>> daoCache = new ConcurrentHashMap<>();
     private final File folder;
+    private HikariDataSource hikariDataSource;
+    private ConnectionSource connectionSource;
 
     public DatabaseManager(DatabaseConfig config, File folder) {
         this.folder = folder;
@@ -74,13 +71,15 @@ public class DatabaseManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, ID> Dao<T, ID> getDao(Class<T> clazz) throws SQLException {
-        Dao<?, ?> dao = this.daoCache.get(clazz);
-
-        if (dao == null) {
-            dao = DaoManager.createDao(this.connectionSource, clazz);
-            this.daoCache.put(clazz, dao);
-        }
+    public <T, ID> Dao<T, ID> getDao(Class<T> clazz) {
+        Dao<?, ?> dao = this.daoCache.computeIfAbsent(clazz, key -> {
+            try {
+                return DaoManager.createDao(this.connectionSource, clazz);
+            }
+            catch (SQLException sqlException) {
+                throw new DataAccessException("Failed to create dao", sqlException);
+            }
+        });
 
         return (Dao<T, ID>) dao;
     }

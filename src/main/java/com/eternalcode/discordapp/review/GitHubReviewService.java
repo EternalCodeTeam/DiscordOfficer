@@ -81,51 +81,39 @@ public class GitHubReviewService {
         }
 
         StringBuilder reviewersMention = new StringBuilder();
+
         for (String reviewer : assignedReviewers) {
             GitHubReviewUser gitHubReviewUser = this.getReviewUserByUsername(reviewer);
+
             if (gitHubReviewUser == null) {
                 continue;
             }
 
             Long discordId = gitHubReviewUser.discordId();
-            if (discordId == null) {
-                continue;
-            }
 
-            if (this.mentionRepository.isMentioned(pullRequest, discordId)) {
-                continue;
-            }
+            if (discordId != null && !this.mentionRepository.isMentioned(pullRequest, discordId)) {
+                User user = jda.getUserById(discordId);
 
-            User user = jda.getUserById(discordId);
-            if (user == null) {
-                continue;
-            }
+                if (user != null) {
+                    String message = String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl());
 
-            user.openPrivateChannel().queue(privateChannel -> {
-                try {
-                    privateChannel.sendMessage(String.format("You have been assigned as a reviewer for this pull request: %s", pullRequest.toUrl())).queue();
+                    user.openPrivateChannel()
+                        .queue(privateChannel -> privateChannel.sendMessage(message).queue());
+
+                    reviewersMention.append(user.getAsMention()).append(" ");
+                    this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
                 }
-                catch (Exception ignored) {
-                }
-            });
-
-            reviewersMention.append(user.getAsMention()).append(" ");
-            this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
+            }
         }
 
-        if (reviewersMention.length() == 0) {
-            return;
+        if (!reviewersMention.isEmpty()) {
+            String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, pullRequest.toUrl());
+            ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
+
+            if (threadChannel != null) {
+                threadChannel.sendMessage(message).queue();
+            }
         }
-
-        String message = String.format("%s, you have been assigned as a reviewer for this pull request: %s", reviewersMention, pullRequest.toUrl());
-
-        ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
-
-        if (threadChannel == null) {
-            return;
-        }
-
-        threadChannel.sendMessage(message).queue();
     }
 
     public void mentionReviewersOnAllReviewChannels(JDA jda) {

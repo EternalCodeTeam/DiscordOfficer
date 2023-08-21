@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.leveling.experience;
 
+import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.table.TableUtils;
@@ -7,7 +8,6 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapper, Long> implements ExperienceRepository {
 
@@ -20,7 +20,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), ExperienceWrapper.class);
         }
         catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            throw new DataAccessException("Failed to create table", sqlException);
         }
 
 
@@ -46,11 +46,10 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
         return this.find(id).thenCompose(experience -> {
             if (add) {
                 experience.addPoints(points);
-            }
-            else {
-                experience.removePoints(points);
+                return this.saveExperience(experience);
             }
 
+            experience.removePoints(points);
             return this.saveExperience(experience);
         });
     }
@@ -65,7 +64,7 @@ public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapp
     public CompletableFuture<List<Experience>> findAll() {
         return this.selectAll().thenApply(experienceWrappers -> experienceWrappers.stream()
                 .map(ExperienceWrapper::toExperience)
-                .collect(Collectors.toList())
+                .toList()
         );
     }
 

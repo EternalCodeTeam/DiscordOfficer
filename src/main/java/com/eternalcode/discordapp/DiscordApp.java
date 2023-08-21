@@ -31,9 +31,9 @@ import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityDat
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceListener;
-import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
-import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
 import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
+import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
+import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
 import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
@@ -54,6 +54,8 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -63,6 +65,8 @@ import java.util.EnumSet;
 import java.util.Timer;
 
 public class DiscordApp {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
@@ -102,7 +106,7 @@ public class DiscordApp {
             levelService = new LevelService(databaseManager);
         }
         catch (SQLException exception) {
-            exception.printStackTrace();
+            LOGGER.error("Failed to connect to database", exception);
         }
 
         LeaderboardService leaderboardService = new LeaderboardService(levelService);

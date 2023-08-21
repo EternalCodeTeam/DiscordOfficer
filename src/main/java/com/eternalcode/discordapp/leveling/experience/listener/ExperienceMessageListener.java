@@ -21,15 +21,11 @@ public class ExperienceMessageListener extends ListenerAdapter {
             return;
         }
 
-        try {
-            this.givePoints(event);
-        }
-        catch (InterruptedException exception) {
-            throw new RuntimeException(exception);
-        }
+
+        this.givePoints(event);
     }
 
-    private void givePoints(MessageReceivedEvent event) throws InterruptedException {
+    private void givePoints(MessageReceivedEvent event) {
         String[] message = event.getMessage().getContentRaw().split(" ");
 
         if (message.length < this.experienceConfig.messageExperience.howManyWords) {

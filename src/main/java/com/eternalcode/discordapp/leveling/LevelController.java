@@ -48,7 +48,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         double pointsNeededForOneLevel = this.levelConfig.points;
 
         this.levelService.find(userId).thenApply(userLevel -> {
-            int currentLevel = userLevel.getLevel();
+            int currentLevel = userLevel.getCurrentLevel();
 
             int pointsNeededForNextLevel = (int) (pointsNeededForOneLevel * Math.pow(currentLevel + 1, 2)
                 + pointsNeededForOneLevel * (currentLevel + 1)
@@ -60,7 +60,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
             int newLevel = currentLevel + 1;
 
-            userLevel.setLevel(newLevel);
+            userLevel.setCurrentLevel(newLevel);
             this.levelService.saveLevel(userLevel);
 
             User user = this.jda.getUserById(userId);

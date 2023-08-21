@@ -30,7 +30,7 @@ public class LevelCommand extends SlashCommand {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Level")
                     .setDescription("Level of " + user.getAsMention())
-                    .addField("Level", String.valueOf(level.getLevel()), true)
+                    .addField("Level", String.valueOf(level.getCurrentLevel()), true)
                     .setColor(0x00FF00);
 
             event.replyEmbeds(embedBuilder.build()).queue();

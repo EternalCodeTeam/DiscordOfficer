@@ -1,8 +1,6 @@
 package com.eternalcode.discordapp.review.command.child;
 
 import com.eternalcode.discordapp.config.AppConfig;
-import com.eternalcode.discordapp.review.GitHubReviewService;
-import com.eternalcode.discordapp.review.GitHubReviewUser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
