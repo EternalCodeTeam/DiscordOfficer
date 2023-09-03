@@ -5,16 +5,21 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import panda.std.Result;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,12 +45,13 @@ class GitHubReviewUtilTest {
     }
 
     @Test
+    @DisplayName("Test isPullRequestUrl")
     void testIsPullRequestUrl() {
-        assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
-        assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
-        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
-        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
-        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
+        this.assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
+        this.assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
+        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
+        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
+        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
     }
 
     private void assertPullRequestUrl(String url, String expectedOwner, String expectedRepo, int expectedNumber) {
@@ -66,29 +72,30 @@ class GitHubReviewUtilTest {
     }
 
     @Test
+    @DisplayName("Test isPullRequestTitleValid with invalid and valid titles")
     void testIsPullRequestTitleValid() {
         assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"));
+        assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 Another valid title"));
     }
 
     @Test
+    @DisplayName("Test getReviewers functionality")
     void testGetReviewers() throws Exception {
         String jsonResponse = """
+            {
+              "requested_reviewers": [
                 {
-                  "requested_reviewers": [
-                    {
-                      "login": "Martin"
-                    },
-                    {
-                      "login": "Piotr"
-                    }
-                  ]
-                }""";
+                  "login": "Martin"
+                },
+                {
+                  "login": "Piotr"
+                }
+              ]
+            }""";
 
-        this.server.enqueue(new MockResponse()
-                .setBody(jsonResponse)
-                .addHeader("Content-Type", "application/json"));
+        this.setMockResponse(jsonResponse);
 
         List<String> reviewers = GitHubReviewUtil.getReviewers(this.fakePullRequest, GITHUB_FAKE_TOKEN);
 
@@ -102,7 +109,37 @@ class GitHubReviewUtilTest {
         assertEquals("token " + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
+
     @Test
+    @DisplayName("Test getPullRequestTitleFromUrl function")
+    void testGetPullRequestTitleFromUrl() throws IOException {
+        String jsonResponse = """
+            {
+              "title": "Test Pull Request Title"
+            }""";
+
+        this.setMockResponse(jsonResponse);
+
+        String title = GitHubReviewUtil.getPullRequestTitleFromUrl(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+        assertEquals("Test Pull Request Title", title);
+    }
+
+    @Test
+    @DisplayName("Test isPullRequestMerged function")
+    void testIsPullRequestMerged() throws IOException {
+        String jsonResponse = """
+            {
+              "merged": true
+            }""";
+
+        this.setMockResponse(jsonResponse);
+
+        boolean merged = GitHubReviewUtil.isPullRequestMerged(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+        assertTrue(merged);
+    }
+
+    @Test
+    @DisplayName("Test Getting GitHub Pull Request API URL")
     void testGetGitHubPullRequestApiUrl() {
         String url = "https://github.com/EternalCodeTeam/DiscordOfficer/pull/123";
         String expectedApiUrl = "https://api.github.com/repos/EternalCodeTeam/DiscordOfficer/pulls/123";
@@ -114,4 +151,26 @@ class GitHubReviewUtilTest {
         assertEquals(expectedApiUrl, pullRequest.toApiUrl());
     }
 
+    @TestFactory
+    @DisplayName("Test isPullRequestClosed when state is")
+    Stream<DynamicTest> testIsPullRequestClosedWhenStateIs() {
+        return Stream.of(
+            dynamicTest("closed", () -> {
+                this.setMockResponse("{\"state\": \"closed\"}");
+                boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+                assertTrue(isClosed);
+            }),
+            dynamicTest("open", () -> {
+                this.setMockResponse("{\"state\": \"open\"}");
+                boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+                assertFalse(isClosed);
+            })
+        );
+    }
+
+    private void setMockResponse(String jsonResponse) {
+        this.server.enqueue(new MockResponse()
+            .setBody(jsonResponse)
+            .addHeader("Content-Type", "application/json"));
+    }
 }
