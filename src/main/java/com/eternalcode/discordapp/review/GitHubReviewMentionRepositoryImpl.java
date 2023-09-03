@@ -7,7 +7,7 @@ import java.util.Map;
 
 class GitHubReviewMentionRepositoryImpl implements GitHubReviewMentionRepository {
 
-    private static final Duration MENTION_INTERVAL = Duration.ofHours(12);
+    private static final Duration MENTION_COOLDOWN = Duration.ofHours(8);
 
     private final Map<GitHubPullRequest, Map<Long, Instant>> reviewMentions = new HashMap<>();
 
@@ -32,7 +32,7 @@ class GitHubReviewMentionRepositoryImpl implements GitHubReviewMentionRepository
             return false;
         }
 
-        Instant nextMention = lastMention.plus(MENTION_INTERVAL);
+        Instant nextMention = lastMention.plus(MENTION_COOLDOWN);
 
         return nextMention.isAfter(Instant.now());
     }
