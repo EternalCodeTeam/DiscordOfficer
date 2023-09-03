@@ -26,7 +26,11 @@ public class ListChild extends SlashCommand {
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             for (GitHubReviewUser user : listOfUsers) {
-                embedBuilder.addField(user.githubUsername(), String.valueOf(user.discordId()), false);
+                embedBuilder.addField(
+                    user.getGithubUsername(),
+                    "Discord ID: " + user.getDiscordId() + "\nNotification Type: " + user.getNotificationType(),
+                    false
+                );
             }
 
             event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();

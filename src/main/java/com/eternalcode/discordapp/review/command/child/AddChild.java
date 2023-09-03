@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.review.command.child;
 
+import com.eternalcode.discordapp.review.GitHubReviewNotificationType;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewUser;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -36,7 +37,7 @@ public class AddChild extends SlashCommand {
             Long discordUsername = event.getOption("user").getAsUser().getIdLong();
             String githubUsername = event.getOption("github-username").getAsString();
 
-            GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername);
+            GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername, GitHubReviewNotificationType.BOTH);
 
             boolean addUserToSystem = this.gitHubReviewService.addUserToSystem(gitHubReviewUser);
 
