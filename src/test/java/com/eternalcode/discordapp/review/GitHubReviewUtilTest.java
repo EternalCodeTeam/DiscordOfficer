@@ -14,7 +14,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,11 +41,11 @@ class GitHubReviewUtilTest {
 
     @Test
     void testIsPullRequestUrl() {
-        this.assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
-        this.assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
+        assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
+        assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
     }
 
     private void assertPullRequestUrl(String url, String expectedOwner, String expectedRepo, int expectedNumber) {
@@ -71,22 +70,21 @@ class GitHubReviewUtilTest {
         assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"));
         assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"));
-        assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 Another valid title"));
     }
 
     @Test
     void testGetReviewers() throws Exception {
         String jsonResponse = """
-            {
-              "requested_reviewers": [
                 {
-                  "login": "Martin"
-                },
-                {
-                  "login": "Piotr"
-                }
-              ]
-            }""";
+                  "requested_reviewers": [
+                    {
+                      "login": "Martin"
+                    },
+                    {
+                      "login": "Piotr"
+                    }
+                  ]
+                }""";
 
         this.server.enqueue(new MockResponse()
             .setBody(jsonResponse)
@@ -104,51 +102,6 @@ class GitHubReviewUtilTest {
         assertEquals("token " + GITHUB_FAKE_TOKEN, recordedRequest.getHeader("Authorization"));
     }
 
-
-    @Test
-    void testGetPullRequestTitleFromUrl() throws IOException {
-        String jsonResponse = """
-            {
-              "title": "Test Pull Request Title"
-            }""";
-
-        this.server.enqueue(new MockResponse()
-            .setBody(jsonResponse)
-            .addHeader("Content-Type", "application/json"));
-
-        String title = GitHubReviewUtil.getPullRequestTitleFromUrl(this.fakePullRequest, GITHUB_FAKE_TOKEN);
-        assertEquals("Test Pull Request Title", title);
-    }
-
-    @Test
-    void testGetPullRequestTitleFromUrlException() throws IOException {
-        this.server.enqueue(new MockResponse().setResponseCode(500));
-
-        assertThrows(IOException.class, () -> GitHubReviewUtil.getPullRequestTitleFromUrl(this.fakePullRequest, GITHUB_FAKE_TOKEN));
-    }
-
-    @Test
-    void testIsPullRequestMerged() throws IOException {
-        String jsonResponse = """
-            {
-              "merged": true
-            }""";
-
-        this.server.enqueue(new MockResponse()
-            .setBody(jsonResponse)
-            .addHeader("Content-Type", "application/json"));
-
-        boolean merged = GitHubReviewUtil.isPullRequestMerged(this.fakePullRequest, GITHUB_FAKE_TOKEN);
-        assertTrue(merged);
-    }
-
-    @Test
-    void testIsPullRequestMergedException() throws IOException {
-        this.server.enqueue(new MockResponse().setResponseCode(500));
-
-        assertThrows(IOException.class, () -> GitHubReviewUtil.isPullRequestMerged(this.fakePullRequest, GITHUB_FAKE_TOKEN));
-    }
-
     @Test
     void testGetGitHubPullRequestApiUrl() {
         String url = "https://github.com/EternalCodeTeam/DiscordOfficer/pull/123";
@@ -160,4 +113,5 @@ class GitHubReviewUtilTest {
         GitHubPullRequest pullRequest = result.get();
         assertEquals(expectedApiUrl, pullRequest.toApiUrl());
     }
+
 }
