@@ -89,7 +89,7 @@ public class GitHubReviewService {
                 continue;
             }
 
-            Long discordId = gitHubReviewUser.discordId();
+            Long discordId = gitHubReviewUser.getDiscordId();
 
             if (discordId != null && !this.mentionRepository.isMentioned(pullRequest, discordId)) {
                 User user = jda.getUserById(discordId);
@@ -197,20 +197,32 @@ public class GitHubReviewService {
             return false;
         }
 
-        this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.discordId().equals(discordId));
+        this.discordAppConfig.reviewSystem.reviewers.removeIf(user -> user.getDiscordId().equals(discordId));
         this.configManager.save(this.discordAppConfig);
 
         return true;
     }
 
+    public void updateUserNotificationType(Long discordId, GitHubReviewNotificationType newNotificationType) {
+        for (GitHubReviewUser user : this.discordAppConfig.reviewSystem.reviewers) {
+
+            if (user.getDiscordId().equals(discordId)) {
+                user.setNotificationType(newNotificationType);
+                this.configManager.save(this.discordAppConfig);
+
+                return;
+            }
+        }
+    }
+
     private boolean isUserExist(Long discordId) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-            .anyMatch(user -> user.discordId().equals(discordId));
+            .anyMatch(user -> user.getDiscordId().equals(discordId));
     }
 
     private boolean isUserExist(GitHubReviewUser gitHubReviewUser) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-            .anyMatch(user -> user.discordId().equals(gitHubReviewUser.discordId()));
+            .anyMatch(user -> user.getDiscordId().equals(gitHubReviewUser.getDiscordId()));
     }
 
     public List<GitHubReviewUser> getListOfUsers() {
@@ -219,7 +231,7 @@ public class GitHubReviewService {
 
     public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
         return this.discordAppConfig.reviewSystem.reviewers.stream()
-            .filter(user -> user.githubUsername().equals(githubUsername))
+            .filter(user -> user.getGithubUsername().equals(githubUsername))
             .findFirst()
             .orElse(null);
     }

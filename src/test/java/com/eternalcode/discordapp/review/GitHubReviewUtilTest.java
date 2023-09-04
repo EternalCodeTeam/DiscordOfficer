@@ -87,8 +87,8 @@ class GitHubReviewUtilTest {
                 }""";
 
         this.server.enqueue(new MockResponse()
-                .setBody(jsonResponse)
-                .addHeader("Content-Type", "application/json"));
+            .setBody(jsonResponse)
+            .addHeader("Content-Type", "application/json"));
 
         List<String> reviewers = GitHubReviewUtil.getReviewers(this.fakePullRequest, GITHUB_FAKE_TOKEN);
 
