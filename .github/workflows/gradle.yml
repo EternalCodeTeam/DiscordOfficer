@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -26,7 +26,7 @@ jobs:
       - name: Run checkstyle
         run: ./gradlew checkstyleMain
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@e3426b1f20c7262e0fed7b855aae1325633af3b4
+        uses: gradle/gradle-build-action@8f08e41675472b8aa0aa2c356e8b2c1561af3bf9
         with:
           arguments: shadowJar
       - name: Upload a Build Artifact
