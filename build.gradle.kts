@@ -22,7 +22,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.12.2"
+    toolVersion = "10.12.3"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -58,8 +58,8 @@ dependencies {
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("com.h2database:h2:2.2.220")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")
+    implementation("com.h2database:h2:2.2.222")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0")
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")

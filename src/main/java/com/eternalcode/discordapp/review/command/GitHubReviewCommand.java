@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.command.child.AddChild;
 import com.eternalcode.discordapp.review.command.child.ForumTagsIdChild;
 import com.eternalcode.discordapp.review.command.child.ListChild;
+import com.eternalcode.discordapp.review.command.child.NotificationChild;
 import com.eternalcode.discordapp.review.command.child.RemoveChild;
 import com.eternalcode.discordapp.review.command.child.RequestChild;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -24,6 +25,7 @@ public class GitHubReviewCommand extends SlashCommand {
                 new RemoveChild(gitHubReviewService),
                 new RequestChild(gitHubReviewService),
                 new ForumTagsIdChild(appConfig),
+                new NotificationChild(gitHubReviewService)
         };
     }
 
