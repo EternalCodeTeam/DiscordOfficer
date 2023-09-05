@@ -12,8 +12,9 @@ import org.junit.jupiter.api.TestFactory;
 import panda.std.Result;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,11 +48,11 @@ class GitHubReviewUtilTest {
     @Test
     @DisplayName("Test isPullRequestUrl")
     void testIsPullRequestUrl() {
-        this.assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
-        this.assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
-        this.assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
+        assertPullRequestUrl("https://github.com/user/repo/pull/123", "user", "repo", 123);
+        assertPullRequestUrl("https://github.com/DiscordOfficer/DiscordOfficer/pull/456", "DiscordOfficer", "DiscordOfficer", 456);
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/123");
+        assertNotPullRequestUrl("https://github.com/EternalCodeTeam/DiscordOfficer/pull/123/");
     }
 
     private void assertPullRequestUrl(String url, String expectedOwner, String expectedRepo, int expectedNumber) {
@@ -71,13 +72,26 @@ class GitHubReviewUtilTest {
         assertTrue(result.isErr());
     }
 
-    @Test
+    @TestFactory
     @DisplayName("Test isPullRequestTitleValid with invalid and valid titles")
-    void testIsPullRequestTitleValid() {
-        assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"));
-        assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"));
-        assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"));
-        assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 Another valid title"));
+    Collection<DynamicTest> testIsPullRequestTitleValid() {
+        return Arrays.asList(
+            dynamicTest("Valid Title - 1", () ->
+                assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"))
+            ),
+
+            dynamicTest("Valid Title - 2", () ->
+                assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 Another valid title"))
+            ),
+
+            dynamicTest("Invalid Title - 1", () ->
+                assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"))
+            ),
+
+            dynamicTest("Invalid Title - Number", () ->
+                assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"))
+            )
+        );
     }
 
     @Test
@@ -151,21 +165,20 @@ class GitHubReviewUtilTest {
         assertEquals(expectedApiUrl, pullRequest.toApiUrl());
     }
 
-    @TestFactory
-    @DisplayName("Test isPullRequestClosed when state is")
-    Stream<DynamicTest> testIsPullRequestClosedWhenStateIs() {
-        return Stream.of(
-            dynamicTest("closed", () -> {
-                this.setMockResponse("{\"state\": \"closed\"}");
-                boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
-                assertTrue(isClosed);
-            }),
-            dynamicTest("open", () -> {
-                this.setMockResponse("{\"state\": \"open\"}");
-                boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
-                assertFalse(isClosed);
-            })
-        );
+    @Test
+    @DisplayName("Test isPullRequestClosed when state is closed")
+    void testIsPullRequestClosedWhenStateIsClosed() throws IOException {
+        this.setMockResponse("{\"state\": \"closed\"}");
+        boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+        assertTrue(isClosed);
+    }
+
+    @Test
+    @DisplayName("Test isPullRequestClosed when state is open")
+    void testIsPullRequestClosedWhenStateIsOpen() throws IOException {
+        this.setMockResponse("{\"state\": \"open\"}");
+        boolean isClosed = GitHubReviewUtil.isPullRequestClosed(this.fakePullRequest, GITHUB_FAKE_TOKEN);
+        assertFalse(isClosed);
     }
 
     private void setMockResponse(String jsonResponse) {
