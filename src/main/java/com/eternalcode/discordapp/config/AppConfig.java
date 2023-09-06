@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.config;
 
+import com.eternalcode.discordapp.review.GitHubReviewNotificationType;
 import com.eternalcode.discordapp.review.GitHubReviewUser;
 import net.dzikoysk.cdn.entity.Contextual;
 import net.dzikoysk.cdn.entity.Description;
@@ -109,7 +110,7 @@ public class AppConfig implements CdnConfig {
 
 
         public List<GitHubReviewUser> reviewers = new ArrayList<>(Collections.singletonList(
-                new GitHubReviewUser(852920601969950760L, "vluckyyy")
+                new GitHubReviewUser(852920601969950760L, "vluckyyy", GitHubReviewNotificationType.SERVER)
         ));
     }
 }
