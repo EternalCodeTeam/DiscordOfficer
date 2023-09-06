@@ -12,9 +12,8 @@ import org.junit.jupiter.api.TestFactory;
 import panda.std.Result;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -73,25 +72,27 @@ class GitHubReviewUtilTest {
     }
 
     @TestFactory
-    @DisplayName("Test isPullRequestTitleValid with invalid and valid titles")
-    Collection<DynamicTest> testIsPullRequestTitleValid() {
-        return Arrays.asList(
-            dynamicTest("Valid Title - 1", () ->
-                assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 This is a valid title"))
-            ),
-
-            dynamicTest("Valid Title - 2", () ->
-                assertTrue(GitHubReviewUtil.isPullRequestTitleValid("GH-123 Another valid title"))
-            ),
-
-            dynamicTest("Invalid Title - 1", () ->
-                assertFalse(GitHubReviewUtil.isPullRequestTitleValid("This is an invalid title"))
-            ),
-
-            dynamicTest("Invalid Title - Number", () ->
-                assertFalse(GitHubReviewUtil.isPullRequestTitleValid("GH- This title has an invalid number"))
+    @DisplayName("Test isPullRequestTitleValid with valid titles")
+    Stream<DynamicTest> testValidPullRequestTitles() {
+        return Stream.of(
+                "GH-123 This is a valid title",
+                "GH-123 Another valid title"
             )
-        );
+            .map(title -> dynamicTest("Valid Title: " + title, () -> {
+                assertTrue(GitHubReviewUtil.isPullRequestTitleValid(title));
+            }));
+    }
+
+    @TestFactory
+    @DisplayName("Test isPullRequestTitleValid with invalid titles")
+    Stream<DynamicTest> testInvalidPullRequestTitles() {
+        return Stream.of(
+                "This is an invalid title",
+                "GH- This title has an invalid number"
+            )
+            .map(title -> dynamicTest("Invalid Title: " + title, () -> {
+                assertFalse(GitHubReviewUtil.isPullRequestTitleValid(title));
+            }));
     }
 
     @Test
