@@ -173,6 +173,10 @@ public class GitHubReviewService {
                     if (GitHubReviewUtil.isPullRequestMerged(pullRequest, this.discordAppConfig.githubToken)) {
                         threadChannel.getManager().setLocked(true).setArchived(true).setAppliedTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.mergedTagId)).queue();
                     }
+
+                    if (GitHubReviewUtil.isPullRequestClosed(pullRequest, this.discordAppConfig.githubToken)) {
+                        threadChannel.getManager().setLocked(true).setArchived(true).setAppliedTags(ForumTagSnowflake.fromId(this.discordAppConfig.reviewSystem.closedTagId)).queue();
+                    }
                 }
             }
         }

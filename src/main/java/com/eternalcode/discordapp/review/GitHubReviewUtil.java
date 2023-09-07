@@ -87,4 +87,20 @@ public final class GitHubReviewUtil {
         return json.get("merged").getAsBoolean();
     }
 
+    public static boolean isPullRequestClosed(GitHubPullRequest pullRequest, String githubToken) throws IOException {
+        Request request = new Request.Builder()
+            .url(pullRequest.toApiUrl())
+            .header("Authorization", "token " + githubToken)
+            .build();
+
+        Response response = HTTP_CLIENT.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            throw new IOException("HTTP Error: " + response.code());
+        }
+
+        JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
+        String state = json.get("state").getAsString();
+
+        return "closed".equalsIgnoreCase(state);
+    }
 }

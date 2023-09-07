@@ -105,6 +105,7 @@ public class AppConfig implements CdnConfig {
             "# For simplicity, I decided to create a simple /review get-forum-tags-id command, which will return a list of tags. ",
         })
         public long mergedTagId = 1141531024795373578L;
+        public long closedTagId = 1145093049567948860L;
         public long inReviewForumTagId = 1141531024795373578L;
 
 
