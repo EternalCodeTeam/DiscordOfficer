@@ -46,7 +46,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.29.0")
+    implementation("io.sentry:sentry:6.30.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -58,7 +58,7 @@ dependencies {
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("com.h2database:h2:2.2.222")
+    implementation("com.h2database:h2:2.2.224")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0")
 
     // Gson
