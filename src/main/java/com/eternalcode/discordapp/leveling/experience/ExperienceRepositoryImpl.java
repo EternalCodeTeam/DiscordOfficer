@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapper, Long> implements ExperienceRepository {
+class ExperienceRepositoryImpl extends AbstractRepository<ExperienceWrapper, Long> implements ExperienceRepository {
 
     protected ExperienceRepositoryImpl(DatabaseManager databaseManager) {
         super(databaseManager, ExperienceWrapper.class);
