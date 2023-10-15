@@ -19,6 +19,9 @@ public final class GitHubReviewUtil {
 
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
     private static final Gson GSON = new Gson();
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String TOKEN = "token ";
+    private static final String HTTP_ERROR = "HTTP Error: ";
 
     private GitHubReviewUtil() {}
 
@@ -29,7 +32,7 @@ public final class GitHubReviewUtil {
     public static List<String> getReviewers(GitHubPullRequest pullRequest, String githubToken) {
         Request request = new Request.Builder()
                 .url(pullRequest.toApiUrl())
-                .header("Authorization", "token " + githubToken)
+                .header(AUTHORIZATION, TOKEN + githubToken)
                 .build();
 
         try {
@@ -57,13 +60,13 @@ public final class GitHubReviewUtil {
     public static String getPullRequestTitleFromUrl(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(pullRequest.toApiUrl())
-                .header("Authorization", "token " + githubToken)
+                .header(AUTHORIZATION, TOKEN + githubToken)
                 .build();
 
         Response response = HTTP_CLIENT.newCall(request).execute();
 
         if (!response.isSuccessful()) {
-            throw new IOException("HTTP Error: " + response.code());
+            throw new IOException(HTTP_ERROR + response.code());
         }
 
         String string = response.body().string();
@@ -75,12 +78,12 @@ public final class GitHubReviewUtil {
     public static boolean isPullRequestMerged(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
                 .url(pullRequest.toApiUrl())
-                .header("Authorization", "token " + githubToken)
+                .header(AUTHORIZATION, TOKEN + githubToken)
                 .build();
 
         Response response = HTTP_CLIENT.newCall(request).execute();
         if (!response.isSuccessful()) {
-            throw new IOException("HTTP Error: " + response.code());
+            throw new IOException(HTTP_ERROR + response.code());
         }
 
         JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
@@ -90,12 +93,12 @@ public final class GitHubReviewUtil {
     public static boolean isPullRequestClosed(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         Request request = new Request.Builder()
             .url(pullRequest.toApiUrl())
-            .header("Authorization", "token " + githubToken)
+            .header(AUTHORIZATION, TOKEN + githubToken)
             .build();
 
         Response response = HTTP_CLIENT.newCall(request).execute();
         if (!response.isSuccessful()) {
-            throw new IOException("HTTP Error: " + response.code());
+            throw new IOException(HTTP_ERROR + response.code());
         }
 
         JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
