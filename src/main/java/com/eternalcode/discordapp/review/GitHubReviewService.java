@@ -108,12 +108,12 @@ public class GitHubReviewService {
                 String message = String.format(DM_REVIEW_MESSAGE, pullRequest.toUrl());
 
 
-                if (this.notifyByDmOrBoth(notificationType)) {
+                if (this.isDmNotify(notificationType)) {
                     user.openPrivateChannel()
                         .queue(privateChannel -> privateChannel.sendMessage(message).queue());
                 }
 
-                if (this.notifyByServerOrBoth(notificationType)) {
+                if (this.isServerNotify(notificationType)) {
                     reviewersMention.append(user.getAsMention()).append(" ");
                 }
 
@@ -131,11 +131,11 @@ public class GitHubReviewService {
         }
     }
 
-    private boolean notifyByDmOrBoth(GitHubReviewNotificationType notificationType) {
+    private boolean isDmNotify(GitHubReviewNotificationType notificationType) {
         return notificationType == GitHubReviewNotificationType.DM || notificationType == GitHubReviewNotificationType.BOTH;
     }
 
-    private boolean notifyByServerOrBoth(GitHubReviewNotificationType notificationType) {
+    private boolean isServerNotify(GitHubReviewNotificationType notificationType) {
         return notificationType == GitHubReviewNotificationType.SERVER || notificationType == GitHubReviewNotificationType.BOTH;
     }
 
