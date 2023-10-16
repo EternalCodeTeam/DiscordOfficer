@@ -4,5 +4,13 @@ public enum GitHubReviewNotificationType {
 
     DM,
     SERVER,
-    BOTH
+    BOTH;
+
+    public boolean isDmNotify() {
+        return this == DM || this == BOTH;
+    }
+
+    public boolean isServerNotify() {
+        return this == SERVER || this == BOTH;
+    }
 }
