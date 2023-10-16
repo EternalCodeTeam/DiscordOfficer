@@ -4,7 +4,7 @@ WORKDIR /app/
 COPY .. /app/
 RUN gradle clean shadowJar
 
-FROM amazoncorretto:19-alpine
+FROM amazoncorretto:21-alpine
 LABEL org.label-schema.name="eternalcode/discordofficer"
 LABEL org.label-schema.description="EternalCode DiscordOfficer official image"
 LABEL org.label-schema.url="http://eternalcode.pl/"

@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.12.3"
+    toolVersion = "10.12.4"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -30,7 +30,7 @@ checkstyle {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.13")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.15")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -44,7 +44,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.30.0")
+    implementation("io.sentry:sentry:6.31.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -71,8 +71,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.5.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+    testImplementation("org.mockito:mockito-core:5.6.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.6.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.13.0")
