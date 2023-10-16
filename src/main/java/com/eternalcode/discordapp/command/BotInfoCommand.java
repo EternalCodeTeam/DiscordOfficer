@@ -38,7 +38,7 @@ public class BotInfoCommand extends SlashCommand {
                 .addField("🍺 Java", System.getProperty("java.version"), false)
                 .addField("🏓 Gateway Ping", String.valueOf(jda.getGatewayPing()), false)
                 .addField("🛫 Rest Ping", String.valueOf(jda.getRestPing().complete()), false)
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 
