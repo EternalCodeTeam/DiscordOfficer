@@ -97,7 +97,6 @@ tasks.shadowJar {
     archiveFileName.set("DiscordOfficer v${project.version}.jar")
 
     dependsOn("checkstyleMain")
-    dependsOn("checkstyleTest")
     dependsOn("test")
 
     manifest {
