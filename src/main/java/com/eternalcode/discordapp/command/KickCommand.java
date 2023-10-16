@@ -24,10 +24,10 @@ public class KickCommand extends SlashCommand {
         this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
 
         this.options = List.of(
-                new OptionData(OptionType.USER, "user", "select the user")
-                        .setRequired(true),
-                new OptionData(OptionType.STRING, "reason", "provide a reason")
-                        .setRequired(false)
+            new OptionData(OptionType.USER, "user", "select the user")
+                .setRequired(true),
+            new OptionData(OptionType.STRING, "reason", "provide a reason")
+                .setRequired(false)
         );
 
         this.appConfig = appConfig;
@@ -41,61 +41,61 @@ public class KickCommand extends SlashCommand {
 
             if (user.isBot()) {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setTitle("❌ | An error occurred while kicking the user")
-                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
-                        .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
-                        .setDescription("You can't kick a bot")
-                        .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
-                        .setTimestamp(Instant.now())
-                        .build();
+                    .setTitle("❌ | An error occurred while kicking the user")
+                    .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
+                    .setDescription("You can't kick a bot")
+                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setTimestamp(Instant.now())
+                    .build();
 
                 event.replyEmbeds(embed)
-                        .setEphemeral(true)
-                        .queue();
+                    .setEphemeral(true)
+                    .queue();
 
                 return;
             }
 
             user.openPrivateChannel().queue(channel -> {
                 MessageEmbed embed = new EmbedBuilder()
-                        .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
-                        .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
-                        .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
-                        .setDescription("Reason: " + reason)
-                        .setTimestamp(Instant.now())
-                        .build();
+                    .setTitle("🔨 | You have been kicked from " + event.getGuild().getName())
+                    .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                    .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
+                    .setDescription("Reason: " + reason)
+                    .setTimestamp(Instant.now())
+                    .build();
 
                 channel.sendMessageEmbeds(embed).submit();
             });
 
             MessageEmbed embed = new EmbedBuilder()
-                    .setTitle("✅ | Successfully kicked " + user.getAsTag())
-                    .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
-                    .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
-                    .setDescription("Reason: " + reason)
-                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
-                    .setTimestamp(Instant.now())
-                    .build();
+                .setTitle("✅ | Successfully kicked " + user.getAsTag())
+                .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
+                .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
+                .setDescription("Reason: " + reason)
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
+                .build();
 
             event.replyEmbeds(embed)
-                    .setEphemeral(true)
-                    .queue();
+                .setEphemeral(true)
+                .queue();
 
             event.getGuild().kick(user).reason(reason).queue();
         }
         catch (Exception exception) {
             MessageEmbed embed = new EmbedBuilder()
-                    .setTitle("❌ | An error occurred while kicking the user")
-                    .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
-                    .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
-                    .setDescription("I can't kick this user, he probably has highest role than me!")
-                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
-                    .setTimestamp(Instant.now())
-                    .build();
+                .setTitle("❌ | An error occurred while kicking the user")
+                .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
+                .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
+                .setDescription("I can't kick this user, he probably has highest role than me!")
+                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setTimestamp(Instant.now())
+                .build();
 
             event.replyEmbeds(embed)
-                    .setEphemeral(true)
-                    .queue();
+                .setEphemeral(true)
+                .queue();
         }
     }
 }

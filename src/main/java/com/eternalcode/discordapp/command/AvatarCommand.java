@@ -38,7 +38,7 @@ public class AvatarCommand extends SlashCommand {
                 .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setImage(user.getEffectiveAvatarUrl() + "?size=2048")
                 .setTimestamp(Instant.now())
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .build();
 
         event.replyEmbeds(embed)

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> implements LevelRepository {
+class LevelRepositoryImpl extends AbstractRepository<LevelWrapper, Long> implements LevelRepository {
 
     protected LevelRepositoryImpl(DatabaseManager databaseManager) {
         super(databaseManager, LevelWrapper.class);

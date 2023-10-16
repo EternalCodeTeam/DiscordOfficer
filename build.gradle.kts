@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     `java-library`
     application
@@ -87,15 +85,20 @@ tasks.getByName<Test>("test") {
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
     options.isIncremental = true
+    options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
-tasks.withType<ShadowJar> {
+tasks.shadowJar {
     archiveFileName.set("DiscordOfficer v${project.version}.jar")
+
+    dependsOn("checkstyleMain")
+    dependsOn("checkstyleTest")
+    dependsOn("test")
 
     manifest {
         attributes(

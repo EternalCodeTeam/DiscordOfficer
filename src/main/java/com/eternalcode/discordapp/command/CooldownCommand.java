@@ -42,7 +42,7 @@ public class CooldownCommand extends SlashCommand {
                 .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("This channel's cooldown is now " + cooldown + " seconds")
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 

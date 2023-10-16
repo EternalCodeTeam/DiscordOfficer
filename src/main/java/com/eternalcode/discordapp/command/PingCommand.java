@@ -31,7 +31,7 @@ public class PingCommand extends SlashCommand {
                 .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .addField("Gateway Ping", gatewayPing + "ms", false)
                 .addField("Rest Ping", restPing + "ms", false)
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 

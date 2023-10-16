@@ -7,6 +7,7 @@ import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +28,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
         try {
             if (event.getMember().getUser().isBot()) {
                 return;

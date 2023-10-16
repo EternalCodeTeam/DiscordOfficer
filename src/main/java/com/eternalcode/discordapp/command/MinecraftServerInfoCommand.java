@@ -82,7 +82,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
                 .addField("IP", ip, true)
                 .addField("Players", onlinePlayers + "/" + maxPlayers, true)
                 .addField("MOTD", String.join("\n", motd), false)
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 

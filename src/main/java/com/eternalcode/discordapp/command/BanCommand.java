@@ -54,7 +54,7 @@ public class BanCommand extends SlashCommand {
                         .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
                         .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                         .setDescription("You can't ban a bot")
-                        .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                        .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                         .setTimestamp(Instant.now())
                         .build();
 
@@ -77,11 +77,11 @@ public class BanCommand extends SlashCommand {
             });
 
             MessageEmbed embed = new EmbedBuilder()
-                    .setTitle("✅ | Successfully banned " + user.getAsTag())
+                    .setTitle("✅ | Successfully banned " + user.getName())
                     .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                     .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                     .setDescription("Reason: " + kickReason)
-                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
                     .build();
 
@@ -97,7 +97,7 @@ public class BanCommand extends SlashCommand {
                     .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
                     .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                     .setDescription("I can't ban this user, he probably has highest role than me!")
-                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
                     .build();
 
