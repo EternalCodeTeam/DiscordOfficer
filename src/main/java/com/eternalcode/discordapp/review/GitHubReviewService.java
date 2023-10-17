@@ -42,7 +42,7 @@ public class GitHubReviewService {
 
             GitHubPullRequest pullRequest = result.get();
             if (!this.checkPullRequestTitle(pullRequest)) {
-                return "Pull request title is not valid, please use GH-<number> as title";
+                return "Pull request title is not valid, please use GH-<number> as title and keep it under 100 characters";
             }
 
             long messageId = this.createReviewForumPost(guild, pullRequest);
@@ -59,7 +59,8 @@ public class GitHubReviewService {
     public boolean checkPullRequestTitle(GitHubPullRequest url) throws IOException {
         String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(url, this.appConfig.githubToken);
 
-        return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl);
+        return GitHubReviewUtil.isPullRequestTitleValid(pullRequestTitleFromUrl) &&
+            GitHubReviewUtil.isTitleLengthValid(pullRequestTitleFromUrl);
     }
 
     public long createReviewForumPost(Guild guild, GitHubPullRequest pullRequest) throws IOException {

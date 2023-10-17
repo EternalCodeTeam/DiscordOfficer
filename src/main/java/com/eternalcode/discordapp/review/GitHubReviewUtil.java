@@ -16,6 +16,7 @@ import java.util.List;
 public final class GitHubReviewUtil {
 
     private static final String GITHUB_PULL_REQUEST_TITLE_CONVENTION = "^(GH)-\\d+ .+$";
+    private static final int MAX_TITLE_LENGTH = 100;
 
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
     private static final Gson GSON = new Gson();
@@ -27,6 +28,10 @@ public final class GitHubReviewUtil {
 
     public static boolean isPullRequestTitleValid(String title) {
         return title.matches(GITHUB_PULL_REQUEST_TITLE_CONVENTION);
+    }
+
+    public static boolean isTitleLengthValid(String title) {
+        return title.length() <= MAX_TITLE_LENGTH;
     }
 
     public static List<String> getReviewers(GitHubPullRequest pullRequest, String githubToken) {
