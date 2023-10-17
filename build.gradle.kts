@@ -67,8 +67,8 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 
     // mockwebserver
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
-    testImplementation("com.squareup.okhttp3:okhttp:4.11.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
     testImplementation("org.mockito:mockito-core:5.6.0")
