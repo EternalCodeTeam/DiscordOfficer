@@ -96,6 +96,21 @@ class GitHubReviewUtilTest {
     }
 
     @Test
+    @DisplayName("Test isTitleLengthValid with a valid title")
+    void testValidTitleLength() {
+        String title = "GH-123 This is a valid title";
+        assertTrue(GitHubReviewUtil.isTitleLengthValid(title), "Valid Title: " + title);
+    }
+
+    @Test
+    @DisplayName("Test isTitleLengthValid with an invalid title")
+    void testInvalidTitleLength() {
+        String title = "GH-123 This is a very long title. It is so long that it should be " +
+            "considered invalid, but we are testing it all the same to ensure that our title length validation works as expected.";
+        assertFalse(GitHubReviewUtil.isTitleLengthValid(title), "Invalid Title: " + title);
+    }
+
+    @Test
     @DisplayName("Test getReviewers functionality")
     void testGetReviewers() throws Exception {
         String jsonResponse = """
