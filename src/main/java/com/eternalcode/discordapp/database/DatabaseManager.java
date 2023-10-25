@@ -6,6 +6,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.zaxxer.hikari.HikariDataSource;
+import io.sentry.Sentry;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -77,6 +78,7 @@ public class DatabaseManager {
                 return DaoManager.createDao(this.connectionSource, clazz);
             }
             catch (SQLException sqlException) {
+                Sentry.captureException(sqlException);
                 throw new DataAccessException("Failed to create dao", sqlException);
             }
         });

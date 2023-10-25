@@ -1,4 +1,6 @@
 package com.eternalcode.discordapp.leveling.experience;
 
-public record ExperienceChangeEvent(Experience experience) {
+import java.util.function.LongSupplier;
+
+public record ExperienceChangeEvent(Experience experience, LongSupplier channelId) {
 }

@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
+import io.sentry.Sentry;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,6 +23,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserWrapper.class);
         }
         catch (SQLException sqlException) {
+            Sentry.captureException(sqlException);
             throw new DataAccessException("Failed to create table", sqlException);
         }
 

@@ -3,6 +3,7 @@ package com.eternalcode.discordapp.database.repository;
 import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.j256.ormlite.dao.Dao;
+import io.sentry.Sentry;
 import panda.std.function.ThrowingFunction;
 
 import java.sql.SQLException;
@@ -47,6 +48,7 @@ public abstract class AbstractRepository<T, ID> {
                 return action.apply(dao);
             }
             catch (SQLException sqlException) {
+                Sentry.captureException(sqlException);
                 throw new DataAccessException("Failed to execute database action", sqlException);
             }
         });
