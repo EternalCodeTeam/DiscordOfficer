@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewUser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -49,6 +50,7 @@ public class AddChild extends SlashCommand {
         }
         catch (Exception exception) {
             event.reply("An error occurred while adding user to the system").setEphemeral(true).queue();
+            Sentry.captureException(exception);
             exception.printStackTrace();
         }
     }

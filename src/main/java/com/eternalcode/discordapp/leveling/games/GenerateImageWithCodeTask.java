@@ -1,6 +1,7 @@
 package com.eternalcode.discordapp.leveling.games;
 
 import com.eternalcode.discordapp.config.ConfigManager;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -76,6 +77,7 @@ public class GenerateImageWithCodeTask extends TimerTask {
             ImageIO.write(image, "png", byteArrayOutputStream);
         }
         catch (IOException exception) {
+            Sentry.captureException(exception);
             exception.printStackTrace();
             return;
         }

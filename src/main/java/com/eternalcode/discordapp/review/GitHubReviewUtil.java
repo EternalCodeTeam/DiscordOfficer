@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.sentry.Sentry;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -57,6 +58,7 @@ public final class GitHubReviewUtil {
             return reviewers;
         }
         catch (IOException exception) {
+            Sentry.captureException(exception);
             exception.printStackTrace();
             return Collections.emptyList();
         }

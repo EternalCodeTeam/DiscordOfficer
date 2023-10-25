@@ -106,6 +106,7 @@ public class DiscordApp {
             levelService = new LevelService(databaseManager);
         }
         catch (SQLException exception) {
+            Sentry.captureException(exception);
             LOGGER.error("Failed to connect to database", exception);
         }
 
