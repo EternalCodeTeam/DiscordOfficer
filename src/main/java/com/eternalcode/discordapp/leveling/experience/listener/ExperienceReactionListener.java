@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.function.LongSupplier;
+
 public class ExperienceReactionListener extends ListenerAdapter {
 
     private final ExperienceConfig experienceConfig;
@@ -46,9 +48,9 @@ public class ExperienceReactionListener extends ListenerAdapter {
     }
 
     private void modifyPoints(User event, long userId, double points) {
-        long channel = event.openPrivateChannel().complete().getIdLong();
+        LongSupplier channel = () -> event.openPrivateChannel().complete().getIdLong();
 
-        this.experienceService.modifyPoints(userId, points, true, () -> channel)
+        this.experienceService.modifyPoints(userId, points, true, channel)
             .whenComplete((experience, throwable) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
