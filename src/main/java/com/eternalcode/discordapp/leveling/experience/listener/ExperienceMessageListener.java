@@ -21,7 +21,6 @@ public class ExperienceMessageListener extends ListenerAdapter {
             return;
         }
 
-
         this.givePoints(event);
     }
 
@@ -36,7 +35,7 @@ public class ExperienceMessageListener extends ListenerAdapter {
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
         long userId = event.getAuthor().getIdLong();
 
-        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true, event.getChannel().getIdLong()).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }

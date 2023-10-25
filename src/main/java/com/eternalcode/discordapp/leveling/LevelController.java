@@ -3,10 +3,13 @@ package com.eternalcode.discordapp.leveling;
 import com.eternalcode.discordapp.leveling.experience.Experience;
 import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.observer.Observer;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import panda.utilities.text.Formatter;
+
+import java.util.concurrent.TimeUnit;
 
 public class LevelController implements Observer<ExperienceChangeEvent> {
 
@@ -39,8 +42,8 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
      */
 
     @Override
-    public void update(ExperienceChangeEvent experienceChangeEvent) {
-        Experience experience = experienceChangeEvent.experience();
+    public void update(ExperienceChangeEvent event) {
+        Experience experience = event.experience();
         long userId = experience.getUserId();
 
         double experiencePoints = experience.getPoints();
@@ -73,10 +76,17 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
                 .register("{level}", String.valueOf(newLevel))
                 .format(this.levelConfig.message.description);
 
-            TextChannel levelChannel = this.jda.getTextChannelById(this.levelConfig.channel);
-            if (levelChannel != null) {
-                levelChannel.sendMessage(messageContent).queue();
+
+            try {
+                TextChannel channel = this.jda.getTextChannelById(event.channelId());
+                channel.sendMessage(messageContent).queue(message -> {
+                    message.delete().queueAfter(5, TimeUnit.SECONDS);
+                });
+            } catch (Exception exception) {
+                Sentry.captureException(exception);
+                exception.printStackTrace();
             }
+
 
             return userLevel;
         });

@@ -21,7 +21,7 @@ public class ExperienceReactionListener extends ListenerAdapter {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
 
-        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true, event.getChannel().getIdLong()).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }
@@ -33,7 +33,7 @@ public class ExperienceReactionListener extends ListenerAdapter {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
 
-        this.experienceService.modifyPoints(userId, points, true).whenComplete((experience, throwable) -> {
+        this.experienceService.modifyPoints(userId, points, true, event.getChannel().getIdLong()).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }

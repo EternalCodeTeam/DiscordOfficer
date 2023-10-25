@@ -66,7 +66,7 @@ public class CodeGameAnswerController extends ListenerAdapter {
                 .setDescription(formatter.format(this.codeGameConfiguration.embedSettings.description))
                 .setFooter(this.codeGameConfiguration.embedSettings.footer);
 
-            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true)
+            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true, event.getChannel().getIdLong())
                 .whenComplete((experience, throwable) -> {
                     if (throwable != null) {
                         throwable.printStackTrace();
