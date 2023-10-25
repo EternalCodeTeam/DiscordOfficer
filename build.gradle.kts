@@ -30,7 +30,7 @@ checkstyle {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.15")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.16")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -44,7 +44,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.31.0")
+    implementation("io.sentry:sentry:6.32.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
