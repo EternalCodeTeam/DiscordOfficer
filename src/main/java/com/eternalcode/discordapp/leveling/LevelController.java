@@ -88,7 +88,9 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
                 channel.sendMessage(messageContent).queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
             }
-            catch (Exception ignored) {}
+            catch (Exception ignored) {
+
+            }
 
             return userLevel;
         });
