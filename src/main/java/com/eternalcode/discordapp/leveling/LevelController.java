@@ -84,8 +84,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
             try {
                 long channelId = event.channelId();
 
-                MessageChannel channel = this.isPrivateChannel(channelId) ? this.jda.getPrivateChannelById(channelId)
-                    : this.jda.getTextChannelById(channelId);
+                MessageChannel channel = this.getChannelById(channelId);
 
                 if (channel == null) {
                     return null;
@@ -102,7 +101,9 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
         });
     }
 
-    public boolean isPrivateChannel(long channelId) {
-        return this.jda.getPrivateChannelById(channelId) != null;
+    private MessageChannel getChannelById(long channelId) {
+        MessageChannel channel = this.jda.getPrivateChannelById(channelId);
+
+        return channel != null ? channel : this.jda.getTextChannelById(channelId);
     }
 }
