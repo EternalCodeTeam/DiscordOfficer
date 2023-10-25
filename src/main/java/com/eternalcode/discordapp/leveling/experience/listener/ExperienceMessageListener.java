@@ -35,8 +35,8 @@ public class ExperienceMessageListener extends ListenerAdapter {
         double points = (double) message.length / this.experienceConfig.messageExperience.howManyWords * basePoints;
         long userId = event.getAuthor().getIdLong();
 
-        long idLong = event.getChannel().getIdLong();
-        this.experienceService.modifyPoints(userId, points, true, idLong).whenComplete((experience, throwable) -> {
+        long channelId = event.getChannel().getIdLong();
+        this.experienceService.modifyPoints(userId, points, true, channelId).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }
