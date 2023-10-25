@@ -78,9 +78,9 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
 
             try {
-                long channelId = event.channelId();
+                LongSupplier channelId = event.channelId();
 
-                MessageChannel channel = this.getChannelById(() -> channelId);
+                MessageChannel channel = this.getChannelById(channelId);
 
                 if (channel == null) {
                     return null;

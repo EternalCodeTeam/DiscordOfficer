@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.observer.ObserverRegistry;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.LongSupplier;
 
 public class ExperienceService {
 
@@ -16,7 +17,7 @@ public class ExperienceService {
         this.observerRegistry = observerRegistry;
     }
 
-    public CompletableFuture<Experience> saveExperience(Experience experience, long channelId) {
+    public CompletableFuture<Experience> saveExperience(Experience experience, LongSupplier channelId) {
         return this.experienceRepository.saveExperience(experience).whenComplete((experience1, throwable) -> {
             if (throwable == null) {
                 this.observerRegistry.publish(new ExperienceChangeEvent(experience1, channelId));
@@ -24,7 +25,7 @@ public class ExperienceService {
         });
     }
 
-    public CompletableFuture<Experience> modifyPoints(long userId, double points, boolean add, long channelId) {
+    public CompletableFuture<Experience> modifyPoints(long userId, double points, boolean add, LongSupplier channelId) {
         return this.experienceRepository.modifyPoints(userId, points, add).whenComplete((experience, throwable) -> {
             if (throwable == null) {
                 this.observerRegistry.publish(new ExperienceChangeEvent(experience, channelId));

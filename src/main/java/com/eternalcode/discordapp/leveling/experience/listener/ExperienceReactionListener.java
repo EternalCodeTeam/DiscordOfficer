@@ -48,7 +48,7 @@ public class ExperienceReactionListener extends ListenerAdapter {
     private void modifyPoints(User event, long userId, double points) {
         long channel = event.openPrivateChannel().complete().getIdLong();
 
-        this.experienceService.modifyPoints(userId, points, true, channel)
+        this.experienceService.modifyPoints(userId, points, true, () -> channel)
             .whenComplete((experience, throwable) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
