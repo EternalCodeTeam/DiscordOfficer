@@ -3,7 +3,6 @@ package com.eternalcode.discordapp.leveling;
 import com.eternalcode.discordapp.leveling.experience.Experience;
 import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.observer.Observer;
-import com.eternalcode.discordapp.util.LevelUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;

@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.util;
+package com.eternalcode.discordapp.leveling;
 
 public final class LevelUtil {
 
