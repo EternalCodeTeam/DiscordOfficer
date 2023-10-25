@@ -5,6 +5,7 @@ import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,7 @@ public class ExperienceVoiceListener extends ListenerAdapter {
             this.configManager.save(this.usersVoiceActivityData);
         }
         catch (Exception exception) {
+            Sentry.captureException(exception);
             throw new DataAccessException("Something went wrong while updating voice experience", exception);
         }
     }

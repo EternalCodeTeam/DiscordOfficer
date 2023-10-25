@@ -4,6 +4,7 @@ import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewUser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class ListChild extends SlashCommand {
         }
         catch (Exception exception) {
             event.reply("An error occurred while listing the users").setEphemeral(true).queue();
+            Sentry.captureException(exception);
             exception.printStackTrace();
         }
     }

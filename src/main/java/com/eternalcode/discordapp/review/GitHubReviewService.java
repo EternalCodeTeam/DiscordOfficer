@@ -2,6 +2,7 @@ package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -51,6 +52,7 @@ public class GitHubReviewService {
             return "Review created";
         }
         catch (IOException exception) {
+            Sentry.captureException(exception);
             exception.printStackTrace();
             return "Something went wrong";
         }
@@ -208,6 +210,7 @@ public class GitHubReviewService {
             }
         }
         catch (IOException exception) {
+            Sentry.captureException(exception);
             exception.printStackTrace();
         }
     }
