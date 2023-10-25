@@ -45,7 +45,7 @@ public class KickCommand extends SlashCommand {
                     .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
                     .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                     .setDescription("You can't kick a bot")
-                    .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
                     .build();
 
@@ -69,11 +69,11 @@ public class KickCommand extends SlashCommand {
             });
 
             MessageEmbed embed = new EmbedBuilder()
-                .setTitle("✅ | Successfully kicked " + user.getAsTag())
+                .setTitle("✅ | Successfully kicked " + user.getName())
                 .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
                 .setDescription("Reason: " + reason)
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 
@@ -89,7 +89,7 @@ public class KickCommand extends SlashCommand {
                 .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
                 .setThumbnail(this.appConfig.embedSettings.errorEmbed.thumbnail)
                 .setDescription("I can't kick this user, he probably has highest role than me!")
-                .setFooter("Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build();
 
