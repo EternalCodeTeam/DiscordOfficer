@@ -24,7 +24,7 @@ public final class LevelUtil {
      * <p> Level 3: N = 100 * 3^2 + 100 * 3 + 100 = 1200
      * <p> Level 4: N = 100 * 4^2 + 100 * 4 + 100 = 1700
      * <p> Level 5: N = 100 * 5^2 + 100 * 5 + 100 = 2300
-     * <p>
+     *
      * @param currentLevel Current level.
      * @param pointsNeededForOneLevel Points needed for one level.
      * @return The calculated points needed for the next level.
