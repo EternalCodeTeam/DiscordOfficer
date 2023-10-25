@@ -27,8 +27,7 @@ docker stop discordofficer
 ```
 
 Docker images tags:
-* latest - latest stable version using Java 19
-* latest-java17 - latest stable version using Java 17
+* latest - latest stable version using Java 21
 
 Using Java:
 
