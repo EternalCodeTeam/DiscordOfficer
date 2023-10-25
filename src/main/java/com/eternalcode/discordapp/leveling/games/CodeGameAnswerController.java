@@ -34,7 +34,9 @@ public class CodeGameAnswerController extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannel().getIdLong() != this.codeGameConfiguration.channelId) {
+        long idLong = event.getChannel().getIdLong();
+
+        if (idLong != this.codeGameConfiguration.channelId) {
             return;
         }
 
@@ -66,7 +68,7 @@ public class CodeGameAnswerController extends ListenerAdapter {
                 .setDescription(formatter.format(this.codeGameConfiguration.embedSettings.description))
                 .setFooter(this.codeGameConfiguration.embedSettings.footer);
 
-            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true, event.getChannel().getIdLong())
+            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true, idLong)
                 .whenComplete((experience, throwable) -> {
                     if (throwable != null) {
                         throwable.printStackTrace();

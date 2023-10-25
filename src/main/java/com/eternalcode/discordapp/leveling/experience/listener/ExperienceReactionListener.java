@@ -2,6 +2,7 @@ package com.eternalcode.discordapp.leveling.experience.listener;
 
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -27,13 +28,7 @@ public class ExperienceReactionListener extends ListenerAdapter {
             return;
         }
 
-        event.getUser().openPrivateChannel().queue(channel -> {
-            this.experienceService.modifyPoints(userId, points, true, channel.getIdLong()).whenComplete((experience, throwable) -> {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
-            });
-        });
+        this.modifyPoints(event.getUser(), userId, points);
     }
 
     @Override
@@ -45,13 +40,17 @@ public class ExperienceReactionListener extends ListenerAdapter {
             return;
         }
 
-        event.getUser().openPrivateChannel().queue(channel -> {
-            this.experienceService.modifyPoints(userId, points, true, channel.getIdLong()).whenComplete((experience, throwable) -> {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
-            });
-        });
+        this.modifyPoints(event.getUser(), userId, points);
+    }
+
+    private void modifyPoints(User event, long userId, double points) {
+        event.openPrivateChannel().queue(channel -> this.experienceService.modifyPoints(userId, points, true, channel.getIdLong())
+            .whenComplete((experience, throwable) -> {
+
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        }));
     }
 
 }
