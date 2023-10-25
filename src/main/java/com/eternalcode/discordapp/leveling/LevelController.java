@@ -6,9 +6,13 @@ import com.eternalcode.discordapp.observer.Observer;
 import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import panda.utilities.text.Formatter;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class LevelController implements Observer<ExperienceChangeEvent> {
@@ -78,15 +82,20 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
 
             try {
-                TextChannel channel = this.jda.getTextChannelById(event.channelId());
-                channel.sendMessage(messageContent).queue(message -> {
-                    message.delete().queueAfter(5, TimeUnit.SECONDS);
-                });
-            } catch (Exception exception) {
+                Optional<MessageChannel> textChannelOptional = Optional.ofNullable(this.jda.getTextChannelById(event.channelId()));
+
+                MessageChannel channel = textChannelOptional.orElse(this.jda.getPrivateChannelById(event.channelId()));
+
+                if (channel == null) {
+                    return null;
+                }
+
+                channel.sendMessage(messageContent).queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+            }
+            catch (Exception exception) {
                 Sentry.captureException(exception);
                 exception.printStackTrace();
             }
-
 
             return userLevel;
         });

@@ -51,7 +51,9 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
         long userId = event.getMember().getIdLong();
         this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
-        this.experienceService.modifyPoints(userId, this.calculatePoints(event), true, event.getChannelJoined().getIdLong()).whenComplete((experience, throwable) -> {
+
+        long idLong = event.getChannelLeft().getIdLong();
+        this.experienceService.modifyPoints(userId, this.calculatePoints(event), true, idLong).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }
