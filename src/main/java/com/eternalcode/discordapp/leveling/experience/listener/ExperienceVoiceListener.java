@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.LongSupplier;
 
 public class ExperienceVoiceListener extends ListenerAdapter {
 
@@ -53,7 +54,9 @@ public class ExperienceVoiceListener extends ListenerAdapter {
 
         long userId = event.getMember().getIdLong();
         this.usersVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
-        this.experienceService.modifyPoints(userId, this.calculatePoints(event), true).whenComplete((experience, throwable) -> {
+
+        LongSupplier voiceLeftChannelId = () -> event.getChannelLeft().getIdLong();
+        this.experienceService.modifyPoints(userId, this.calculatePoints(event), true, voiceLeftChannelId).whenComplete((experience, throwable) -> {
             if (throwable != null) {
                 throwable.printStackTrace();
             }

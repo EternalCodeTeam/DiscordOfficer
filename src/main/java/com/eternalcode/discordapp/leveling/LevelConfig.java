@@ -13,9 +13,6 @@ public class LevelConfig implements CdnConfig {
     @Description("# The count of points that will be added to the user's level")
     public int points = 100;
 
-    @Description("# Channel where the message will be sent")
-    public long channel = 0L;
-
     public Message message = new Message();
 
     @Contextual

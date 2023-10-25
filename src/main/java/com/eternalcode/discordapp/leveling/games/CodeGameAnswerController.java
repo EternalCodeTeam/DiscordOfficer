@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
+import java.util.function.LongSupplier;
 
 public class CodeGameAnswerController extends ListenerAdapter {
 
@@ -34,7 +35,9 @@ public class CodeGameAnswerController extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannel().getIdLong() != this.codeGameConfiguration.channelId) {
+        LongSupplier channelId = () -> event.getChannel().getIdLong();
+
+        if (channelId.getAsLong() != this.codeGameConfiguration.channelId) {
             return;
         }
 
@@ -66,7 +69,8 @@ public class CodeGameAnswerController extends ListenerAdapter {
                 .setDescription(formatter.format(this.codeGameConfiguration.embedSettings.description))
                 .setFooter(this.codeGameConfiguration.embedSettings.footer);
 
-            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true)
+
+            this.experienceService.modifyPoints(event.getAuthor().getIdLong(), points, true, channelId)
                 .whenComplete((experience, throwable) -> {
                     if (throwable != null) {
                         throwable.printStackTrace();
