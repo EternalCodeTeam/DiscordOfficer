@@ -24,11 +24,13 @@ public class ExperienceReactionListener extends ListenerAdapter {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
 
-        if (event.getUser().isBot()) {
+        User user = event.getUser();
+
+        if (user.isBot()) {
             return;
         }
 
-        this.modifyPoints(event.getUser(), userId, points);
+        this.modifyPoints(user, userId, points);
     }
 
     @Override
@@ -36,11 +38,13 @@ public class ExperienceReactionListener extends ListenerAdapter {
         long userId = event.getUserIdLong();
         double points = this.experienceConfig.basePoints * this.experienceConfig.reactionExperience.multiplier;
 
-        if (event.getUser().isBot()) {
+        User user = event.getUser();
+
+        if (user.isBot()) {
             return;
         }
 
-        this.modifyPoints(event.getUser(), userId, points);
+        this.modifyPoints(user, userId, points);
     }
 
     private void modifyPoints(User event, long userId, double points) {
