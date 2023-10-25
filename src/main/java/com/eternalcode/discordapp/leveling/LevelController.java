@@ -3,17 +3,13 @@ package com.eternalcode.discordapp.leveling;
 import com.eternalcode.discordapp.leveling.experience.Experience;
 import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.observer.Observer;
-import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import panda.utilities.text.Formatter;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
 
 public class LevelController implements Observer<ExperienceChangeEvent> {
 
@@ -84,7 +80,7 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
             try {
                 long channelId = event.channelId();
 
-                MessageChannel channel = this.getChannelById(channelId);
+                MessageChannel channel = this.getChannelById(() -> channelId);
 
                 if (channel == null) {
                     return null;
@@ -92,18 +88,15 @@ public class LevelController implements Observer<ExperienceChangeEvent> {
 
                 channel.sendMessage(messageContent).queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
             }
-            catch (Exception exception) {
-                Sentry.captureException(exception);
-                exception.printStackTrace();
-            }
+            catch (Exception ignored) {}
 
             return userLevel;
         });
     }
 
-    private MessageChannel getChannelById(long channelId) {
-        MessageChannel channel = this.jda.getPrivateChannelById(channelId);
+    private MessageChannel getChannelById(LongSupplier channelId) {
+        MessageChannel channel = this.jda.getPrivateChannelById(channelId.getAsLong());
 
-        return channel != null ? channel : this.jda.getTextChannelById(channelId);
+        return channel != null ? channel : this.jda.getTextChannelById(channelId.getAsLong());
     }
 }
