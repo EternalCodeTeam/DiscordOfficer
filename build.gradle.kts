@@ -30,7 +30,7 @@ checkstyle {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.16")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.17")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -44,7 +44,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.32.0")
+    implementation("io.sentry:sentry:6.33.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -71,8 +71,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.6.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.6.0")
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.7.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.13.0")
