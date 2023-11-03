@@ -27,10 +27,11 @@ import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
-import com.eternalcode.discordapp.leveling.experience.data.UsersVoiceActivityData;
+import com.eternalcode.discordapp.leveling.experience.voice.ExperienceJoinVoiceController;
+import com.eternalcode.discordapp.leveling.experience.voice.ExperienceLeaveVoiceController;
+import com.eternalcode.discordapp.leveling.experience.voice.ExperienceVoiceActivityData;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
-import com.eternalcode.discordapp.leveling.experience.listener.ExperienceVoiceListener;
 import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
 import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
 import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
@@ -82,11 +83,10 @@ public class DiscordApp {
         CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
 
         ConfigManager data = new ConfigManager("data");
-        UsersVoiceActivityData usersVoiceActivityData = data.load(new UsersVoiceActivityData());
+        ExperienceVoiceActivityData experienceVoiceActivityData = data.load(new ExperienceVoiceActivityData());
         CodeImageGameData codeImageGameData = data.load(new CodeImageGameData());
 
-        usersVoiceActivityData.usersOnVoiceChannel.put(0L, Instant.now());
-        data.save(usersVoiceActivityData);
+        data.save(experienceVoiceActivityData);
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -155,8 +155,11 @@ public class DiscordApp {
 
                 // Experience system
                 new ExperienceMessageListener(experienceConfig, experienceService),
-                new ExperienceVoiceListener(experienceConfig, usersVoiceActivityData, data, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
+
+                // experience voice
+                new ExperienceLeaveVoiceController(experienceVoiceActivityData, data, experienceConfig, experienceService),
+                new ExperienceJoinVoiceController(experienceVoiceActivityData, data),
 
                 // Message filter
                 new FilterMessageEmbedController(filterService),
