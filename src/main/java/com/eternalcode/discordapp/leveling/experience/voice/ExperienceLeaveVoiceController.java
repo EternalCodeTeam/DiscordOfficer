@@ -40,7 +40,7 @@ public class ExperienceLeaveVoiceController extends ListenerAdapter {
             }
         });
 
-        this.experienceVoiceActivityData.usersOnVoiceChannel.remove(event.getMember().getIdLong());
+        this.experienceVoiceActivityData.usersOnVoiceChannel.remove(userId);
         this.configManager.save(this.experienceVoiceActivityData);
     }
 
