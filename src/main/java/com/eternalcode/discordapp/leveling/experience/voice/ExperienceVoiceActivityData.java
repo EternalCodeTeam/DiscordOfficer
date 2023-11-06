@@ -1,4 +1,4 @@
-package com.eternalcode.discordapp.leveling.experience.data;
+package com.eternalcode.discordapp.leveling.experience.voice;
 
 import com.eternalcode.discordapp.config.CdnConfig;
 import net.dzikoysk.cdn.source.Resource;
@@ -7,10 +7,11 @@ import net.dzikoysk.cdn.source.Source;
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Map;
 
-public class UsersVoiceActivityData implements CdnConfig {
+public class ExperienceVoiceActivityData implements CdnConfig {
 
-    public HashMap<Long, Instant> usersOnVoiceChannel = new HashMap<>();
+    public Map<Long, Instant> usersOnVoiceChannel = new HashMap<>();
 
     @Override
     public Resource resource(File folder) {
