@@ -2,6 +2,7 @@ package com.eternalcode.discordapp.leveling.leaderboard;
 
 import com.eternalcode.discordapp.leveling.Level;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -70,30 +71,34 @@ public class LeaderboardButtonController extends ListenerAdapter {
 
         for (Level level : top) {
             int userLevel = level.getCurrentLevel();
-            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+            Member memberById = event.getGuild().getMemberById(level.getId());
 
-            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
-            index++;
+            if (memberById != null) {
+                String effectiveName = memberById.getEffectiveName();
+
+                leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
+                index++;
+            }
         }
 
         Button firstButton = Button.success("leaderboard_first", "First")
-                .withEmoji(Emoji.fromUnicode("U+23EE"))
-                .withDisabled(currentPage == 1);
+            .withEmoji(Emoji.fromUnicode("U+23EE"))
+            .withDisabled(currentPage == 1);
 
         Button prevButton = Button.primary("leaderboard_prev", "Previous")
-                .withEmoji(Emoji.fromFormatted("U+25C0"))
-                .withDisabled(currentPage <= 1);
+            .withEmoji(Emoji.fromFormatted("U+25C0"))
+            .withDisabled(currentPage <= 1);
 
         Button nextButton = Button.primary("leaderboard_next", "Next")
-                .withEmoji(Emoji.fromUnicode("U+25B6"))
-                .withDisabled(currentPage >= totalPages);
+            .withEmoji(Emoji.fromUnicode("U+25B6"))
+            .withDisabled(currentPage >= totalPages);
 
         Button lastButton = Button.success("leaderboard_last", "Last")
-                .withEmoji(Emoji.fromUnicode("U+23ED"))
-                .withDisabled(currentPage == totalPages);
+            .withEmoji(Emoji.fromUnicode("U+23ED"))
+            .withDisabled(currentPage == totalPages);
 
         event.editMessageEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-                .setActionRow(firstButton, prevButton, nextButton, lastButton)
-                .queue();
+            .setActionRow(firstButton, prevButton, nextButton, lastButton)
+            .queue();
     }
 }

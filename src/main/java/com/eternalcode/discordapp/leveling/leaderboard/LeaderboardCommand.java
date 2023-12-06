@@ -4,6 +4,7 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
@@ -45,30 +46,34 @@ public class LeaderboardCommand extends SlashCommand {
 
         for (Level level : top) {
             int userLevel = level.getCurrentLevel();
-            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+            Member memberById = event.getGuild().getMemberById(level.getId());
 
-            leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
-            index++;
+            if (memberById != null) {
+                String effectiveName = memberById.getEffectiveName();
+
+                leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
+                index++;
+            }
         }
 
         Button firstButton = Button.success("leaderboard_first", "First")
-                .withEmoji(Emoji.fromUnicode("U+23EE"))
-                .withDisabled(page == 1);
+            .withEmoji(Emoji.fromUnicode("U+23EE"))
+            .withDisabled(page == 1);
 
         Button prevButton = Button.primary("leaderboard_prev", "Previous")
-                .withEmoji(Emoji.fromFormatted("U+25C0"))
-                .withDisabled(page <= 1);
+            .withEmoji(Emoji.fromFormatted("U+25C0"))
+            .withDisabled(page <= 1);
 
         Button nextButton = Button.primary("leaderboard_next", "Next")
-                .withEmoji(Emoji.fromUnicode("U+25B6"))
-                .withDisabled(page >= totalPages);
+            .withEmoji(Emoji.fromUnicode("U+25B6"))
+            .withDisabled(page >= totalPages);
 
         Button lastButton = Button.success("leaderboard_last", "Last")
-                .withEmoji(Emoji.fromUnicode("U+23ED"))
-                .withDisabled(page == totalPages);
+            .withEmoji(Emoji.fromUnicode("U+23ED"))
+            .withDisabled(page == totalPages);
 
         event.replyEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-                .addActionRow(firstButton, prevButton, nextButton, lastButton)
-                .queue();
+            .addActionRow(firstButton, prevButton, nextButton, lastButton)
+            .queue();
     }
 }
