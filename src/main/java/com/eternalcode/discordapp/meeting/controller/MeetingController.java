@@ -1,6 +1,7 @@
-package com.eternalcode.discordapp.meeting;
+package com.eternalcode.discordapp.meeting.controller;
 
 import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.meeting.Meeting;
 import com.eternalcode.discordapp.meeting.event.MeetingCreateEvent;
 import com.eternalcode.discordapp.observer.Observer;
 import com.eternalcode.discordapp.util.DiscordTagFormat;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
@@ -70,8 +72,10 @@ public class MeetingController implements Observer<MeetingCreateEvent> {
             .setTimestamp(meeting.getIssuedAt())
             .build();
 
-        Button presentButton = Button.primary("meeting:present:" + meeting.getIssuedAt().toEpochMilli(), "Present");
-        Button absentButton = Button.danger("meeting:absent:" + meeting.getIssuedAt().toEpochMilli(), "Absent");
+        Button presentButton = Button.primary("meeting:present:" + meeting.getIssuedAt().toEpochMilli(), "Present")
+            .withEmoji(Emoji.fromUnicode("✅"));
+        Button absentButton = Button.danger("meeting:absent:" + meeting.getIssuedAt().toEpochMilli(), "Absent")
+            .withEmoji(Emoji.fromUnicode("✖"));
 
         textChannelById
             .sendMessageEmbeds(embed)

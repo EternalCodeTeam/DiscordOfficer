@@ -6,6 +6,8 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @DatabaseTable(tableName = "officer_meetings")
 class MeetingWrapper {
@@ -21,14 +23,15 @@ class MeetingWrapper {
 
     @DatabaseField(columnName = "startTime", dataType = DataType.SERIALIZABLE)
     private Instant startTime;
-/*
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+
+    @DatabaseField(columnName = "presentMembers", dataType = DataType.SERIALIZABLE)
     private final Set<Long> presentMembers = new HashSet<>();
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private final Set<Long> absentMembers = new HashSet<>();*/
+    @DatabaseField(columnName = "absentMembers", dataType = DataType.SERIALIZABLE)
+    private final Set<Long> absentMembers = new HashSet<>();
 
-    public MeetingWrapper(Instant issuedAt, Instant startTime) {
+    public MeetingWrapper(long requesterId, Instant issuedAt, Instant startTime) {
+        this.requesterId = requesterId;
         this.issuedAt = issuedAt;
         this.startTime = startTime;
     }
@@ -37,11 +40,11 @@ class MeetingWrapper {
     }
 
     public static MeetingWrapper from(Meeting meeting) {
-        return new MeetingWrapper(meeting.getIssuedAt(), meeting.getStartTime());
+        return new MeetingWrapper(meeting.getRequesterId(), meeting.getIssuedAt(), meeting.getStartTime());
     }
 
     public Meeting toMeeting() {
-        return new Meeting(this.requesterId, this.issuedAt, this.startTime);
+        return new Meeting(this.requesterId, this.issuedAt, this.startTime, this.presentMembers, this.absentMembers);
     }
 
 }

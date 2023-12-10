@@ -19,24 +19,15 @@ public class MeetingService {
     }
 
     public void createMeeting(Instant issuedAt, Instant startTime, Long requester, Long channelId) {
-        Meeting meeting = new Meeting(requester, issuedAt, startTime);
+        Meeting meeting = new Meeting(requester, issuedAt, startTime, null, null);
 
         this.meetingRepository.saveMeeting(meeting);
         this.observerRegistry.publish(new MeetingCreateEvent(meeting, requester, channelId));
     }
 
-    public void deleteMeeting(Instant issuedAt, Instant startTime, Long requester) {
-        Meeting meeting = new Meeting(requester, issuedAt, startTime);
-
-        this.meetingRepository.deleteMeeting(meeting);
-    }
-
-    public void findMeeting(Instant issuedAt, Instant startTime, Long requester) {
-        Meeting meeting = new Meeting(requester, issuedAt, startTime);
-
-        this.meetingRepository.findMeeting(meeting);
-    }
-
-    //zw
+    // TODO; tutaj sie zrobi metode od update i create embed, a z obiektu z bazy bedzie sie pobierac absent i present osoby
+    // TODO: i bedzie sie je dodawac do embeda, a potem edytowac embed juz wczesniej wyslany za pomoca metody od update
+    // TODO: i sa eventy MeetinbMemberAbsentEvent ii MeetingMemberPresent i bedzie sie je nasluchiwac i dodawac do listy albo present albo absent
+    // TODO: ten kod co napisalem juz to troche sensu w niektorych momentach nie ma, ale ogolnie to jest to co trzeba zrobic ^^, jak ktos chce to niech zrobi
 
 }

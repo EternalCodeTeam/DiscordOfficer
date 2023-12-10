@@ -6,18 +6,20 @@ import java.util.Set;
 
 public class Meeting {
 
-    private Set<Long> presentMembers = new HashSet<>();
-    private Set<Long> absentMembers = new HashSet<>();
+    private final Set<Long> presentMembers = new HashSet<>();
+    private final Set<Long> absentMembers = new HashSet<>();
 
-    private Long requesterId;
+    private final Long requesterId;
 
-    private Instant issuedAt;
-    private Instant startTime;
+    private final Instant issuedAt;
+    private final Instant startTime;
 
-    public Meeting(Long requesterId, Instant issuedAt, Instant startTime) {
+    public Meeting(Long requesterId, Instant issuedAt, Instant startTime, Set<Long> presentMembers, Set<Long> absentMembers) {
         this.requesterId = requesterId;
         this.issuedAt = issuedAt;
         this.startTime = startTime;
+        this.presentMembers.addAll(presentMembers);
+        this.absentMembers.addAll(absentMembers);
     }
 
     public Instant getIssuedAt() {

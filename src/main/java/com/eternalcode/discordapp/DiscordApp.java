@@ -39,7 +39,7 @@ import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
-import com.eternalcode.discordapp.meeting.MeetingController;
+import com.eternalcode.discordapp.meeting.controller.MeetingController;
 import com.eternalcode.discordapp.meeting.MeetingService;
 import com.eternalcode.discordapp.meeting.command.MeetingCommand;
 import com.eternalcode.discordapp.meeting.event.MeetingCreateEvent;
@@ -65,7 +65,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Timer;
 
@@ -178,6 +177,9 @@ public class DiscordApp {
 
                 // leaderboard
                 new LeaderboardButtonController(leaderboardService)
+
+                // meeting
+/*                new MeetingButtonController()*/
             )
 
             .setAutoReconnect(true)
