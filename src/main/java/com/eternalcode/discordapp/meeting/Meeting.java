@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class Meeting {
 
-    private Instant issuedAt;
+    private Instant startTime;
     private final Set<Long> presentMembers = new HashSet<>();
     private final Set<Long> absentMembers = new HashSet<>();
 
