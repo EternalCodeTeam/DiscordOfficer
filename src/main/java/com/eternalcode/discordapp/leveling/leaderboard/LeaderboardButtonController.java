@@ -31,7 +31,8 @@ public class LeaderboardButtonController extends ListenerAdapter {
         int totalRecords = this.leaderboardService.getTotalRecords();
         int totalPages = this.leaderboardService.getTotalPages(totalRecords);
 
-        int currentPage = this.currentPageMap.getOrDefault(messageId, 1);
+        int oldPage = this.currentPageMap.getOrDefault(messageId, 1);
+        int currentPage = oldPage;
 
         if (componentId.equals("leaderboard_next")) {
             currentPage++;
@@ -50,9 +51,11 @@ public class LeaderboardButtonController extends ListenerAdapter {
         }
 
         currentPage = Math.max(1, Math.min(currentPage, totalPages));
-        this.currentPageMap.put(messageId, currentPage);
 
-        this.updateLeaderboard(event, currentPage);
+        if (oldPage != currentPage) {
+            this.currentPageMap.put(messageId, currentPage);
+            this.updateLeaderboard(event, currentPage);
+        }
     }
 
     private void updateLeaderboard(ButtonInteractionEvent event, int currentPage) {

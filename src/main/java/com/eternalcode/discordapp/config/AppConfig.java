@@ -53,6 +53,9 @@ public class AppConfig implements CdnConfig {
         @Description("# Settings of the success embeds")
         public SuccessEmbed successEmbed = new SuccessEmbed();
 
+        @Description("# Settings of the meeting embeds")
+        public MeetingEmbed meetingEmbed = new MeetingEmbed();
+
         @Contextual
         public static class ErrorEmbed {
             public String thumbnail = "https://i.imgur.com/2oTkWsr.png";
@@ -63,6 +66,12 @@ public class AppConfig implements CdnConfig {
         public static class SuccessEmbed {
             public String thumbnail = "https://i.imgur.com/QkNxIL3.png";
             public String color = "#00ff77";
+        }
+
+        @Contextual
+        public static class MeetingEmbed {
+            public String thumbnail = "https://imgur.com/a/fd0ukx7";
+            public String color = "#62cdff";
         }
     }
 
