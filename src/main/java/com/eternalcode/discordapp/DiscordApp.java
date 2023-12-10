@@ -39,6 +39,10 @@ import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
+import com.eternalcode.discordapp.meeting.MeetingController;
+import com.eternalcode.discordapp.meeting.MeetingService;
+import com.eternalcode.discordapp.meeting.command.MeetingCommand;
+import com.eternalcode.discordapp.meeting.event.MeetingCreateEvent;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
@@ -71,6 +75,7 @@ public class DiscordApp {
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
+    private static MeetingService meetingService;
 
     public static void main(String... args) throws InterruptedException {
         ObserverRegistry observerRegistry = new ObserverRegistry();
@@ -104,6 +109,7 @@ public class DiscordApp {
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
+            meetingService = new MeetingService(databaseManager, observerRegistry);
         }
         catch (SQLException exception) {
             Sentry.captureException(exception);
@@ -144,7 +150,10 @@ public class DiscordApp {
 
                 // Leveling
                 new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService)
+                new LeaderboardCommand(leaderboardService),
+
+                // meeting
+                new MeetingCommand(config, meetingService)
             )
             .build();
 
@@ -183,6 +192,7 @@ public class DiscordApp {
             .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
+        observerRegistry.observe(MeetingCreateEvent.class, new MeetingController(jda, config));
 
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 

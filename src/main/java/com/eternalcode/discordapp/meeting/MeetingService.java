@@ -1,42 +1,42 @@
 package com.eternalcode.discordapp.meeting;
 
-import com.eternalcode.discordapp.config.AppConfig;
-import com.eternalcode.discordapp.config.ConfigManager;
-import com.eternalcode.discordapp.meeting.command.child.CreateChild;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.Channel;
+import com.eternalcode.discordapp.database.DatabaseManager;
+import com.eternalcode.discordapp.meeting.database.MeetingRepository;
+import com.eternalcode.discordapp.meeting.database.MeetingRepositoryImpl;
+import com.eternalcode.discordapp.meeting.event.MeetingCreateEvent;
+import com.eternalcode.discordapp.observer.ObserverRegistry;
 
-import java.awt.*;
 import java.time.Instant;
-import java.util.ArrayList;
 
 public class MeetingService {
 
-    private final AppConfig appConfig;
-    private final ConfigManager configManager;
-    private final CreateChild createChild;
+    private final MeetingRepository meetingRepository;
+    private final ObserverRegistry observerRegistry;
 
-    public MeetingService(AppConfig appConfig, ConfigManager configManager, CreateChild createChild) {
-        this.appConfig = appConfig;
-        this.configManager = configManager;
-        this.createChild = createChild;
+    public MeetingService(DatabaseManager databaseManager, ObserverRegistry observerRegistry) {
+        this.meetingRepository = MeetingRepositoryImpl.create(databaseManager);
+        this.observerRegistry = observerRegistry;
     }
 
-    public void createMeeting(String title, String description, String dateTime, Member requester, Member chairperson, Channel announcementChannel) {
-        ArrayList<Member> presentMembers = new ArrayList<>();
-        ArrayList<Member> absentMembers = new ArrayList<>();
+    public void createMeeting(Instant issuedAt, Instant startTime, Long requester, Long channelId) {
+        Meeting meeting = new Meeting(requester, issuedAt, startTime);
 
-        MessageEmbed embed = new EmbedBuilder()
-            .setTitle("📅 | Meeting requested")
-            .setColor(Color.decode(this.appConfig.embedSettings.meetingEmbed.color))
-            .setThumbnail(this.appConfig.embedSettings.meetingEmbed.thumbnail)
-            .setDescription("")
-            .addField("Present", "", true)
-            .addField("Absent", "", true)
-            .setFooter("Requested by " + requester.getUser().getName(), requester.getAvatarUrl())
-            .setTimestamp(Instant.now())
-            .build();
+        this.meetingRepository.saveMeeting(meeting);
+        this.observerRegistry.publish(new MeetingCreateEvent(meeting, requester, channelId));
     }
+
+    public void deleteMeeting(Instant issuedAt, Instant startTime, Long requester) {
+        Meeting meeting = new Meeting(requester, issuedAt, startTime);
+
+        this.meetingRepository.deleteMeeting(meeting);
+    }
+
+    public void findMeeting(Instant issuedAt, Instant startTime, Long requester) {
+        Meeting meeting = new Meeting(requester, issuedAt, startTime);
+
+        this.meetingRepository.findMeeting(meeting);
+    }
+
+    //zw
+
 }

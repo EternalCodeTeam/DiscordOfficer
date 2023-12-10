@@ -30,7 +30,7 @@ public class ServerCommand extends SlashCommand {
         String members = String.valueOf(guild.getMembers().size());
         String roles = String.valueOf(guild.getRoles().size());
         String channels = String.valueOf(guild.getChannels().size());
-        String createdAt = DiscordTagFormat.offsetTime(guild.getTimeCreated());
+        String createdAt = DiscordTagFormat.toDiscordDate(guild.getTimeCreated());
 
         MessageEmbed embeds = new EmbedBuilder()
                 .setTitle("🌐 | " + guild.getName() + "'s information")
