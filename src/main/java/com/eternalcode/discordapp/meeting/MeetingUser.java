@@ -6,7 +6,7 @@ import net.dzikoysk.cdn.entity.Exclude;
 @Contextual
 public class MeetingUser {
 
-    private Long discordId;
+    private long discordId;
     private MeetingNotificationType notificationType;
     private Boolean isPresent;
 
