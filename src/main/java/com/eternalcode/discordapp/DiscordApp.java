@@ -43,6 +43,8 @@ import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
+import com.eternalcode.discordapp.ticket.TicketButtonController;
+import com.eternalcode.discordapp.ticket.command.TicketCommand;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -61,7 +63,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Timer;
 
@@ -144,7 +145,10 @@ public class DiscordApp {
 
                 // Leveling
                 new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService)
+                new LeaderboardCommand(leaderboardService),
+
+                // Ticket
+                new TicketCommand(config)
             )
             .build();
 
@@ -168,7 +172,10 @@ public class DiscordApp {
                 new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
 
                 // leaderboard
-                new LeaderboardButtonController(leaderboardService)
+                new LeaderboardButtonController(leaderboardService),
+
+                // Ticket
+                new TicketButtonController()
             )
 
             .setAutoReconnect(true)

@@ -40,6 +40,9 @@ public class AppConfig implements CdnConfig {
     @Description("# The settings of review system")
     public ReviewSystem reviewSystem = new ReviewSystem();
 
+    @Description("# Ticket category channel id")
+    public long ticketCategoryId = 1079787699336134859L;
+
     @Override
     public Resource resource(File folder) {
         return Source.of(folder, "config.yml");
