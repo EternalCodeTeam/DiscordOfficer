@@ -52,8 +52,8 @@ public class LeaderboardCommand extends SlashCommand {
         }
 
         Button firstButton = Button.success("leaderboard_first", "First")
-                .withEmoji(Emoji.fromUnicode("U+23EE"))
-                .withDisabled(page == 1);
+            .withEmoji(Emoji.fromUnicode("U+23EE"))
+            .withDisabled(page == 1);
 
         Button prevButton = Button.primary("leaderboard_prev", "Previous")
                 .withEmoji(Emoji.fromFormatted("U+25C0"))

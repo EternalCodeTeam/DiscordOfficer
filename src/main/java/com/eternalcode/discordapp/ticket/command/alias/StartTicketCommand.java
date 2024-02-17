@@ -5,10 +5,8 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -24,9 +22,7 @@ public class StartTicketCommand extends SlashCommand {
         this.appConfig = appConfig;
         this.name = "start";
         this.help = "Starter ticket command";
-
         this.userPermissions = new Permission[]{Permission.ADMINISTRATOR};
-
         this.options = List.of(
             new OptionData(OptionType.CHANNEL, "channel",
                 "channel to which the message is to be sent")
@@ -38,16 +34,16 @@ public class StartTicketCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         long optionChannelId = event.getOption("channel").getAsChannel().getIdLong();
         MessageChannel optionChannel = event.getGuild().getTextChannelById(optionChannelId);
-
         if (optionChannel != null) {
             MessageEmbed ticketMessage = new EmbedBuilder()
-                .setTitle("Ticket")
+                .setTitle(this.appConfig.ticketSystem.ticketEmbedTitleMessage)
+                .setDescription(this.appConfig.ticketSystem.ticketEmbedDescriptionMessage)
                 .setColor(Color.decode(appConfig.embedSettings.successEmbed.color))
                 .setThumbnail(appConfig.embedSettings.successEmbed.thumbnail)
                 .setTimestamp(Instant.now())
                 .build();
 
-            Button firstButton = Button.success("create_ticket", "Otwórz bilet");
+            Button firstButton = Button.success("create_ticket", this.appConfig.ticketSystem.ticketButtonMessage);
 
             optionChannel.sendMessageEmbeds(ticketMessage)
                 .setActionRow(firstButton)

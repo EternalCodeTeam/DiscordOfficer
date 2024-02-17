@@ -40,8 +40,23 @@ public class AppConfig implements CdnConfig {
     @Description("# The settings of review system")
     public ReviewSystem reviewSystem = new ReviewSystem();
 
-    @Description("# Ticket category channel id")
-    public long ticketCategoryId = 1079787699336134859L;
+    @Description("# The settings of review system")
+    public TicketSystem ticketSystem = new TicketSystem();
+
+    @Contextual
+    public static class TicketSystem {
+        @Description("# Ticket category channel id")
+        public long ticketCategoryId = 1079787699336134859L;
+
+        @Description("# Ticket starter title embed message")
+        public String ticketEmbedTitleMessage = "Ticket ";
+
+        @Description("# Ticket starter description embed message")
+        public String ticketEmbedDescriptionMessage = "Tutaj otworzysz swój ticket";
+
+        @Description("# Ticket starter button message")
+        public String ticketButtonMessage = "Open ticket";
+    }
 
     @Override
     public Resource resource(File folder) {

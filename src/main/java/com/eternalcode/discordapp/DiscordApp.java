@@ -175,7 +175,7 @@ public class DiscordApp {
                 new LeaderboardButtonController(leaderboardService),
 
                 // Ticket
-                new TicketButtonController()
+                new TicketButtonController(config)
             )
 
             .setAutoReconnect(true)
