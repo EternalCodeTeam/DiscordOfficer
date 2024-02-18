@@ -1,4 +1,6 @@
 
+![](assets/readme-banner.png)
+
 ## Installation/Usage
 
 Using Docker:
