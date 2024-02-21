@@ -28,6 +28,10 @@ public class LeaderboardButtonController extends ListenerAdapter {
         String componentId = event.getComponentId();
         long messageId = event.getMessage().getIdLong();
 
+        if (!event.getMessage().getContentRaw().startsWith("👑 Leaderboard")) {
+            return;
+        }
+
         int totalRecords = this.leaderboardService.getTotalRecords();
         int totalPages = this.leaderboardService.getTotalPages(totalRecords);
 
