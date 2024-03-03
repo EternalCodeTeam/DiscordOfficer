@@ -30,7 +30,7 @@ checkstyle {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.17")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.20")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -38,44 +38,44 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.5.2")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:6.33.0")
+    implementation("io.sentry:sentry:7.5.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
     // HikariCP
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation("com.h2database:h2:2.2.224")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.7.0")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation("org.apache.commons:commons-lang3:3.13.0")
+    implementation("org.apache.commons:commons-lang3:3.14.0")
 }
 
 tasks.getByName<Test>("test") {
