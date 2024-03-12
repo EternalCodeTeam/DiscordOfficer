@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.14.0"
+    toolVersion = "10.14.1"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -41,7 +41,7 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.20")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.21")  {
         exclude("opus-java", "opus-java")
     }
 
