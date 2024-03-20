@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.14.1"
+    toolVersion = "10.14.2"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -33,7 +33,7 @@ configurations.named("checkstyle") {
     resolutionStrategy {
         capabilitiesResolution {
             withCapability("com.google.collections:google-collections") {
-                select("com.google.guava:guava:33.0.0-jre")
+                select("com.google.guava:guava:33.1.0-jre")
             }
         }
     }
@@ -66,7 +66,7 @@ dependencies {
 
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
-    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.h2database:h2:2.2.224")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
 
