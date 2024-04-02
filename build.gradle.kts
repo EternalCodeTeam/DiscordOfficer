@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.14.2"
+    toolVersion = "10.15.0"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
