@@ -41,7 +41,7 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.21")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.22")  {
         exclude("opus-java", "opus-java")
     }
 
