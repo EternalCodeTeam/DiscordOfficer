@@ -49,13 +49,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.3")
+    implementation("ch.qos.logback:logback-classic:1.5.5")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.7.0")
+    implementation("io.sentry:sentry:7.8.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
