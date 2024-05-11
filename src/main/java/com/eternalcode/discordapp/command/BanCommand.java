@@ -69,7 +69,7 @@ public class BanCommand extends SlashCommand {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("🔨 | You have been banned from " + event.getGuild().getName())
                         .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
-                        .setDescription("Reason: " + kickReason)
+                        .setDescription(kickReason)
                         .setTimestamp(Instant.now())
                         .build();
 
