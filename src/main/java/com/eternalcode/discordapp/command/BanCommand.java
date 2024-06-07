@@ -69,7 +69,7 @@ public class BanCommand extends SlashCommand {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("🔨 | You have been banned from " + event.getGuild().getName())
                         .setColor(Color.decode(this.appConfig.embedSettings.errorEmbed.color))
-                        .setDescription("Reason: " + kickReason)
+                        .setDescription(kickReason)
                         .setTimestamp(Instant.now())
                         .build();
 
@@ -80,7 +80,7 @@ public class BanCommand extends SlashCommand {
                     .setTitle("✅ | Successfully banned " + user.getName())
                     .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
                     .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
-                    .setDescription("Reason: " + kickReason)
+                    .setDescription(kickReason)
                     .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl())
                     .setTimestamp(Instant.now())
                     .build();
