@@ -3,6 +3,10 @@ package com.eternalcode.discordapp.review;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import io.sentry.Sentry;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -12,14 +16,13 @@ import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import panda.std.Result;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class GitHubReviewService {
 
+    private final static Logger LOGGER = Logger.getLogger(GitHubReviewService.class.getName());
+
     private static final String DM_REVIEW_MESSAGE = "You have been assigned as a reviewer for this pull request: %s";
-    private static final String SERVER_REVIEW_MESSAGE = "%s, you have been assigned as a reviewer for this pull request: %s";
+    private static final String SERVER_REVIEW_MESSAGE =
+        "%s, you have been assigned as a reviewer for this pull request: %s";
 
     private final AppConfig appConfig;
     private final ConfigManager configManager;
@@ -50,8 +53,7 @@ public class GitHubReviewService {
             this.mentionReviewers(jda, pullRequest, messageId);
 
             return "Review created";
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             Sentry.captureException(exception);
             exception.printStackTrace();
             return "Something went wrong";
@@ -66,7 +68,8 @@ public class GitHubReviewService {
     }
 
     public long createReviewForumPost(Guild guild, GitHubPullRequest pullRequest) throws IOException {
-        String pullRequestTitleFromUrl = GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.appConfig.githubToken);
+        String pullRequestTitleFromUrl =
+            GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.appConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(this.appConfig.reviewSystem.reviewForumId);
 
         MessageCreateData createData = MessageCreateData.fromContent(GitHubReviewUtil.getPullRequestTitleFromUrl(
@@ -110,12 +113,16 @@ public class GitHubReviewService {
 
                 String message = String.format(DM_REVIEW_MESSAGE, pullRequest.toUrl());
 
-
                 if (notificationType.isDmNotify()) {
-                    user.openPrivateChannel()
-                        .queue(privateChannel -> privateChannel.sendMessage(message).queue());
+                    try {
+                        user.openPrivateChannel().queue(
+                            privateChannel -> privateChannel.sendMessage(message).queue(),
+                            throwable -> LOGGER.warning("Cannot send message to: " + user.getName()));
+                    }
+                    catch (Exception exception) {
+                        LOGGER.warning("Cannot send message to: " + user.getName());
+                    }
                 }
-
                 if (notificationType.isServerNotify()) {
                     reviewersMention.append(user.getAsMention()).append(" ");
                 }
@@ -143,7 +150,8 @@ public class GitHubReviewService {
 
         for (ForumChannel forumChannel : guild.getForumChannels()) {
             for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(threadChannel.getName());
+                Result<GitHubPullRequest, IllegalArgumentException> result =
+                    GitHubPullRequest.fromUrl(threadChannel.getName());
 
                 if (result.isErr()) {
                     continue;
@@ -208,8 +216,7 @@ public class GitHubReviewService {
                     }
                 }
             }
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             Sentry.captureException(exception);
             exception.printStackTrace();
         }

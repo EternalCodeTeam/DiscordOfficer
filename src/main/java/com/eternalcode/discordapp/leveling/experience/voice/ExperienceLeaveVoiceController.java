@@ -49,6 +49,11 @@ public class ExperienceLeaveVoiceController extends ListenerAdapter {
         long userId = event.getMember().getIdLong();
 
         Instant joined = this.experienceVoiceActivityData.usersOnVoiceChannel.get(userId);
+
+        if (joined == null) {
+            return 0;
+        }
+
         long minutes = Duration.between(joined, Instant.now()).toMinutes();
 
         double basePoints = this.experienceConfig.basePoints * this.experienceConfig.voiceExperience.multiplier;
