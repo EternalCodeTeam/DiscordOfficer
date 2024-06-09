@@ -17,8 +17,12 @@ public class ExperienceLeaveVoiceController extends ListenerAdapter {
     private final ExperienceConfig experienceConfig;
     private final ExperienceService experienceService;
 
-    public ExperienceLeaveVoiceController(ExperienceVoiceActivityData experienceVoiceActivityData, ConfigManager configManager,
-                                          ExperienceConfig experienceConfig, ExperienceService experienceService) {
+    public ExperienceLeaveVoiceController(
+        ExperienceVoiceActivityData experienceVoiceActivityData,
+        ConfigManager configManager,
+        ExperienceConfig experienceConfig,
+        ExperienceService experienceService
+    ) {
         this.experienceVoiceActivityData = experienceVoiceActivityData;
         this.configManager = configManager;
         this.experienceConfig = experienceConfig;
