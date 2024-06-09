@@ -53,7 +53,8 @@ public class GitHubReviewService {
             this.mentionReviewers(jda, pullRequest, messageId);
 
             return "Review created";
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             Sentry.captureException(exception);
             exception.printStackTrace();
             return "Something went wrong";
@@ -216,7 +217,8 @@ public class GitHubReviewService {
                     }
                 }
             }
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             Sentry.captureException(exception);
             exception.printStackTrace();
         }
