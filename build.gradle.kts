@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.15.0"
+    toolVersion = "10.17.0"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -33,7 +33,7 @@ configurations.named("checkstyle") {
     resolutionStrategy {
         capabilitiesResolution {
             withCapability("com.google.collections:google-collections") {
-                select("com.google.guava:guava:33.1.0-jre")
+                select("com.google.guava:guava:33.2.1-jre")
             }
         }
     }
@@ -41,7 +41,7 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.22")  {
+    implementation("net.dv8tion:JDA:5.0.0-beta.24")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -49,13 +49,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.4")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.5")
+    implementation("ch.qos.logback:logback-classic:1.5.6")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.8.0")
+    implementation("io.sentry:sentry:7.10.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -68,10 +68,10 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.h2database:h2:2.2.224")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     // tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
@@ -82,8 +82,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.12.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.14.0")
