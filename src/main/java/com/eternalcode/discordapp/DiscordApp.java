@@ -27,9 +27,6 @@ import com.eternalcode.discordapp.leveling.LevelService;
 import com.eternalcode.discordapp.leveling.experience.ExperienceChangeEvent;
 import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
-import com.eternalcode.discordapp.leveling.experience.voice.ExperienceJoinVoiceController;
-import com.eternalcode.discordapp.leveling.experience.voice.ExperienceLeaveVoiceController;
-import com.eternalcode.discordapp.leveling.experience.voice.ExperienceVoiceActivityData;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
 import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
@@ -61,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Timer;
 
@@ -83,10 +79,9 @@ public class DiscordApp {
         CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
 
         ConfigManager data = new ConfigManager("data");
-        ExperienceVoiceActivityData experienceVoiceActivityData = data.load(new ExperienceVoiceActivityData());
         CodeImageGameData codeImageGameData = data.load(new CodeImageGameData());
 
-        data.save(experienceVoiceActivityData);
+
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -156,10 +151,6 @@ public class DiscordApp {
                 // Experience system
                 new ExperienceMessageListener(experienceConfig, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
-
-                // experience voice
-                new ExperienceLeaveVoiceController(experienceVoiceActivityData, data, experienceConfig, experienceService),
-                new ExperienceJoinVoiceController(experienceVoiceActivityData, data),
 
                 // Message filter
                 new FilterMessageEmbedController(filterService),

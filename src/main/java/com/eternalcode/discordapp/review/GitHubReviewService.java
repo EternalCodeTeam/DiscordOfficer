@@ -6,6 +6,7 @@ import io.sentry.Sentry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -116,11 +117,13 @@ public class GitHubReviewService {
 
                 if (notificationType.isDmNotify()) {
                     try {
+                        LOGGER.info("Sending message to: " + user.getName());
                         user.openPrivateChannel().queue(
                             privateChannel -> privateChannel.sendMessage(message).queue(),
                             throwable -> LOGGER.warning("Cannot send message to: " + user.getName()));
                     }
                     catch (Exception exception) {
+                        Sentry.captureException(exception);
                         LOGGER.warning("Cannot send message to: " + user.getName());
                     }
                 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -106,6 +107,7 @@ public class MinecraftServerInfoCommand extends SlashCommand {
             return response.body().string();
         }
         catch (IOException exception) {
+            Sentry.captureException(exception);
             exception.printStackTrace();
             return null;
         }
