@@ -17,7 +17,7 @@ public class GitHubPullRequest {
     private final String repository;
     private final int number;
 
-    private GitHubPullRequest(String owner, String repository, int number) {
+    public GitHubPullRequest(String owner, String repository, int number) {
         this.owner = owner;
         this.repository = repository;
         this.number = number;
