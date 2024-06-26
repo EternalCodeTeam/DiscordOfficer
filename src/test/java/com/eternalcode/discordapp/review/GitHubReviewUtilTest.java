@@ -78,9 +78,7 @@ class GitHubReviewUtilTest {
                 "GH-123 This is a valid title",
                 "GH-123 Another valid title"
             )
-            .map(title -> dynamicTest("Valid Title: " + title, () -> {
-                assertTrue(GitHubReviewUtil.isPullRequestTitleValid(title));
-            }));
+            .map(title -> dynamicTest("Valid Title: " + title, () -> assertTrue(GitHubReviewUtil.isPullRequestTitleValid(title))));
     }
 
     @TestFactory
@@ -90,9 +88,7 @@ class GitHubReviewUtilTest {
                 "This is an invalid title",
                 "GH- This title has an invalid number"
             )
-            .map(title -> dynamicTest("Invalid Title: " + title, () -> {
-                assertFalse(GitHubReviewUtil.isPullRequestTitleValid(title));
-            }));
+            .map(title -> dynamicTest("Invalid Title: " + title, () -> assertFalse(GitHubReviewUtil.isPullRequestTitleValid(title))));
     }
 
     @Test

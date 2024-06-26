@@ -62,11 +62,6 @@ public class DatabaseManager {
         this.connectionSource = new DataSourceConnectionSource(this.hikariDataSource, this.hikariDataSource.getJdbcUrl());
     }
 
-    public void closeConnection() throws Exception {
-        this.hikariDataSource.close();
-        this.connectionSource.close();
-    }
-
     public ConnectionSource getConnectionSource() {
         return this.connectionSource;
     }

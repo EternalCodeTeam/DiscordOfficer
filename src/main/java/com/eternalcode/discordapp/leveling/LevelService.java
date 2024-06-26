@@ -13,8 +13,8 @@ public class LevelService {
         this.levelRepository = LevelRepositoryImpl.create(databaseManager);
     }
 
-    public CompletableFuture<Level> saveLevel(Level level) {
-        return this.levelRepository.saveLevel(level);
+    public void saveLevel(Level level) {
+        this.levelRepository.saveLevel(level);
     }
 
     public CompletableFuture<Level> find(long id) {
