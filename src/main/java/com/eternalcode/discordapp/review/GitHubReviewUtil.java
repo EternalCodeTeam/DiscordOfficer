@@ -117,6 +117,7 @@ public final class GitHubReviewUtil {
         String state = json.get("state").getAsString();
         response.close();
 
+
         return "closed".equalsIgnoreCase(state);
     }
 }
