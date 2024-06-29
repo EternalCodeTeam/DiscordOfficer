@@ -40,6 +40,8 @@ import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
+import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
+import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryImpl;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -67,6 +69,7 @@ public class DiscordApp {
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
+    private static GitHubReviewService gitHubReviewService;
 
     public static void main(String... args) throws InterruptedException {
         ObserverRegistry observerRegistry = new ObserverRegistry();
@@ -96,9 +99,12 @@ public class DiscordApp {
             DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
+            GitHubReviewMentionRepository gitHubReviewMentionRepository =
+                GitHubReviewMentionRepositoryImpl.create(databaseManager);
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
+            gitHubReviewService = new GitHubReviewService(config, configManager, gitHubReviewMentionRepository);
         }
         catch (SQLException exception) {
             Sentry.captureException(exception);
@@ -111,8 +117,6 @@ public class DiscordApp {
 
         FilterService filterService = new FilterService()
             .registerFilter(new RenovateForcedPushFilter());
-
-        GitHubReviewService gitHubReviewService = new GitHubReviewService(config, configManager);
 
         CommandClient commandClient = new CommandClientBuilder()
             .setOwnerId(config.topOwnerId)

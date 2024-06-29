@@ -4,6 +4,8 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
@@ -45,7 +47,19 @@ public class LeaderboardCommand extends SlashCommand {
 
         for (Level level : top) {
             int userLevel = level.getCurrentLevel();
-            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+            Guild guild = event.getGuild();
+
+            if (guild == null) {
+                continue;
+            }
+
+            Member member = guild.getMemberById(level.getId());
+
+            if (member == null) {
+                continue;
+            }
+
+            String effectiveName = member.getEffectiveName();
 
             leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
             index++;

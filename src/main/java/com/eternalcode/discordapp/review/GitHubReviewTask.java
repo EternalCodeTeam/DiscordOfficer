@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.review;
 
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 
 import java.util.TimerTask;
@@ -16,7 +17,14 @@ public class GitHubReviewTask extends TimerTask {
 
     @Override
     public void run() {
-        this.gitHubReviewService.archiveMergedPullRequest(this.jda);
-        this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda);
+        try {
+            this.gitHubReviewService.archiveMergedPullRequest(this.jda);
+            this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda);
+            System.out.println("GitHub review task executed");
+        }
+        catch (Exception exception) {
+            Sentry.captureException(exception);
+            exception.printStackTrace();
+        }
     }
 }

@@ -2,10 +2,12 @@ package com.eternalcode.discordapp.review;
 
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
+import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
 import io.sentry.Sentry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,16 +23,20 @@ public class GitHubReviewService {
     private final static Logger LOGGER = Logger.getLogger(GitHubReviewService.class.getName());
 
     private static final String DM_REVIEW_MESSAGE = "You have been assigned as a reviewer for this pull request: %s";
-    private static final String SERVER_REVIEW_MESSAGE =
-        "%s, you have been assigned as a reviewer for this pull request: %s";
+    private static final String SERVER_REVIEW_MESSAGE = "%s, you have been assigned as a reviewer for this pull request: %s";
 
     private final AppConfig appConfig;
     private final ConfigManager configManager;
-    private final GitHubReviewMentionRepository mentionRepository = new GitHubReviewMentionRepositoryImpl();
+    private final GitHubReviewMentionRepository mentionRepository;
 
-    public GitHubReviewService(AppConfig appConfig, ConfigManager configManager) {
+    public GitHubReviewService(
+        AppConfig appConfig,
+        ConfigManager configManager,
+        GitHubReviewMentionRepository mentionRepository
+    ) {
         this.appConfig = appConfig;
         this.configManager = configManager;
+        this.mentionRepository = mentionRepository;
     }
 
     public String createReview(Guild guild, String url, JDA jda) {
@@ -94,6 +100,7 @@ public class GitHubReviewService {
         }
 
         StringBuilder reviewersMention = new StringBuilder();
+        CompletableFuture<Void> mentionFuture = CompletableFuture.completedFuture(null);
 
         for (String reviewer : assignedReviewers) {
             GitHubReviewUser gitHubReviewUser = this.getReviewUserByUsername(reviewer);
@@ -104,44 +111,52 @@ public class GitHubReviewService {
 
             Long discordId = gitHubReviewUser.getDiscordId();
 
-            if (discordId != null && !this.mentionRepository.isMentioned(pullRequest, discordId)) {
-                User user = jda.getUserById(discordId);
-                GitHubReviewNotificationType notificationType = gitHubReviewUser.getNotificationType();
+            if (discordId != null) {
+                mentionFuture = mentionFuture.thenComposeAsync(v ->
+                    this.mentionRepository.isMentioned(pullRequest, discordId)
+                ).thenAcceptAsync(isMentioned -> {
+                    if (!isMentioned) {
+                        User user = jda.getUserById(discordId);
+                        GitHubReviewNotificationType notificationType = gitHubReviewUser.getNotificationType();
 
-                if (user == null) {
-                    return;
-                }
+                        if (user == null) {
+                            return;
+                        }
 
-                String message = String.format(DM_REVIEW_MESSAGE, pullRequest.toUrl());
+                        String message = String.format(DM_REVIEW_MESSAGE, pullRequest.toUrl());
 
-                if (notificationType.isDmNotify()) {
-                    try {
-                        LOGGER.info("Sending message to: " + user.getName());
-                        user.openPrivateChannel().queue(
-                            privateChannel -> privateChannel.sendMessage(message).queue(),
-                            throwable -> LOGGER.warning("Cannot send message to: " + user.getName()));
+                        if (notificationType.isDmNotify()) {
+                            try {
+                                LOGGER.info("Sending message to: " + user.getName());
+                                user.openPrivateChannel().queue(
+                                    privateChannel -> privateChannel.sendMessage(message).queue(),
+                                    throwable -> LOGGER.warning("Cannot send message to: " + user.getName()));
+                            }
+                            catch (Exception exception) {
+                                Sentry.captureException(exception);
+                                LOGGER.warning("Cannot send message to: " + user.getName());
+                            }
+                        }
+                        if (notificationType.isServerNotify()) {
+                            reviewersMention.append(user.getAsMention()).append(" ");
+                        }
+
+                        this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
                     }
-                    catch (Exception exception) {
-                        Sentry.captureException(exception);
-                        LOGGER.warning("Cannot send message to: " + user.getName());
-                    }
-                }
-                if (notificationType.isServerNotify()) {
-                    reviewersMention.append(user.getAsMention()).append(" ");
-                }
-
-                this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
+                });
             }
         }
 
-        if (!reviewersMention.isEmpty()) {
-            String message = String.format(SERVER_REVIEW_MESSAGE, reviewersMention, pullRequest.toUrl());
-            ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
+        mentionFuture.thenRunAsync(() -> {
+            if (!reviewersMention.isEmpty()) {
+                String message = String.format(SERVER_REVIEW_MESSAGE, reviewersMention, pullRequest.toUrl());
+                ThreadChannel threadChannel = jda.getThreadChannelById(forumId);
 
-            if (threadChannel != null) {
-                threadChannel.sendMessage(message).queue();
+                if (threadChannel != null) {
+                    threadChannel.sendMessage(message).queue();
+                }
             }
-        }
+        });
     }
 
     public void mentionReviewersOnAllReviewChannels(JDA jda) {
@@ -204,17 +219,17 @@ public class GitHubReviewService {
 
                     if (GitHubReviewUtil.isPullRequestMerged(pullRequest, this.appConfig.githubToken)) {
                         threadChannel.getManager()
+                            .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.mergedTagId))
                             .setLocked(true)
                             .setArchived(true)
-                            .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.mergedTagId))
                             .queue();
                     }
 
                     if (GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken)) {
                         threadChannel.getManager()
+                            .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.closedTagId))
                             .setLocked(true)
                             .setArchived(true)
-                            .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.closedTagId))
                             .queue();
                     }
                 }
