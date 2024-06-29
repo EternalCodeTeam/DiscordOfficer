@@ -2,6 +2,8 @@ package com.eternalcode.discordapp.leveling.leaderboard;
 
 import com.eternalcode.discordapp.leveling.Level;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -70,7 +72,19 @@ public class LeaderboardButtonController extends ListenerAdapter {
 
         for (Level level : top) {
             int userLevel = level.getCurrentLevel();
-            String effectiveName = event.getGuild().getMemberById(level.getId()).getEffectiveName();
+            Guild guild = event.getGuild();
+
+            if (guild == null) {
+                continue;
+            }
+
+            Member member = guild.getMemberById(level.getId());
+
+            if (member == null) {
+                continue;
+            }
+
+            String effectiveName = member.getEffectiveName();
 
             leaderboardContent.append(this.leaderboardService.formatLeaderboardEntry(index, effectiveName, userLevel)).append("\n");
             index++;
