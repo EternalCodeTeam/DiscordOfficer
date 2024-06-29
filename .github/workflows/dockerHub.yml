@@ -23,7 +23,7 @@ jobs:
         with:
           platforms: linux/amd64
       - name: Build & Push (Java 21) - EternalCode DiscordOfficer
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64
           context: .

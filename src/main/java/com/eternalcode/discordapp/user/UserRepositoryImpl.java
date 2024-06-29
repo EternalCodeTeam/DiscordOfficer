@@ -18,7 +18,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
         super(databaseManager, UserWrapper.class);
     }
 
-    public static UserRepository create(DatabaseManager databaseManager) {
+    public static void create(DatabaseManager databaseManager) {
         try {
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), UserWrapper.class);
         }
@@ -27,7 +27,7 @@ public class UserRepositoryImpl extends AbstractRepository<UserWrapper, Long> im
             throw new DataAccessException("Failed to create table", sqlException);
         }
 
-        return new UserRepositoryImpl(databaseManager);
+        new UserRepositoryImpl(databaseManager);
     }
 
     @Override
