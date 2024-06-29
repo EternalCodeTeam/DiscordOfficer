@@ -49,6 +49,8 @@ public final class GitHubReviewUtil {
             JsonArray requestedReviewers = json.getAsJsonArray("requested_reviewers");
 
             List<String> reviewers = new ArrayList<>();
+            response.close();
+
             for (int i = 0; i < requestedReviewers.size(); i++) {
                 JsonObject reviewer = requestedReviewers.get(i).getAsJsonObject();
                 String reviewerLogin = reviewer.get("login").getAsString();
@@ -78,6 +80,7 @@ public final class GitHubReviewUtil {
 
         String string = response.body().string();
         JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
+        response.close();
 
         return jsonObject.get("title").getAsString();
     }
@@ -94,6 +97,8 @@ public final class GitHubReviewUtil {
         }
 
         JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
+        response.close();
+
         return json.get("merged").getAsBoolean();
     }
 
@@ -110,6 +115,8 @@ public final class GitHubReviewUtil {
 
         JsonObject json = GSON.fromJson(response.body().string(), JsonObject.class);
         String state = json.get("state").getAsString();
+        response.close();
+
 
         return "closed".equalsIgnoreCase(state);
     }
