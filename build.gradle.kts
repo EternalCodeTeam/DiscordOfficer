@@ -55,7 +55,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.10.0")
+    implementation("io.sentry:sentry:7.11.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -74,8 +74,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
