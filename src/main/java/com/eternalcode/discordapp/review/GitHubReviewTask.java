@@ -20,7 +20,6 @@ public class GitHubReviewTask extends TimerTask {
         try {
             this.gitHubReviewService.archiveMergedPullRequest(this.jda);
             this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda);
-            System.out.println("GitHub review task executed");
         }
         catch (Exception exception) {
             Sentry.captureException(exception);

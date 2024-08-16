@@ -29,10 +29,6 @@ import com.eternalcode.discordapp.leveling.experience.ExperienceConfig;
 import com.eternalcode.discordapp.leveling.experience.ExperienceService;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceMessageListener;
 import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactionListener;
-import com.eternalcode.discordapp.leveling.games.CodeGameAnswerController;
-import com.eternalcode.discordapp.leveling.games.CodeGameConfiguration;
-import com.eternalcode.discordapp.leveling.games.CodeImageGameData;
-import com.eternalcode.discordapp.leveling.games.GenerateImageWithCodeTask;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
@@ -46,6 +42,11 @@ import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
+import java.io.File;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Timer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -56,12 +57,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.Timer;
 
 public class DiscordApp {
 
@@ -79,12 +74,6 @@ public class DiscordApp {
         DatabaseConfig databaseConfig = configManager.load(new DatabaseConfig());
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
-        CodeGameConfiguration codeGameConfiguration = configManager.load(new CodeGameConfiguration());
-
-        ConfigManager data = new ConfigManager("data");
-        CodeImageGameData codeImageGameData = data.load(new CodeImageGameData());
-
-
 
         if (!config.sentryDsn.isEmpty()) {
             Sentry.init(options -> {
@@ -159,9 +148,6 @@ public class DiscordApp {
                 // Message filter
                 new FilterMessageEmbedController(filterService),
 
-                // Experience games
-                new CodeGameAnswerController(codeImageGameData, codeGameConfiguration, data, experienceService),
-
                 // leaderboard
                 new LeaderboardButtonController(leaderboardService)
             )
@@ -184,6 +170,5 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
         timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
-        timer.schedule(new GenerateImageWithCodeTask(codeImageGameData, codeGameConfiguration, jda, data), 0, Duration.ofMinutes(codeGameConfiguration.timeToNextQuestion).toMillis());
     }
 }
