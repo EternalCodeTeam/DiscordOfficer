@@ -40,17 +40,9 @@ public class DatabaseManager {
         this.hikariDataSource.setPassword(this.config.password);
 
         switch (this.config.type) {
-            case MYSQL -> {
-                this.hikariDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-                this.hikariDataSource.setJdbcUrl("jdbc:mysql://" + this.config.host + ":" + this.config.port + "/" + this.config.database);
-            }
             case MARIA_DB -> {
                 this.hikariDataSource.setDriverClassName("org.mariadb.jdbc.Driver");
                 this.hikariDataSource.setJdbcUrl("jdbc:mariadb://" + this.config.host + ":" + this.config.port + "/" + this.config.database);
-            }
-            case POSTGRESQL -> {
-                this.hikariDataSource.setDriverClassName("org.postgresql.Driver");
-                this.hikariDataSource.setJdbcUrl("jdbc:postgresql://" + this.config.host + ":" + this.config.port + "/" + this.config.database);
             }
             case H2 -> {
                 this.hikariDataSource.setDriverClassName("org.h2.Driver");
