@@ -41,7 +41,7 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.24")  {
+    implementation("net.dv8tion:JDA:5.0.2")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -49,13 +49,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.5")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.7")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.10.0")
+    implementation("io.sentry:sentry:7.14.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -67,15 +67,15 @@ dependencies {
     // Database drivers
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.postgresql:postgresql:42.7.3")
-    implementation("com.h2database:h2:2.2.224")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
+    implementation("com.h2database:h2:2.3.232")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1")
 
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
@@ -86,7 +86,7 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.12.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation("org.apache.commons:commons-lang3:3.14.0")
+    implementation("org.apache.commons:commons-lang3:3.16.0")
 }
 
 tasks.getByName<Test>("test") {
