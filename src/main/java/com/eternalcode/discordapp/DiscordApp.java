@@ -94,7 +94,7 @@ public class DiscordApp {
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
             GitHubReviewMentionRepository gitHubReviewMentionRepository =
-                    GitHubReviewMentionRepositoryImpl.create(databaseManager);
+                GitHubReviewMentionRepositoryImpl.create(databaseManager);
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
@@ -110,67 +110,72 @@ public class DiscordApp {
         OkHttpClient httpClient = new OkHttpClient();
 
         FilterService filterService = new FilterService()
-                .registerFilter(new RenovateForcedPushFilter());
+            .registerFilter(new RenovateForcedPushFilter());
 
         CommandClient commandClient = new CommandClientBuilder()
-                .setOwnerId(config.topOwnerId)
-                .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false)
+            .setOwnerId(config.topOwnerId)
+            .setActivity(Activity.playing("IntelliJ IDEA"))
+            .useHelpBuilder(false)
 
-                // slash commands registry
-                .addSlashCommands(
-                        // Standard
-                        new AvatarCommand(config),
-                        new BanCommand(config),
-                        new BotInfoCommand(config),
-                        new ClearCommand(config),
-                        new CooldownCommand(config),
-                        new EmbedCommand(),
-                        new KickCommand(config),
-                        new MinecraftServerInfoCommand(httpClient),
-                        new PingCommand(config),
-                        new SayCommand(),
-                        new ServerCommand(config),
+            // slash commands registry
+            .addSlashCommands(
+                // Standard
+                new AvatarCommand(config),
+                new BanCommand(config),
+                new BotInfoCommand(config),
+                new ClearCommand(config),
+                new CooldownCommand(config),
+                new EmbedCommand(),
+                new KickCommand(config),
+                new MinecraftServerInfoCommand(httpClient),
+                new PingCommand(config),
+                new SayCommand(),
+                new ServerCommand(config),
 
-                        // GitHub review
-                        new GitHubReviewCommand(gitHubReviewService, config),
+                // GitHub review
+                new GitHubReviewCommand(gitHubReviewService, config),
 
-                        // Leveling
-                        new LevelCommand(levelService),
-                        new LeaderboardCommand(leaderboardService)
-                )
-                .build();
+                // Leveling
+                new LevelCommand(levelService),
+                new LeaderboardCommand(leaderboardService)
+            )
+            .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
-                .addEventListeners(
-                        // Slash commands
-                        commandClient,
+            .addEventListeners(
+                // Slash commands
+                commandClient,
 
-                        // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceReactionListener(experienceConfig, experienceService),
+                // Experience system
+                new ExperienceMessageListener(experienceConfig, experienceService),
+                new ExperienceReactionListener(experienceConfig, experienceService),
 
-                        // Message filter
-                        new FilterMessageEmbedController(filterService),
+                // Message filter
+                new FilterMessageEmbedController(filterService),
 
-                        // leaderboard
-                        new LeaderboardButtonController(leaderboardService)
-                )
+                // leaderboard
+                new LeaderboardButtonController(leaderboardService)
+            )
 
-                .setAutoReconnect(true)
-                .setHttpClient(httpClient)
+            .setAutoReconnect(true)
+            .setHttpClient(httpClient)
 
-                .enableIntents(EnumSet.allOf(GatewayIntent.class))
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS)
-                .setChunkingFilter(ChunkingFilter.ALL)
+            .enableIntents(EnumSet.allOf(GatewayIntent.class))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableCache(CacheFlag.ONLINE_STATUS)
+            .setChunkingFilter(ChunkingFilter.ALL)
 
-                .build()
-                .awaitReady();
+            .build()
+            .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
 
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            Sentry.captureException(throwable);
+            LOGGER.error("Uncaught exception", throwable);
+        });
 
         EXECUTOR_SERVICE.submit(() -> {
             while (true) {
