@@ -42,11 +42,6 @@ import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
-import java.io.File;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.Timer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -57,6 +52,12 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Timer;
 
 public class DiscordApp {
 
@@ -170,5 +171,10 @@ public class DiscordApp {
         Timer timer = new Timer();
         timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
         timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
+
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            Sentry.captureException(throwable);
+            LOGGER.error("Uncaught exception", throwable);
+        });
     }
 }
