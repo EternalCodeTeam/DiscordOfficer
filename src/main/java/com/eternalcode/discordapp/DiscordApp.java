@@ -42,6 +42,13 @@ import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
+import java.io.File;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -62,12 +69,15 @@ import java.util.Timer;
 public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
     private static GitHubReviewService gitHubReviewService;
 
     public static void main(String... args) throws InterruptedException {
+        Runtime.getRuntime().addShutdownHook(new Thread(DiscordApp::shutdown));
+
         ObserverRegistry observerRegistry = new ObserverRegistry();
         ConfigManager configManager = new ConfigManager("config");
 
@@ -90,7 +100,7 @@ public class DiscordApp {
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
             GitHubReviewMentionRepository gitHubReviewMentionRepository =
-                GitHubReviewMentionRepositoryImpl.create(databaseManager);
+                    GitHubReviewMentionRepositoryImpl.create(databaseManager);
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
@@ -106,75 +116,116 @@ public class DiscordApp {
         OkHttpClient httpClient = new OkHttpClient();
 
         FilterService filterService = new FilterService()
-            .registerFilter(new RenovateForcedPushFilter());
+                .registerFilter(new RenovateForcedPushFilter());
 
         CommandClient commandClient = new CommandClientBuilder()
-            .setOwnerId(config.topOwnerId)
-            .setActivity(Activity.playing("IntelliJ IDEA"))
-            .useHelpBuilder(false)
+                .setOwnerId(config.topOwnerId)
+                .setActivity(Activity.playing("IntelliJ IDEA"))
+                .useHelpBuilder(false)
 
-            // slash commands registry
-            .addSlashCommands(
-                // Standard
-                new AvatarCommand(config),
-                new BanCommand(config),
-                new BotInfoCommand(config),
-                new ClearCommand(config),
-                new CooldownCommand(config),
-                new EmbedCommand(),
-                new KickCommand(config),
-                new MinecraftServerInfoCommand(httpClient),
-                new PingCommand(config),
-                new SayCommand(),
-                new ServerCommand(config),
+                // slash commands registry
+                .addSlashCommands(
+                        // Standard
+                        new AvatarCommand(config),
+                        new BanCommand(config),
+                        new BotInfoCommand(config),
+                        new ClearCommand(config),
+                        new CooldownCommand(config),
+                        new EmbedCommand(),
+                        new KickCommand(config),
+                        new MinecraftServerInfoCommand(httpClient),
+                        new PingCommand(config),
+                        new SayCommand(),
+                        new ServerCommand(config),
 
-                // GitHub review
-                new GitHubReviewCommand(gitHubReviewService, config),
+                        // GitHub review
+                        new GitHubReviewCommand(gitHubReviewService, config),
 
-                // Leveling
-                new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService)
-            )
-            .build();
+                        // Leveling
+                        new LevelCommand(levelService),
+                        new LeaderboardCommand(leaderboardService)
+                )
+                .build();
 
         JDA jda = JDABuilder.createDefault(config.token)
-            .addEventListeners(
-                // Slash commands
-                commandClient,
+                .addEventListeners(
+                        // Slash commands
+                        commandClient,
 
-                // Experience system
-                new ExperienceMessageListener(experienceConfig, experienceService),
-                new ExperienceReactionListener(experienceConfig, experienceService),
+                        // Experience system
+                        new ExperienceMessageListener(experienceConfig, experienceService),
+                        new ExperienceReactionListener(experienceConfig, experienceService),
 
-                // Message filter
-                new FilterMessageEmbedController(filterService),
+                        // Message filter
+                        new FilterMessageEmbedController(filterService),
 
-                // leaderboard
-                new LeaderboardButtonController(leaderboardService)
-            )
+                        // leaderboard
+                        new LeaderboardButtonController(leaderboardService)
+                )
 
-            .setAutoReconnect(true)
-            .setHttpClient(httpClient)
+                .setAutoReconnect(true)
+                .setHttpClient(httpClient)
 
-            .enableIntents(EnumSet.allOf(GatewayIntent.class))
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
-            .enableCache(CacheFlag.ONLINE_STATUS)
-            .setChunkingFilter(ChunkingFilter.ALL)
+                .enableIntents(EnumSet.allOf(GatewayIntent.class))
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(CacheFlag.ONLINE_STATUS)
+                .setChunkingFilter(ChunkingFilter.ALL)
 
-            .build()
-            .awaitReady();
+                .build()
+                .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
 
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 
-        Timer timer = new Timer();
-        timer.schedule(new GuildStatisticsTask(guildStatisticsService), 0, Duration.ofMinutes(5L).toMillis());
-        timer.schedule(new GitHubReviewTask(gitHubReviewService, jda), 0, Duration.ofMinutes(15L).toMillis());
-
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             Sentry.captureException(throwable);
             LOGGER.error("Uncaught exception", throwable);
         });
+
+        EXECUTOR_SERVICE.submit(() -> {
+            while (true) {
+                new GuildStatisticsTask(guildStatisticsService).run();
+                try {
+                    Thread.sleep(Duration.ofMinutes(5).toMillis());
+                }
+                catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+
+        EXECUTOR_SERVICE.submit(() -> {
+            while (true) {
+                new GitHubReviewTask(gitHubReviewService, jda).run();
+                try {
+                    Thread.sleep(Duration.ofMinutes(5).toMillis());
+                }
+                catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+    }
+
+    private static void shutdown() {
+        try {
+            LOGGER.info("Shutting down executor service...");
+            EXECUTOR_SERVICE.shutdown();
+
+            if (!EXECUTOR_SERVICE.awaitTermination(60, TimeUnit.SECONDS)) {
+                LOGGER.warn("Executor did not terminate in the specified time.");
+                EXECUTOR_SERVICE.shutdownNow();
+            }
+
+            LOGGER.info("Executor service shut down successfully.");
+        }
+        catch (InterruptedException exception) {
+            LOGGER.error("Shutdown interrupted", exception);
+            EXECUTOR_SERVICE.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }
