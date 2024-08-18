@@ -68,6 +68,7 @@ public class DiscordApp {
     private static ExperienceService experienceService;
     private static LevelService levelService;
     private static GitHubReviewService gitHubReviewService;
+    private static DatabaseManager databaseManager;
 
     public static void main(String... args) throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(DiscordApp::shutdown));
@@ -90,7 +91,7 @@ public class DiscordApp {
         }
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
+            databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
             GitHubReviewMentionRepository gitHubReviewMentionRepository =
@@ -200,6 +201,13 @@ public class DiscordApp {
     }
 
     private static void shutdown() {
+        try {
+            databaseManager.close();
+        }
+        catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+
         try {
             LOGGER.info("Shutting down executor service...");
             EXECUTOR_SERVICE.shutdown();
