@@ -113,12 +113,12 @@ public class DiscordApp {
         OkHttpClient httpClient = new OkHttpClient();
 
         FilterService filterService = new FilterService()
-                .registerFilter(new RenovateForcedPushFilter());
+            .registerFilter(new RenovateForcedPushFilter());
 
         CommandClient commandClient = new CommandClientBuilder()
-                .setOwnerId(config.topOwnerId)
-                .setActivity(Activity.playing("IntelliJ IDEA"))
-                .useHelpBuilder(false)
+            .setOwnerId(config.topOwnerId)
+            .setActivity(Activity.playing("IntelliJ IDEA"))
+            .useHelpBuilder(false)
 
             // slash commands registry
             .addSlashCommands(
@@ -149,24 +149,24 @@ public class DiscordApp {
                 // Slash commands
                 commandClient,
 
-                        // Experience system
-                        new ExperienceMessageListener(experienceConfig, experienceService),
-                        new ExperienceReactionListener(experienceConfig, experienceService),
+                // Experience system
+                new ExperienceMessageListener(experienceConfig, experienceService),
+                new ExperienceReactionListener(experienceConfig, experienceService),
 
-                        // Message filter
-                        new FilterMessageEmbedController(filterService),
+                // Message filter
+                new FilterMessageEmbedController(filterService),
 
-                        // leaderboard
-                        new LeaderboardButtonController(leaderboardService)
-                )
+                // leaderboard
+                new LeaderboardButtonController(leaderboardService)
+            )
 
-                .setAutoReconnect(true)
-                .setHttpClient(httpClient)
+            .setAutoReconnect(true)
+            .setHttpClient(httpClient)
 
-                .enableIntents(EnumSet.allOf(GatewayIntent.class))
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS)
-                .setChunkingFilter(ChunkingFilter.ALL)
+            .enableIntents(EnumSet.allOf(GatewayIntent.class))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableCache(CacheFlag.ONLINE_STATUS)
+            .setChunkingFilter(ChunkingFilter.ALL)
 
             .build()
             .awaitReady();
