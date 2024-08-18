@@ -64,7 +64,6 @@ import org.slf4j.LoggerFactory;
 public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
