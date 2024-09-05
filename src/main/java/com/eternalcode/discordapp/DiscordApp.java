@@ -38,6 +38,8 @@ import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
 import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
 import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryImpl;
+import com.eternalcode.discordapp.scheduler.Scheduler;
+import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -48,7 +50,6 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -63,11 +64,12 @@ import org.slf4j.LoggerFactory;
 public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
 
     private static ExperienceService experienceService;
     private static LevelService levelService;
     private static GitHubReviewService gitHubReviewService;
+    private static DatabaseManager databaseManager;
+    private static Scheduler scheduler;
 
     public static void main(String... args) throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(DiscordApp::shutdown));
@@ -90,7 +92,7 @@ public class DiscordApp {
         }
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
+            databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
             GitHubReviewMentionRepository gitHubReviewMentionRepository =
@@ -169,7 +171,6 @@ public class DiscordApp {
             .awaitReady();
 
         observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
-
         GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
 
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -177,49 +178,24 @@ public class DiscordApp {
             LOGGER.error("Uncaught exception", throwable);
         });
 
-        EXECUTOR_SERVICE.submit(() -> {
-            while (true) {
-                new GuildStatisticsTask(guildStatisticsService).run();
-                try {
-                    Thread.sleep(Duration.ofMinutes(5).toMillis());
-                }
-                catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        });
-
-        EXECUTOR_SERVICE.submit(() -> {
-            while (true) {
-                new GitHubReviewTask(gitHubReviewService, jda).run();
-                try {
-                    Thread.sleep(Duration.ofMinutes(5).toMillis());
-                }
-                catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        });
+        scheduler = new VirtualThreadSchedulerImpl();
+        scheduler.schedule(new GuildStatisticsTask(guildStatisticsService), Duration.ofMinutes(5));
+        scheduler.schedule(new GitHubReviewTask(gitHubReviewService, jda), Duration.ofMinutes(5));
     }
 
     private static void shutdown() {
         try {
-            LOGGER.info("Shutting down executor service...");
-            EXECUTOR_SERVICE.shutdown();
+            databaseManager.close();
+        }
+        catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
 
-            if (!EXECUTOR_SERVICE.awaitTermination(60, TimeUnit.SECONDS)) {
-                LOGGER.warn("Executor did not terminate in the specified time.");
-                EXECUTOR_SERVICE.shutdownNow();
-            }
-
-            LOGGER.info("Executor service shut down successfully.");
+        try {
+            scheduler.shutdown();
         }
         catch (InterruptedException exception) {
-            LOGGER.error("Shutdown interrupted", exception);
-            EXECUTOR_SERVICE.shutdownNow();
-            Thread.currentThread().interrupt();
+            throw new RuntimeException(exception);
         }
     }
 }

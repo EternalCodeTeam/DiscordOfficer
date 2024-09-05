@@ -58,6 +58,17 @@ public class DatabaseManager {
         return this.connectionSource;
     }
 
+    public void close() throws Exception {
+        try {
+            this.connectionSource.close();
+            this.hikariDataSource.close();
+        }
+        catch (SQLException sqlException) {
+            Sentry.captureException(sqlException);
+            throw new DataAccessException("Failed to close connection", sqlException);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T, ID> Dao<T, ID> getDao(Class<T> clazz) {
         Dao<?, ?> dao = this.daoCache.computeIfAbsent(clazz, key -> {

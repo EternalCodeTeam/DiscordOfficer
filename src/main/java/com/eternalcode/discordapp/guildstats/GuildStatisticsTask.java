@@ -1,8 +1,6 @@
 package com.eternalcode.discordapp.guildstats;
 
-import java.util.TimerTask;
-
-public class GuildStatisticsTask extends TimerTask {
+public class GuildStatisticsTask implements Runnable {
 
     private final GuildStatisticsService guildStatisticsService;
 
