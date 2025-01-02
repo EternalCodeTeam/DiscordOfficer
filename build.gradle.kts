@@ -55,7 +55,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.19.1")
+    implementation("io.sentry:sentry:7.20.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -80,8 +80,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.14.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testImplementation("org.mockito:mockito-core:5.15.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.15.2")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.17.0")
