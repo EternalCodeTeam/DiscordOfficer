@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.21.1"
+    toolVersion = "10.21.2"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -41,21 +41,21 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.2.2")  {
+    implementation("net.dv8tion:JDA:5.3.0")  {
         exclude("opus-java", "opus-java")
     }
 
     // configs
-    implementation("net.dzikoysk:cdn:1.14.5")
+    implementation("net.dzikoysk:cdn:1.14.6")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.15")
+    implementation("ch.qos.logback:logback-classic:1.5.16")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:7.19.1")
+    implementation("io.sentry:sentry:8.1.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -69,7 +69,7 @@ dependencies {
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.1")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.google.code.gson:gson:2.12.1")
 
     // tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
@@ -80,8 +80,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.14.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testImplementation("org.mockito:mockito-core:5.15.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.15.2")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.17.0")
