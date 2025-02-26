@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.21.2"
+    toolVersion = "10.21.3"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -49,13 +49,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.6")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.16")
+    implementation("ch.qos.logback:logback-classic:1.5.17")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:8.1.0")
+    implementation("io.sentry:sentry:8.3.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -66,14 +66,14 @@ dependencies {
 
     // Database drivers
     implementation("com.h2database:h2:2.3.232")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.1")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.2")
 
     // Gson
     implementation("com.google.code.gson:gson:2.12.1")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
