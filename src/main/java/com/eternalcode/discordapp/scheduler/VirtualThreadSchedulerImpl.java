@@ -9,47 +9,60 @@ import org.slf4j.LoggerFactory;
 
 public class VirtualThreadSchedulerImpl implements Scheduler {
 
-    // works on javca 21+
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualThreadSchedulerImpl.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualThreadSchedulerImpl.class);
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     @Override
     public void schedule(Runnable task, Duration delay) {
-        EXECUTOR_SERVICE.submit(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                task.run();
+        if (delay.isNegative() || delay.isZero()) {
+            this.schedule(task);
+            return;
+        }
 
-                try {
-                    Thread.sleep(delay.toMillis());
-                }
-                catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
-                }
+        this.executorService.submit(() -> {
+            try {
+                Thread.sleep(delay.toMillis());
+                task.run();
+            }
+            catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                LOGGER.warn("Task interrupted during delay", exception);
+            }
+            catch (Exception exception) {
+                LOGGER.error("Task execution failed", exception);
             }
         });
     }
 
     @Override
     public void schedule(Runnable task) {
-        EXECUTOR_SERVICE.submit(task);
+        this.executorService.submit(() -> {
+            try {
+                task.run();
+            }
+            catch (Exception exception) {
+                LOGGER.error("Immediate task execution failed", exception);
+            }
+        });
     }
 
     @Override
     public void shutdown() {
         try {
-            LOGGER.info("Shutting down executor service...");
-            EXECUTOR_SERVICE.shutdown();
+            LOGGER.info("Initiating scheduler shutdown...");
+            this.executorService.shutdown();
 
-            if (!EXECUTOR_SERVICE.awaitTermination(60, TimeUnit.SECONDS)) {
-                LOGGER.warn("Executor did not terminate in the specified time.");
-                EXECUTOR_SERVICE.shutdownNow();
+            if (!this.executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                LOGGER.warn("Scheduler did not terminate within 60 seconds, forcing shutdown...");
+                this.executorService.shutdownNow();
             }
-
-            LOGGER.info("Executor service shut down successfully.");
+            else {
+                LOGGER.info("Scheduler shut down successfully.");
+            }
         }
         catch (InterruptedException exception) {
             LOGGER.error("Shutdown interrupted", exception);
-            EXECUTOR_SERVICE.shutdownNow();
+            this.executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }

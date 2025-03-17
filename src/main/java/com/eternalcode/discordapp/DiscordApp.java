@@ -11,6 +11,7 @@ import com.eternalcode.discordapp.command.MinecraftServerInfoCommand;
 import com.eternalcode.discordapp.command.PingCommand;
 import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
+import com.eternalcode.discordapp.command.XFixCommand;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
@@ -133,6 +134,7 @@ public class DiscordApp {
                 new PingCommand(config),
                 new SayCommand(),
                 new ServerCommand(config),
+                new XFixCommand(),
 
                 // GitHub review
                 new GitHubReviewCommand(gitHubReviewService, config),
