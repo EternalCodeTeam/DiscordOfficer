@@ -53,7 +53,7 @@ public class ServerCommand extends SlashCommand {
             .addField("📊 Roles", String.valueOf(guild.getRoles().size()), true)
             .addField("📡 Channels", String.valueOf(guild.getChannels().size()), true);
 
-        builder.addField("🚀 Boost Level", guild.getBoostTier().name(), true)
+        builder.addField("🚀 Boost Level", guild.getBoostTier().name().split("_")[1], true)
             .addField("✅ Verification", guild.getVerificationLevel().name(), true)
             .addField("👤 Online", String.valueOf(onlineCount), true)
             .addField("🤖 Bots", String.valueOf(botCount), true);
