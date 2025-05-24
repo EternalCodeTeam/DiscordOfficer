@@ -34,6 +34,7 @@ import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonControll
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
+import com.eternalcode.discordapp.review.GitHubReviewReminderService;
 import com.eternalcode.discordapp.review.GitHubReviewService;
 import com.eternalcode.discordapp.review.GitHubReviewTask;
 import com.eternalcode.discordapp.review.command.GitHubReviewCommand;
@@ -49,8 +50,6 @@ import java.io.File;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -71,6 +70,7 @@ public class DiscordApp {
     private static GitHubReviewService gitHubReviewService;
     private static DatabaseManager databaseManager;
     private static Scheduler scheduler;
+    private static GitHubReviewMentionRepository mentionRepository;
 
     public static void main(String... args) throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(DiscordApp::shutdown));
@@ -96,12 +96,11 @@ public class DiscordApp {
             databaseManager = new DatabaseManager(databaseConfig, new File("database"));
             databaseManager.connect();
             UserRepositoryImpl.create(databaseManager);
-            GitHubReviewMentionRepository gitHubReviewMentionRepository =
-                GitHubReviewMentionRepositoryImpl.create(databaseManager);
+            mentionRepository = GitHubReviewMentionRepositoryImpl.create(databaseManager);
 
             experienceService = new ExperienceService(databaseManager, observerRegistry);
             levelService = new LevelService(databaseManager);
-            gitHubReviewService = new GitHubReviewService(config, configManager, gitHubReviewMentionRepository);
+            gitHubReviewService = new GitHubReviewService(config, configManager, mentionRepository);
         }
         catch (SQLException exception) {
             Sentry.captureException(exception);
@@ -183,6 +182,13 @@ public class DiscordApp {
         scheduler = new VirtualThreadSchedulerImpl();
         scheduler.schedule(new GuildStatisticsTask(guildStatisticsService), Duration.ofMinutes(5));
         scheduler.schedule(new GitHubReviewTask(gitHubReviewService, jda), Duration.ofMinutes(5));
+
+        // Initialize the reminder service
+        GitHubReviewReminderService reminderService = new GitHubReviewReminderService(jda, mentionRepository);
+        reminderService.start();
+
+        // Add shutdown hook to stop the reminder service
+        Runtime.getRuntime().addShutdownHook(new Thread(reminderService::stop));
     }
 
     private static void shutdown() {
