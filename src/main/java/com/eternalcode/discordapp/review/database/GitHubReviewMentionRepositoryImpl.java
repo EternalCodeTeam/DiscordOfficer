@@ -37,6 +37,20 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     }
 
     @Override
+    public CompletableFuture<Void> markReviewerAsMentioned(GitHubPullRequest pullRequest, long userId) {
+        return CompletableFuture.runAsync(() -> {
+            GitHubReviewMentionWrapper mention =
+                GitHubReviewMentionWrapper.create(
+                    pullRequest.toUrl(),
+                    userId,
+                    Instant.now(),
+                    GitHubReviewStatus.PENDING,
+                    0);
+            this.save(mention);
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> markReviewerAsMentioned(GitHubPullRequest pullRequest, long userId, long threadId) {
         return CompletableFuture.runAsync(() -> {
             GitHubReviewMentionWrapper mention =
@@ -52,29 +66,25 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
 
     @Override
     public CompletableFuture<Boolean> isMentioned(GitHubPullRequest pullRequest, long userId) {
-        return this.select(pullRequest.toUrl()).thenApply(mentionOptional -> {
-            if (mentionOptional.isEmpty()) {
-                return false;
-            }
-
-            GitHubReviewMentionWrapper mention = mentionOptional.get();
-            Instant lastMention = mention.getLastMention();
-            Instant nextMention = lastMention.plus(MENTION_INTERVAL);
-
-            return nextMention.isAfter(Instant.now());
-        });
+        return this.select(pullRequest.toUrl())
+            .thenApply(mentionOptional -> mentionOptional
+                .map(mention -> {
+                    Instant lastMention = mention.getLastMention();
+                    Instant nextMention = lastMention.plus(MENTION_INTERVAL);
+                    return nextMention.isAfter(Instant.now());
+                })
+                .orElse(false)
+            );
     }
 
     @Override
     public CompletableFuture<Void> recordReminderSent(GitHubPullRequest pullRequest, long userId) {
         return CompletableFuture.runAsync(() -> {
-            this.select(pullRequest.toUrl()).thenAccept(mentionOptional -> {
-                if (mentionOptional.isPresent()) {
-                    GitHubReviewMentionWrapper mention = mentionOptional.get();
+            this.select(pullRequest.toUrl())
+                .thenAccept(mentionOptional -> mentionOptional.ifPresent(mention -> {
                     mention.setLastReminderSent(Instant.now());
                     this.save(mention);
-                }
-            });
+                }));
         });
     }
 
@@ -125,11 +135,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                         .eq("userId", userId)
                         .query();
 
-                if (mentions.isEmpty()) {
-                    return null;
-                }
-
-                return mentions.getFirst().toMention();
+                return mentions.isEmpty() ? null : mentions.get(0).toMention();
             }
             catch (SQLException e) {
                 Sentry.captureException(e);

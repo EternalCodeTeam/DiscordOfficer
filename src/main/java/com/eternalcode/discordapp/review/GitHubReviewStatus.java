@@ -16,16 +16,35 @@ public enum GitHubReviewStatus {
     }
 
     public static GitHubReviewStatus fromString(String status) {
-        for (GitHubReviewStatus reviewStatus : GitHubReviewStatus.values()) {
-            if (reviewStatus.name().equalsIgnoreCase(status) ||
-                reviewStatus.getDisplayName().equalsIgnoreCase(status)) {
-                return reviewStatus;
-            }
+        if (status == null) {
+            return PENDING;
         }
-        return PENDING;
+        
+        return switch (status.toLowerCase()) {
+            case "pending" -> PENDING;
+            case "approved" -> APPROVED;
+            case "changes requested" -> CHANGES_REQUESTED;
+            case "commented" -> COMMENTED;
+            case "merged" -> MERGED;
+            case "closed" -> CLOSED;
+            default -> {
+                // Try to match by enum name
+                for (GitHubReviewStatus reviewStatus : values()) {
+                    if (reviewStatus.name().equalsIgnoreCase(status)) {
+                        yield reviewStatus;
+                    }
+                }
+                yield PENDING;
+            }
+        };
     }
 
     public String getDisplayName() {
+        return this.displayName;
+    }
+    
+    @Override
+    public String toString() {
         return this.displayName;
     }
 } 
