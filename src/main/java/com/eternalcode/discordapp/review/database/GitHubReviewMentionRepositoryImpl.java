@@ -37,20 +37,6 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     }
 
     @Override
-    public CompletableFuture<Void> markReviewerAsMentioned(GitHubPullRequest pullRequest, long userId) {
-        return CompletableFuture.runAsync(() -> {
-            GitHubReviewMentionWrapper mention =
-                GitHubReviewMentionWrapper.create(
-                    pullRequest.toUrl(),
-                    userId,
-                    Instant.now(),
-                    GitHubReviewStatus.PENDING,
-                    0);
-            this.save(mention);
-        });
-    }
-
-    @Override
     public CompletableFuture<Void> markReviewerAsMentioned(GitHubPullRequest pullRequest, long userId, long threadId) {
         return CompletableFuture.runAsync(() -> {
             GitHubReviewMentionWrapper mention =
@@ -84,7 +70,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 if (mentionOptional.isPresent()) {
                     GitHubReviewMentionWrapper mention = mentionOptional.get();
                     mention.setLastReminderSent(Instant.now());
-                    return this.save(mention);
+                    return this.save(mention).thenApply(status -> null);
                 }
                 return CompletableFuture.completedFuture(null);
             });

@@ -38,19 +38,19 @@ public class GitHubReviewReminderService {
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::sendReminders, 1, this.reminderInterval.toMinutes(), TimeUnit.MINUTES);
+        this.scheduler.scheduleAtFixedRate(this::sendReminders, 1, this.reminderInterval.toMinutes(), TimeUnit.MINUTES);
         LOGGER.info("GitHub review reminder service started");
     }
 
     public void stop() {
-        scheduler.shutdown();
+        this.scheduler.shutdown();
         try {
-            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
-                scheduler.shutdownNow();
+            if (!this.scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                this.scheduler.shutdownNow();
             }
         }
         catch (InterruptedException e) {
-            scheduler.shutdownNow();
+            this.scheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
         LOGGER.info("GitHub review reminder service stopped");
@@ -58,7 +58,7 @@ public class GitHubReviewReminderService {
 
     private void sendReminders() {
         try {
-            mentionRepository.getReviewersNeedingReminders(reminderInterval)
+            this.mentionRepository.getReviewersNeedingReminders(this.reminderInterval)
                 .thenAccept(this::processReminders)
                 .exceptionally(throwable -> {
                     Sentry.captureException(throwable);
@@ -74,7 +74,7 @@ public class GitHubReviewReminderService {
 
     private void processReminders(List<GitHubReviewMentionRepository.ReviewerReminder> reminders) {
         for (GitHubReviewMentionRepository.ReviewerReminder reminder : reminders) {
-            sendReminder(reminder);
+            this.sendReminder(reminder);
         }
     }
 
@@ -83,20 +83,20 @@ public class GitHubReviewReminderService {
         String pullRequestUrl = reminder.pullRequestUrl();
         long threadId = reminder.threadId();
 
-        jda.retrieveUserById(userId).queue(
+        this.jda.retrieveUserById(userId).queue(
             user -> {
                 if (user == null) {
                     LOGGER.warning("Could not find user with ID " + userId);
                     return;
                 }
 
-                ThreadChannel thread = jda.getThreadChannelById(threadId);
+                ThreadChannel thread = this.jda.getThreadChannelById(threadId);
                 if (thread == null) {
                     LOGGER.warning("Could not find thread with ID " + threadId);
                     return;
                 }
 
-                sendReminderMessage(user, thread, pullRequestUrl);
+                this.sendReminderMessage(user, thread, pullRequestUrl);
             }, throwable -> {
                 Sentry.captureException(throwable);
                 LOGGER.log(Level.SEVERE, "Error retrieving user", throwable);
@@ -114,7 +114,7 @@ public class GitHubReviewReminderService {
             success -> {
                 GitHubPullRequest pullRequest = GitHubPullRequest.fromUrl(pullRequestUrl).orNull();
                 if (pullRequest != null) {
-                    mentionRepository.recordReminderSent(pullRequest, user.getIdLong());
+                    this.mentionRepository.recordReminderSent(pullRequest, user.getIdLong());
                 }
             },
             throwable -> {

@@ -77,7 +77,8 @@ public final class GitHubReviewMentionWrapper {
     public GitHubReviewStatus getReviewStatus() {
         try {
             return GitHubReviewStatus.fromString(this.reviewStatus);
-        } catch (Exception exception) {
+        } 
+        catch (Exception exception) {
             return GitHubReviewStatus.PENDING;
         }
     }
