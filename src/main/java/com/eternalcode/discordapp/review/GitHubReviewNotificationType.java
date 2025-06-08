@@ -7,10 +7,16 @@ public enum GitHubReviewNotificationType {
     BOTH;
 
     public boolean isDmNotify() {
-        return this == DM || this == BOTH;
+        return switch (this) {
+            case DM, BOTH -> true;
+            case SERVER -> false;
+        };
     }
 
     public boolean isServerNotify() {
-        return this == SERVER || this == BOTH;
+        return switch (this) {
+            case SERVER, BOTH -> true;
+            case DM -> false;
+        };
     }
 }

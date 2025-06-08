@@ -23,7 +23,8 @@ public class GitHubReviewService {
     private final static Logger LOGGER = Logger.getLogger(GitHubReviewService.class.getName());
 
     private static final String DM_REVIEW_MESSAGE = "You have been assigned as a reviewer for this pull request: %s";
-    private static final String SERVER_REVIEW_MESSAGE = "%s, you have been assigned as a reviewer for this pull request: %s";
+    private static final String SERVER_REVIEW_MESSAGE =
+        "%s, you have been assigned as a reviewer for this pull request: %s";
 
     private final AppConfig appConfig;
     private final ConfigManager configManager;
@@ -141,7 +142,7 @@ public class GitHubReviewService {
                             reviewersMention.append(user.getAsMention()).append(" ");
                         }
 
-                        this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId);
+                        this.mentionRepository.markReviewerAsMentioned(pullRequest, discordId, forumId);
                     }
                 });
             }

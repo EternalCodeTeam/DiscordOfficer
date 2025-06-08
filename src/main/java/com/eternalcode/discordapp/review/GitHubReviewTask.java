@@ -2,9 +2,12 @@ package com.eternalcode.discordapp.review;
 
 import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class GitHubReviewTask implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(GitHubReviewTask.class.getName());
     private final GitHubReviewService gitHubReviewService;
     private final JDA jda;
 
@@ -21,7 +24,7 @@ public class GitHubReviewTask implements Runnable {
         }
         catch (Exception exception) {
             Sentry.captureException(exception);
-            exception.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error in GitHubReviewTask", exception);
         }
     }
 }

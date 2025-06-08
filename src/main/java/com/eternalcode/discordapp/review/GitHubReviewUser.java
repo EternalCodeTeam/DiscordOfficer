@@ -34,5 +34,18 @@ public class GitHubReviewUser {
     public String getGithubUsername() {
         return this.githubUsername;
     }
-
+    
+    @Override
+    public String toString() {
+        return """
+            GitHubReviewUser[
+                discordId=%s,
+                githubUsername=%s,
+                notificationType=%s
+            ]""".formatted(
+                this.discordId,
+                this.githubUsername,
+                this.notificationType
+            );
+    }
 }
