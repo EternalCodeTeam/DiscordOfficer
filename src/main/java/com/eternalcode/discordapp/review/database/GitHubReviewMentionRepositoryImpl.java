@@ -79,13 +79,15 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
 
     @Override
     public CompletableFuture<Void> recordReminderSent(GitHubPullRequest pullRequest, long userId) {
-        return CompletableFuture.runAsync(() -> {
-            this.select(pullRequest.toUrl())
-                .thenAccept(mentionOptional -> mentionOptional.ifPresent(mention -> {
+        return this.select(pullRequest.toUrl())
+            .thenCompose(mentionOptional -> {
+                if (mentionOptional.isPresent()) {
+                    GitHubReviewMentionWrapper mention = mentionOptional.get();
                     mention.setLastReminderSent(Instant.now());
-                    this.save(mention);
-                }));
-        });
+                    return this.save(mention);
+                }
+                return CompletableFuture.completedFuture(null);
+            });
     }
 
     @Override
@@ -93,24 +95,26 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
         return CompletableFuture.supplyAsync(() -> {
             List<ReviewerReminder> reminders = new ArrayList<>();
             Instant now = Instant.now();
+            Instant cutoffTime = now.minus(reminderInterval);
 
             try {
-                List<GitHubReviewMentionWrapper> allMentions =
-                    this.databaseManager.getDao(GitHubReviewMentionWrapper.class).queryForAll();
+                long cutoffTimeMillis = cutoffTime.toEpochMilli();
+                
+                List<GitHubReviewMentionWrapper> filteredMentions =
+                    this.databaseManager.getDao(GitHubReviewMentionWrapper.class)
+                        .queryBuilder()
+                        .where()
+                        .isNull("lastReminderSent")
+                        .or()
+                        .lt("lastReminderSent", cutoffTimeMillis)
+                        .query();
 
-                for (GitHubReviewMentionWrapper mention : allMentions) {
-                    Instant lastReminderSent = mention.getLastReminderSent();
-
-                    // If no reminder has been sent yet or the reminder interval has passed
-                    if (lastReminderSent == null ||
-                        lastReminderSent.plus(reminderInterval).isBefore(now)) {
-
-                        reminders.add(new ReviewerReminder(
-                            mention.getUserId(),
-                            mention.getPullRequest(),
-                            mention.getThreadId()
-                        ));
-                    }
+                for (GitHubReviewMentionWrapper mention : filteredMentions) {
+                    reminders.add(new ReviewerReminder(
+                        mention.getUserId(),
+                        mention.getPullRequest(),
+                        mention.getThreadId()
+                    ));
                 }
             }
             catch (SQLException e) {

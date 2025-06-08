@@ -38,7 +38,7 @@ public class GitHubReviewReminderService {
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::sendReminders, 1, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(this::sendReminders, 1, this.reminderInterval.toMinutes(), TimeUnit.MINUTES);
         LOGGER.info("GitHub review reminder service started");
     }
 

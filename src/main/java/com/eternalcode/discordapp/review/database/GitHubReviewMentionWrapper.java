@@ -75,10 +75,17 @@ public final class GitHubReviewMentionWrapper {
     }
 
     public GitHubReviewStatus getReviewStatus() {
-        return GitHubReviewStatus.fromString(this.reviewStatus);
+        try {
+            return GitHubReviewStatus.fromString(this.reviewStatus);
+        } catch (Exception exception) {
+            return GitHubReviewStatus.PENDING;
+        }
     }
 
     public void setReviewStatus(GitHubReviewStatus reviewStatus) {
+        if (reviewStatus == null) {
+            throw new IllegalArgumentException("Review status cannot be null");
+        }
         this.reviewStatus = reviewStatus.name();
     }
 
