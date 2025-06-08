@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 public class GitHubReviewReminderService {
 
     private static final Logger LOGGER = Logger.getLogger(GitHubReviewReminderService.class.getName());
-    private static final Duration DEFAULT_REMINDER_INTERVAL = Duration.ofMinutes(1);
+    private static final Duration DEFAULT_REMINDER_INTERVAL = Duration.ofHours(24);
 
     private final JDA jda;
     private final GitHubReviewMentionRepository mentionRepository;
