@@ -105,7 +105,7 @@ public class GitHubReviewReminderService {
 
     private void sendReminderMessage(User user, ThreadChannel thread, String pullRequestUrl) {
         String message = String.format(
-            "Hey %s! This is a friendly reminder that you have a pending review for %s.",
+            "Hey %s! you have been assigned as a reviewer for this pull request: %s.",
             user.getAsMention(),
             pullRequestUrl
         );
