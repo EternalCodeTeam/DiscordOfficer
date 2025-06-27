@@ -43,6 +43,8 @@ import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryI
 import com.eternalcode.discordapp.scheduler.Scheduler;
 import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
 import com.eternalcode.discordapp.user.UserRepositoryImpl;
+import com.eternalcode.discordapp.automessages.AutoMessageService;
+import com.eternalcode.discordapp.automessages.AutoMessageTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
@@ -182,6 +184,11 @@ public class DiscordApp {
         scheduler = new VirtualThreadSchedulerImpl();
         scheduler.schedule(new GuildStatisticsTask(guildStatisticsService), Duration.ofMinutes(5));
         scheduler.schedule(new GitHubReviewTask(gitHubReviewService, jda), Duration.ofMinutes(5));
+
+        // Initialize auto message system
+        AutoMessageService autoMessageService = new AutoMessageService(jda, config);
+        scheduler.scheduleRepeating(new AutoMessageTask(autoMessageService), config.autoMessages.interval);
+        LOGGER.info("Scheduled auto messages with interval {}", config.autoMessages.interval);
 
         // Initialize the reminder service
         GitHubReviewReminderService reminderService = new GitHubReviewReminderService(jda, mentionRepository, config);

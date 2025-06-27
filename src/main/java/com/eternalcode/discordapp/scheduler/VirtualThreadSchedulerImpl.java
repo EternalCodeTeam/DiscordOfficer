@@ -47,6 +47,54 @@ public class VirtualThreadSchedulerImpl implements Scheduler {
     }
 
     @Override
+    public void scheduleRepeating(Runnable task, Duration interval) {
+        scheduleRepeating(task, Duration.ZERO, interval);
+    }
+
+    @Override
+    public void scheduleRepeating(Runnable task, Duration initialDelay, Duration interval) {
+        this.executorService.submit(() -> {
+            try {
+                // Początkowe opóźnienie
+                if (!initialDelay.isZero()) {
+                    Thread.sleep(initialDelay.toMillis());
+                }
+
+                // Cykliczne wykonywanie zadania
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        task.run();
+                        Thread.sleep(interval.toMillis());
+                    }
+                    catch (InterruptedException exception) {
+                        Thread.currentThread().interrupt();
+                        LOGGER.warn("Repeating task interrupted", exception);
+                        break;
+                    }
+                    catch (Exception exception) {
+                        LOGGER.error("Repeating task execution failed", exception);
+                        // Kontynuuj mimo błędu
+                        try {
+                            Thread.sleep(interval.toMillis());
+                        }
+                        catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                LOGGER.warn("Repeating task interrupted during initial delay", exception);
+            }
+            catch (Exception exception) {
+                LOGGER.error("Failed to start repeating task", exception);
+            }
+        });
+    }
+
+    @Override
     public void shutdown() {
         try {
             LOGGER.info("Initiating scheduler shutdown...");

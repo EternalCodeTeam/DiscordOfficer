@@ -8,5 +8,9 @@ public interface Scheduler {
 
     void schedule(Runnable task);
 
+    void scheduleRepeating(Runnable task, Duration interval);
+
+    void scheduleRepeating(Runnable task, Duration initialDelay, Duration interval);
+
     void shutdown() throws InterruptedException;
 }

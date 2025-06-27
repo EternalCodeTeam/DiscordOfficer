@@ -8,6 +8,7 @@ import net.dzikoysk.cdn.source.Resource;
 import net.dzikoysk.cdn.source.Source;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +40,9 @@ public class AppConfig implements CdnConfig {
 
     @Description("# The settings of review system")
     public ReviewSystem reviewSystem = new ReviewSystem();
+
+    @Description("# The settings of automatic messages")
+    public AutoMessages autoMessages = new AutoMessages();
 
     @Override
     public Resource resource(File folder) {
@@ -112,5 +116,37 @@ public class AppConfig implements CdnConfig {
         public List<GitHubReviewUser> reviewers = new ArrayList<>(Collections.singletonList(
                 new GitHubReviewUser(852920601969950760L, "vluckyyy", GitHubReviewNotificationType.SERVER)
         ));
+    }
+
+    @Contextual
+    public static class AutoMessages {
+        @Description({
+            "# List of automatic messages that will be sent at specified interval",
+            "# Messages will not be sent if the last few messages in the channel are already auto messages"
+        })
+        public List<AutoMessagesEntry> entries = new ArrayList<>(Collections.singletonList(
+            new AutoMessagesEntry(1025826334435455047L, "🔥 Make your messages in Minecraft a MASTERPIECE - try the new notification generator now! 👉 https://www.eternalcode.pl/notification-generator")
+        ));
+
+        @Description("# How often all auto messages should be sent. Default: 1 hour")
+        public Duration interval = Duration.ofHours(1);
+
+        @Contextual
+        public static class AutoMessagesEntry {
+            @Description("# The ID of the channel where the message will be sent")
+            public long channelId;
+
+            @Description("# The message content to be sent")
+            public String message;
+
+            public AutoMessagesEntry() {
+                // Default constructor for CDN
+            }
+
+            public AutoMessagesEntry(long channelId, String message) {
+                this.channelId = channelId;
+                this.message = message;
+            }
+        }
     }
 }

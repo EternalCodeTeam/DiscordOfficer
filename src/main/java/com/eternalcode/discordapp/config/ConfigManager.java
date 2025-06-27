@@ -1,11 +1,13 @@
 package com.eternalcode.discordapp.config;
 
+import com.eternalcode.discordapp.config.composer.DurationComposer;
 import com.eternalcode.discordapp.config.composer.InstantComposer;
 import net.dzikoysk.cdn.Cdn;
 import net.dzikoysk.cdn.CdnFactory;
 import net.dzikoysk.cdn.reflect.Visibility;
 
 import java.io.File;
+import java.time.Duration;
 import java.time.Instant;
 
 public class ConfigManager {
@@ -14,6 +16,7 @@ public class ConfigManager {
             .createYamlLike()
             .getSettings()
             .withComposer(Instant.class, new InstantComposer())
+            .withComposer(Duration.class, new DurationComposer())
             .withMemberResolver(Visibility.PRIVATE)
             .build();
 
