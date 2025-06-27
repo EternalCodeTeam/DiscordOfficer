@@ -184,7 +184,7 @@ public class DiscordApp {
         scheduler.schedule(new GitHubReviewTask(gitHubReviewService, jda), Duration.ofMinutes(5));
 
         // Initialize the reminder service
-        GitHubReviewReminderService reminderService = new GitHubReviewReminderService(jda, mentionRepository);
+        GitHubReviewReminderService reminderService = new GitHubReviewReminderService(jda, mentionRepository, config);
         reminderService.start();
 
         // Add shutdown hook to stop the reminder service

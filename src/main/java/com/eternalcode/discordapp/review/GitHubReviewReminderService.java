@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import com.eternalcode.discordapp.config.AppConfig;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
+import java.io.IOException;
 
 public class GitHubReviewReminderService {
 
@@ -22,19 +25,22 @@ public class GitHubReviewReminderService {
     private final GitHubReviewMentionRepository mentionRepository;
     private final ScheduledExecutorService scheduler;
     private final Duration reminderInterval;
+    private final AppConfig appConfig;
 
     public GitHubReviewReminderService(
         JDA jda,
         GitHubReviewMentionRepository mentionRepository,
+        AppConfig appConfig,
         Duration reminderInterval) {
         this.jda = jda;
         this.mentionRepository = mentionRepository;
         this.reminderInterval = reminderInterval;
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.appConfig = appConfig;
     }
 
-    public GitHubReviewReminderService(JDA jda, GitHubReviewMentionRepository mentionRepository) {
-        this(jda, mentionRepository, DEFAULT_REMINDER_INTERVAL);
+    public GitHubReviewReminderService(JDA jda, GitHubReviewMentionRepository mentionRepository, AppConfig appConfig) {
+        this(jda, mentionRepository, appConfig, DEFAULT_REMINDER_INTERVAL);
     }
 
     public void start() {
@@ -82,6 +88,45 @@ public class GitHubReviewReminderService {
         long userId = reminder.userId();
         String pullRequestUrl = reminder.pullRequestUrl();
         long threadId = reminder.threadId();
+
+        GitHubPullRequest pullRequest = GitHubPullRequest.fromUrl(pullRequestUrl).orNull();
+        if (pullRequest == null) {
+            LOGGER.warning("Invalid pull request URL: " + pullRequestUrl);
+            return;
+        }
+
+        boolean isMerged = false;
+        boolean isClosed = false;
+        try {
+            isMerged = GitHubReviewUtil.isPullRequestMerged(pullRequest, this.appConfig.githubToken);
+            isClosed = GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken);
+        } catch (IOException e) {
+            Sentry.captureException(e);
+            LOGGER.log(Level.SEVERE, "Error checking PR status", e);
+            return;
+        }
+
+        if (isMerged || isClosed) {
+            ThreadChannel thread = this.jda.getThreadChannelById(threadId);
+            if (thread != null) {
+                AppConfig.ReviewSystem reviewSystem = this.appConfig.reviewSystem;
+                if (isMerged) {
+                    thread.getManager()
+                        .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.mergedTagId))
+                        .setLocked(true)
+                        .setArchived(true)
+                        .queue();
+                } else if (isClosed) {
+                    thread.getManager()
+                        .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.closedTagId))
+                        .setLocked(true)
+                        .setArchived(true)
+                        .queue();
+                }
+            }
+            LOGGER.info("PR is merged or closed, skipping reminder for thread: " + threadId);
+            return;
+        }
 
         this.jda.retrieveUserById(userId).queue(
             user -> {
