@@ -20,7 +20,7 @@ repositories {
 }
 
 checkstyle {
-    toolVersion = "10.21.2"
+    toolVersion = "10.26.1"
 
     configFile = file("${rootDir}/checkstyle/checkstyle.xml")
 
@@ -33,7 +33,7 @@ configurations.named("checkstyle") {
     resolutionStrategy {
         capabilitiesResolution {
             withCapability("com.google.collections:google-collections") {
-                select("com.google.guava:guava:33.4.0-jre")
+                select("com.google.guava:guava:33.4.8-jre")
             }
         }
     }
@@ -41,47 +41,47 @@ configurations.named("checkstyle") {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.3.0")  {
+    implementation("net.dv8tion:JDA:5.6.1")  {
         exclude("opus-java", "opus-java")
     }
 
     // configs
-    implementation("net.dzikoysk:cdn:1.14.6")
+    implementation("net.dzikoysk:cdn:1.14.9")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.16")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:8.1.0")
+    implementation("io.sentry:sentry:8.16.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
     // HikariCP
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:6.3.0")
 
     // Database drivers
     implementation("com.h2database:h2:2.3.232")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.1")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.12.1")
+    implementation("com.google.code.gson:gson:2.13.1")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.2")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.15.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.15.2")
+    testImplementation("org.mockito:mockito-core:5.18.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.17.0")
