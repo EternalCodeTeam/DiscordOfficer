@@ -18,15 +18,6 @@ repositories {
     maven { url = uri("https://repo.eternalcode.pl/releases") }
 }
 
-checkstyle {
-    toolVersion = "10.21.2"
-
-    configFile = file("${rootDir}/checkstyle/checkstyle.xml")
-
-    maxErrors = 0
-    maxWarnings = 0
-}
-
 dependencies {
     // JDA
     implementation("net.dv8tion:JDA:5.3.0")  {
