@@ -2,7 +2,5 @@ package com.eternalcode.discordapp.filter;
 
 @FunctionalInterface
 public interface Filter {
-
-    FilterResult filter(String... source);
-
+    FilterResult filter(String... sources);
 }

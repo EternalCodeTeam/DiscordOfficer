@@ -3,47 +3,71 @@ package com.eternalcode.discordapp.scheduler;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VirtualThreadSchedulerImpl implements Scheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VirtualThreadSchedulerImpl.class);
-    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+
+    private final ScheduledExecutorService scheduledExecutor;
+    private final ExecutorService virtualExecutor;
+    private final AtomicBoolean isShutdown = new AtomicBoolean(false);
+
+    public VirtualThreadSchedulerImpl() {
+        this.scheduledExecutor = Executors.newScheduledThreadPool(
+            2,
+            Thread.ofPlatform()
+                .name("scheduler-", 0)
+                .daemon(true)
+                .factory()
+        );
+
+        this.virtualExecutor = Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual()
+                .name("task-", 0)
+                .factory()
+        );
+    }
 
     @Override
     public void schedule(Runnable task, Duration delay) {
-        if (delay.isNegative() || delay.isZero()) {
-            this.schedule(task);
+        if (isShutdown.get()) {
+            LOGGER.warn("Scheduler is shutdown, ignoring task scheduling");
             return;
         }
 
-        this.executorService.submit(() -> {
-            try {
-                Thread.sleep(delay.toMillis());
-                task.run();
-            }
-            catch (InterruptedException exception) {
-                Thread.currentThread().interrupt();
-                LOGGER.warn("Task interrupted during delay", exception);
-            }
-            catch (Exception exception) {
-                LOGGER.error("Task execution failed", exception);
-            }
-        });
+        if (delay.isNegative()) {
+            throw new IllegalArgumentException("Delay cannot be negative");
+        }
+
+        if (delay.isZero()) {
+            schedule(task);
+            return;
+        }
+
+        scheduledExecutor.schedule(
+            () -> {
+                if (!isShutdown.get()) {
+                    virtualExecutor.submit(wrapTask(task, "delayed"));
+                }
+            }, delay.toMillis(), TimeUnit.MILLISECONDS);
+
+        LOGGER.debug("Scheduled task with delay: {}", delay);
     }
 
     @Override
     public void schedule(Runnable task) {
-        this.executorService.submit(() -> {
-            try {
-                task.run();
-            }
-            catch (Exception exception) {
-                LOGGER.error("Immediate task execution failed", exception);
-            }
-        });
+        if (isShutdown.get()) {
+            LOGGER.warn("Scheduler is shutdown, ignoring task scheduling");
+            return;
+        }
+
+        virtualExecutor.submit(wrapTask(task, "immediate"));
+        LOGGER.debug("Scheduled immediate task");
     }
 
     @Override
@@ -53,65 +77,130 @@ public class VirtualThreadSchedulerImpl implements Scheduler {
 
     @Override
     public void scheduleRepeating(Runnable task, Duration initialDelay, Duration interval) {
-        this.executorService.submit(() -> {
-            try {
-                // Początkowe opóźnienie
-                if (!initialDelay.isZero()) {
-                    Thread.sleep(initialDelay.toMillis());
-                }
+        if (isShutdown.get()) {
+            LOGGER.warn("Scheduler is shutdown, ignoring repeating task scheduling");
+            return;
+        }
 
-                // Cykliczne wykonywanie zadania
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        task.run();
-                        Thread.sleep(interval.toMillis());
-                    }
-                    catch (InterruptedException exception) {
-                        Thread.currentThread().interrupt();
-                        LOGGER.warn("Repeating task interrupted", exception);
-                        break;
-                    }
-                    catch (Exception exception) {
-                        LOGGER.error("Repeating task execution failed", exception);
-                        // Kontynuuj mimo błędu
-                        try {
-                            Thread.sleep(interval.toMillis());
-                        }
-                        catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
-                    }
+        if (interval.isNegative() || interval.isZero()) {
+            throw new IllegalArgumentException("Interval must be positive");
+        }
+
+        if (initialDelay.isNegative()) {
+            throw new IllegalArgumentException("Initial delay cannot be negative");
+        }
+
+        var future = scheduledExecutor.scheduleAtFixedRate(
+            () -> {
+                if (!isShutdown.get()) {
+                    virtualExecutor.submit(wrapTask(task, "repeating"));
                 }
+            },
+            initialDelay.toMillis(),
+            interval.toMillis(),
+            TimeUnit.MILLISECONDS
+        );
+
+        LOGGER.debug(
+            "Scheduled repeating task with initial delay: {} and interval: {}",
+            initialDelay, interval);
+
+        virtualExecutor.submit(() -> {
+            try {
+                while (!isShutdown.get()) {
+                    Thread.sleep(Duration.ofSeconds(1));
+                }
+                future.cancel(false);
+                LOGGER.debug("Cancelled repeating task due to shutdown");
             }
-            catch (InterruptedException exception) {
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                LOGGER.warn("Repeating task interrupted during initial delay", exception);
-            }
-            catch (Exception exception) {
-                LOGGER.error("Failed to start repeating task", exception);
+                future.cancel(true);
             }
         });
     }
 
     @Override
-    public void shutdown() {
-        try {
-            LOGGER.info("Initiating scheduler shutdown...");
-            this.executorService.shutdown();
-
-            if (!this.executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                LOGGER.warn("Scheduler did not terminate within 60 seconds, forcing shutdown...");
-                this.executorService.shutdownNow();
-            }
-            else {
-                LOGGER.info("Scheduler shut down successfully.");
-            }
+    public void shutdown() throws InterruptedException {
+        if (!isShutdown.compareAndSet(false, true)) {
+            LOGGER.warn("Scheduler already shutdown");
+            return;
         }
-        catch (InterruptedException exception) {
-            LOGGER.error("Shutdown interrupted", exception);
-            this.executorService.shutdownNow();
+
+        LOGGER.info("Initiating scheduler shutdown...");
+
+        try {
+            scheduledExecutor.shutdown();
+
+            virtualExecutor.shutdown();
+
+            if (!scheduledExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                LOGGER.warn("Scheduled executor did not terminate within 30 seconds, forcing shutdown");
+                scheduledExecutor.shutdownNow();
+
+                if (!scheduledExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    LOGGER.error("Scheduled executor did not terminate after forced shutdown");
+                }
+            }
+
+            if (!virtualExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                LOGGER.warn("Virtual executor did not terminate within 30 seconds, forcing shutdown");
+                virtualExecutor.shutdownNow();
+
+                if (!virtualExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    LOGGER.error("Virtual executor did not terminate after forced shutdown");
+                }
+            }
+
+            LOGGER.info("Scheduler shutdown completed successfully");
+        }
+        catch (InterruptedException e) {
+            LOGGER.error("Shutdown interrupted, forcing immediate shutdown", e);
+            scheduledExecutor.shutdownNow();
+            virtualExecutor.shutdownNow();
             Thread.currentThread().interrupt();
+            throw e;
+        }
+    }
+
+    private Runnable wrapTask(Runnable task, String taskType) {
+        return () -> {
+            var startTime = System.nanoTime();
+            var threadName = Thread.currentThread().getName();
+
+            try {
+                LOGGER.trace("Starting {} task on thread: {}", taskType, threadName);
+                task.run();
+
+                var durationMs = (System.nanoTime() - startTime) / 1_000_000;
+                LOGGER.trace("Completed {} task on thread: {} in {}ms", taskType, threadName, durationMs);
+            }
+            catch (Exception e) {
+                var durationMs = (System.nanoTime() - startTime) / 1_000_000;
+                LOGGER.error("Task failed on thread: {} after {}ms", threadName, durationMs, e);
+            }
+        };
+    }
+
+    public SchedulerStatus getStatus() {
+        return new SchedulerStatus(
+            isShutdown.get(),
+            scheduledExecutor.isShutdown(),
+            scheduledExecutor.isTerminated(),
+            virtualExecutor.isShutdown(),
+            virtualExecutor.isTerminated()
+        );
+    }
+
+    public record SchedulerStatus(
+        boolean isShutdown,
+        boolean scheduledExecutorShutdown,
+        boolean scheduledExecutorTerminated,
+        boolean virtualExecutorShutdown,
+        boolean virtualExecutorTerminated
+    ) {
+        public boolean isFullyTerminated() {
+            return scheduledExecutorTerminated && virtualExecutorTerminated;
         }
     }
 }

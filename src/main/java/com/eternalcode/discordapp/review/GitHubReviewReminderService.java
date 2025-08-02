@@ -128,6 +128,24 @@ public class GitHubReviewReminderService {
             return;
         }
 
+        String githubUsername = null;
+        for (com.eternalcode.discordapp.review.GitHubReviewUser user : this.appConfig.reviewSystem.reviewers) {
+            if (user.getDiscordId() != null && user.getDiscordId() == userId) {
+                githubUsername = user.getGithubUsername();
+                break;
+            }
+        }
+        if (githubUsername == null) {
+            LOGGER.warning("Could not find GitHub username for Discord userId " + userId);
+            return;
+        }
+
+        boolean alreadyReviewed = GitHubReviewUtil.hasUserReviewed(pullRequest, this.appConfig.githubToken, githubUsername);
+        if (alreadyReviewed) {
+            LOGGER.info("User " + githubUsername + " already reviewed PR, skipping reminder.");
+            return;
+        }
+
         this.jda.retrieveUserById(userId).queue(
             user -> {
                 if (user == null) {

@@ -1,6 +1,11 @@
 package com.eternalcode.discordapp.guildstats;
 
-public class GuildStatisticsTask implements Runnable {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class GuildStatisticsTask implements Runnable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuildStatisticsTask.class);
 
     private final GuildStatisticsService guildStatisticsService;
 
@@ -10,7 +15,13 @@ public class GuildStatisticsTask implements Runnable {
 
     @Override
     public void run() {
-        this.guildStatisticsService.displayStats();
+        try {
+            LOGGER.debug("Starting guild statistics update task");
+            guildStatisticsService.displayStats().join();
+            LOGGER.debug("Guild statistics update task completed");
+        }
+        catch (Exception exception) {
+            LOGGER.error("Error during guild statistics update: {}", exception.getMessage(), exception);
+        }
     }
-
 }
