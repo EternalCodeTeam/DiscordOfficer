@@ -71,25 +71,24 @@ public class AutoMessageService {
 
                 String messageToSend = selectRandomMessage(entry.messages);
 
-                CompletableFuture<Boolean> future = new CompletableFuture<>();
-
-                channel.sendMessage(messageToSend)
-                    .queue(
-                        message -> {
-                            lastMessageTimes.put(entry.channelId, Instant.now());
-                            LOGGER.info("✅ Auto message sent to #{}", channel.getName());
-                            future.complete(true);
-                        },
-                        error -> {
-                            LOGGER.error("Failed to send message to #{}: {}", channel.getName(), error.getMessage());
-                            future.complete(false);
-                        }
-                    );
-
-                return future.get();
+                return channel.sendMessage(messageToSend)
+                    .submit()
+                    .thenApply(message -> {
+                        lastMessageTimes.put(entry.channelId, Instant.now());
+                        LOGGER.info("✅ Auto message sent to #{}", channel.getName());
+                        return true;
+                    })
+                    .exceptionally(error -> {
+                        LOGGER.error("Failed to send message to #{}: {}", channel.getName(), error.getMessage());
+                        return false;
+                    })
+                    .join();
             }
             catch (Exception exception) {
-                LOGGER.error("Error processing auto message for channel {}: {}", entry.channelId, exception.getMessage());
+                LOGGER.error(
+                    "Error processing auto message for channel {}: {}",
+                    entry.channelId,
+                    exception.getMessage());
                 return false;
             }
         }).exceptionally(FutureHandler::handleException);

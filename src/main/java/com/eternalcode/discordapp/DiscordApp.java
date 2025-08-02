@@ -44,7 +44,6 @@ import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
 import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryImpl;
 import com.eternalcode.discordapp.scheduler.Scheduler;
 import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
-import com.eternalcode.discordapp.user.UserRepositoryImpl;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
@@ -65,6 +64,7 @@ import org.slf4j.LoggerFactory;
 public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
+    private static final Duration REMINDER_INTERVAL = Duration.ofMinutes(2);
 
     private final ApplicationComponents components = new ApplicationComponents();
 
@@ -124,8 +124,8 @@ public class DiscordApp {
 
         // Initialize repositories
         LOGGER.info("Initializing repositories...");
-        UserRepositoryImpl.create(components.databaseManager);
-        components.mentionRepository = GitHubReviewMentionRepositoryImpl.create(components.databaseManager);
+        components.mentionRepository =
+            GitHubReviewMentionRepositoryImpl.create(components.databaseManager, components.scheduler);
 
         // Initialize services
         LOGGER.info("Initializing services...");
@@ -167,7 +167,7 @@ public class DiscordApp {
             .build();
 
         FilterService filterService = new FilterService()
-            .registerFilter(new RenovateForcedPushFilter());
+            .register(new RenovateForcedPushFilter());
 
         LOGGER.info("Initializing Discord bot...");
         components.jda = JDABuilder.createDefault(components.appConfig.token)
@@ -198,7 +198,9 @@ public class DiscordApp {
         components.gitHubReviewReminderService = new GitHubReviewReminderService(
             components.jda,
             components.mentionRepository,
-            components.appConfig
+            components.appConfig,
+            components.scheduler,
+            REMINDER_INTERVAL
         );
         components.gitHubReviewReminderService.start();
 
@@ -213,10 +215,7 @@ public class DiscordApp {
             Duration.ofMinutes(5)
         );
 
-        components.scheduler.schedule(
-            new GitHubReviewTask(components.gitHubReviewService, components.jda),
-            Duration.ofMinutes(5)
-        );
+        new GitHubReviewTask(components.gitHubReviewService, components.jda, components.scheduler).start();
 
         components.scheduler.scheduleRepeating(
             new AutoMessageTask(components.autoMessageService),
@@ -231,8 +230,14 @@ public class DiscordApp {
 
         try {
             if (components.scheduler != null) {
-                components.scheduler.shutdown();
-                LOGGER.info("Scheduler stopped");
+                try {
+                    components.scheduler.shutdown();
+                    LOGGER.info("Scheduler stopped");
+                }
+                catch (InterruptedException exception) {
+                    LOGGER.error("Scheduler shutdown was interrupted", exception);
+                    Thread.currentThread().interrupt();
+                }
             }
 
             if (components.gitHubReviewReminderService != null) {

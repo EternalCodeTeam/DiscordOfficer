@@ -19,7 +19,7 @@ public enum GitHubReviewStatus {
         if (status == null) {
             return PENDING;
         }
-        
+
         return switch (status.toLowerCase()) {
             case "pending" -> PENDING;
             case "approved" -> APPROVED;
@@ -42,7 +42,7 @@ public enum GitHubReviewStatus {
     public String getDisplayName() {
         return this.displayName;
     }
-    
+
     @Override
     public String toString() {
         return this.displayName;

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -90,7 +91,7 @@ public class VirtualThreadSchedulerImpl implements Scheduler {
             throw new IllegalArgumentException("Initial delay cannot be negative");
         }
 
-        var future = scheduledExecutor.scheduleAtFixedRate(
+        ScheduledFuture<?> future = scheduledExecutor.scheduleAtFixedRate(
             () -> {
                 if (!isShutdown.get()) {
                     virtualExecutor.submit(wrapTask(task, "repeating"));
@@ -113,7 +114,7 @@ public class VirtualThreadSchedulerImpl implements Scheduler {
                 future.cancel(false);
                 LOGGER.debug("Cancelled repeating task due to shutdown");
             }
-            catch (InterruptedException e) {
+            catch (InterruptedException exception) {
                 Thread.currentThread().interrupt();
                 future.cancel(true);
             }
@@ -154,53 +155,31 @@ public class VirtualThreadSchedulerImpl implements Scheduler {
 
             LOGGER.info("Scheduler shutdown completed successfully");
         }
-        catch (InterruptedException e) {
-            LOGGER.error("Shutdown interrupted, forcing immediate shutdown", e);
+        catch (InterruptedException exception) {
+            LOGGER.error("Shutdown interrupted, forcing immediate shutdown", exception);
             scheduledExecutor.shutdownNow();
             virtualExecutor.shutdownNow();
             Thread.currentThread().interrupt();
-            throw e;
+            throw exception;
         }
     }
 
     private Runnable wrapTask(Runnable task, String taskType) {
         return () -> {
-            var startTime = System.nanoTime();
-            var threadName = Thread.currentThread().getName();
+            long startTime = System.nanoTime();
+            String threadName = Thread.currentThread().getName();
 
             try {
                 LOGGER.trace("Starting {} task on thread: {}", taskType, threadName);
                 task.run();
 
-                var durationMs = (System.nanoTime() - startTime) / 1_000_000;
+                long durationMs = (System.nanoTime() - startTime) / 1_000_000;
                 LOGGER.trace("Completed {} task on thread: {} in {}ms", taskType, threadName, durationMs);
             }
-            catch (Exception e) {
-                var durationMs = (System.nanoTime() - startTime) / 1_000_000;
-                LOGGER.error("Task failed on thread: {} after {}ms", threadName, durationMs, e);
+            catch (Exception exception) {
+                long durationMs = (System.nanoTime() - startTime) / 1_000_000;
+                LOGGER.error("Task failed on thread: {} after {}ms", threadName, durationMs, exception);
             }
         };
-    }
-
-    public SchedulerStatus getStatus() {
-        return new SchedulerStatus(
-            isShutdown.get(),
-            scheduledExecutor.isShutdown(),
-            scheduledExecutor.isTerminated(),
-            virtualExecutor.isShutdown(),
-            virtualExecutor.isTerminated()
-        );
-    }
-
-    public record SchedulerStatus(
-        boolean isShutdown,
-        boolean scheduledExecutorShutdown,
-        boolean scheduledExecutorTerminated,
-        boolean virtualExecutorShutdown,
-        boolean virtualExecutorTerminated
-    ) {
-        public boolean isFullyTerminated() {
-            return scheduledExecutorTerminated && virtualExecutorTerminated;
-        }
     }
 }
