@@ -7,21 +7,16 @@ public class FilterService {
 
     private final List<Filter> filters = new ArrayList<>();
 
-    public FilterService registerFilter(Filter filter) {
+    public FilterService register(Filter filter) {
         this.filters.add(filter);
         return this;
     }
 
     public FilterResult check(String... sources) {
-        for (Filter filter : this.filters) {
-            FilterResult result = filter.filter(sources);
-
-            if (!result.isPassed()) {
-                return FilterResult.notPassed();
-            }
-        }
-
-        return FilterResult.passed();
+        return this.filters.stream()
+            .map(filter -> filter.filter(sources))
+            .filter(result -> !result.isPassed())
+            .findFirst()
+            .orElse(FilterResult.passed());
     }
-
 }

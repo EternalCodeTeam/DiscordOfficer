@@ -2,7 +2,6 @@ plugins {
     `java-library`
     application
     idea
-    checkstyle
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -17,26 +16,6 @@ repositories {
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.eternalcode.pl/snapshots") }
     maven { url = uri("https://repo.eternalcode.pl/releases") }
-}
-
-checkstyle {
-    toolVersion = "10.21.2"
-
-    configFile = file("${rootDir}/checkstyle/checkstyle.xml")
-
-    maxErrors = 0
-    maxWarnings = 0
-}
-
-// https://github.com/JabRef/jabref/pull/10812/files#diff-49a96e7eea8a94af862798a45174e6ac43eb4f8b4bd40759b5da63ba31ec3ef7R267
-configurations.named("checkstyle") {
-    resolutionStrategy {
-        capabilitiesResolution {
-            withCapability("com.google.collections:google-collections") {
-                select("com.google.guava:guava:33.4.0-jre")
-            }
-        }
-    }
 }
 
 dependencies {
@@ -85,6 +64,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.17.0")
+
+    implementation("com.eternalcode:eternalcode-commons-shared:1.2.0")
 }
 
 tasks.getByName<Test>("test") {
@@ -104,9 +85,6 @@ java {
 
 tasks.shadowJar {
     archiveFileName.set("DiscordOfficer v${project.version}.jar")
-
-    // dependsOn("checkstyleMain")
-    // dependsOn("test")
 
     manifest {
         attributes(

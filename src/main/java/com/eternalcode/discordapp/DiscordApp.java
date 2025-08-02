@@ -1,5 +1,7 @@
 package com.eternalcode.discordapp;
 
+import com.eternalcode.discordapp.automessages.AutoMessageService;
+import com.eternalcode.discordapp.automessages.AutoMessageTask;
 import com.eternalcode.discordapp.command.AvatarCommand;
 import com.eternalcode.discordapp.command.BanCommand;
 import com.eternalcode.discordapp.command.BotInfoCommand;
@@ -42,14 +44,10 @@ import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
 import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryImpl;
 import com.eternalcode.discordapp.scheduler.Scheduler;
 import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
-import com.eternalcode.discordapp.user.UserRepositoryImpl;
-import com.eternalcode.discordapp.automessages.AutoMessageService;
-import com.eternalcode.discordapp.automessages.AutoMessageTask;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.EnumSet;
 import net.dv8tion.jda.api.JDA;
@@ -66,151 +64,175 @@ import org.slf4j.LoggerFactory;
 public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
+    private static final Duration REMINDER_INTERVAL = Duration.ofHours(24);
+    private Scheduler scheduler;
+    private GitHubReviewReminderService reminderService;
+    private JDA jda;
+    private DatabaseManager databaseManager;
 
-    private static ExperienceService experienceService;
-    private static LevelService levelService;
-    private static GitHubReviewService gitHubReviewService;
-    private static DatabaseManager databaseManager;
-    private static Scheduler scheduler;
-    private static GitHubReviewMentionRepository mentionRepository;
+    public static void main(String[] args) {
+        new DiscordApp().start();
+    }
 
-    public static void main(String... args) throws InterruptedException {
-        Runtime.getRuntime().addShutdownHook(new Thread(DiscordApp::shutdown));
+    private void start() {
+        try {
+            LOGGER.info("Starting Discord Application...");
 
-        ObserverRegistry observerRegistry = new ObserverRegistry();
+            runApplication();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+            LOGGER.info("Discord Application started successfully!");
+            Thread.sleep(Long.MAX_VALUE);
+        }
+        catch (Exception exception) {
+            LOGGER.error("Failed to start Discord Application", exception);
+            Sentry.captureException(exception);
+            System.exit(1);
+        }
+    }
+
+    private void runApplication() throws Exception {
+        LOGGER.info("Loading configurations...");
         ConfigManager configManager = new ConfigManager("config");
-
-        AppConfig config = configManager.load(new AppConfig());
+        AppConfig appConfig = configManager.load(new AppConfig());
         DatabaseConfig databaseConfig = configManager.load(new DatabaseConfig());
         ExperienceConfig experienceConfig = configManager.load(new ExperienceConfig());
         LevelConfig levelConfig = configManager.load(new LevelConfig());
 
-        if (!config.sentryDsn.isEmpty()) {
+        if (!appConfig.sentryDsn.isBlank()) {
             Sentry.init(options -> {
-                options.setDsn(config.sentryDsn);
+                options.setDsn(appConfig.sentryDsn);
                 options.setTracesSampleRate(1.0);
                 options.setDebug(true);
                 options.setAttachStacktrace(true);
             });
+            LOGGER.info("Sentry initialized");
         }
 
-        try {
-            databaseManager = new DatabaseManager(databaseConfig, new File("database"));
-            databaseManager.connect();
-            UserRepositoryImpl.create(databaseManager);
-            mentionRepository = GitHubReviewMentionRepositoryImpl.create(databaseManager);
+        LOGGER.info("Initializing core components...");
+        OkHttpClient httpClient = new OkHttpClient();
+        Scheduler scheduler = new VirtualThreadSchedulerImpl();
+        DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
+        databaseManager.connect();
+        ObserverRegistry observerRegistry = new ObserverRegistry();
 
-            experienceService = new ExperienceService(databaseManager, observerRegistry);
-            levelService = new LevelService(databaseManager);
-            gitHubReviewService = new GitHubReviewService(config, configManager, mentionRepository);
-        }
-        catch (SQLException exception) {
-            Sentry.captureException(exception);
-            LOGGER.error("Failed to connect to database", exception);
-        }
+        LOGGER.info("Initializing repositories...");
+        GitHubReviewMentionRepository mentionRepo =
+            GitHubReviewMentionRepositoryImpl.create(databaseManager, scheduler);
 
+        LOGGER.info("Initializing services...");
+        ExperienceService experienceService = new ExperienceService(databaseManager, observerRegistry);
+        LevelService levelService = new LevelService(databaseManager);
+        GitHubReviewService reviewService = new GitHubReviewService(appConfig, configManager, mentionRepo);
         LeaderboardService leaderboardService = new LeaderboardService(levelService);
 
-        OkHttpClient httpClient = new OkHttpClient();
-
-        FilterService filterService = new FilterService()
-            .registerFilter(new RenovateForcedPushFilter());
-
+        LOGGER.info("Building command client...");
         CommandClient commandClient = new CommandClientBuilder()
-            .setOwnerId(config.topOwnerId)
+            .setOwnerId(appConfig.topOwnerId)
             .setActivity(Activity.playing("IntelliJ IDEA"))
             .useHelpBuilder(false)
-
-            // slash commands registry
             .addSlashCommands(
-                // Standard
-                new AvatarCommand(config),
-                new BanCommand(config),
-                new BotInfoCommand(config),
-                new ClearCommand(config),
-                new CooldownCommand(config),
+                new AvatarCommand(appConfig),
+                new BanCommand(appConfig),
+                new BotInfoCommand(appConfig),
+                new ClearCommand(appConfig),
+                new CooldownCommand(appConfig),
                 new EmbedCommand(),
-                new KickCommand(config),
+                new KickCommand(appConfig),
                 new MinecraftServerInfoCommand(httpClient),
-                new PingCommand(config),
+                new PingCommand(appConfig),
                 new SayCommand(),
-                new ServerCommand(config),
+                new ServerCommand(appConfig),
                 new XFixCommand(),
-
-                // GitHub review
-                new GitHubReviewCommand(gitHubReviewService, config),
-
-                // Leveling
+                new GitHubReviewCommand(reviewService, appConfig),
                 new LevelCommand(levelService),
                 new LeaderboardCommand(leaderboardService)
             )
             .build();
 
-        JDA jda = JDABuilder.createDefault(config.token)
+        LOGGER.info("Initializing Discord bot...");
+        FilterService filterService = new FilterService().register(new RenovateForcedPushFilter());
+        JDA jda = JDABuilder.createDefault(appConfig.token)
             .addEventListeners(
-                // Slash commands
                 commandClient,
-
-                // Experience system
                 new ExperienceMessageListener(experienceConfig, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
-
-                // Message filter
                 new FilterMessageEmbedController(filterService),
-
-                // leaderboard
                 new LeaderboardButtonController(leaderboardService)
             )
-
             .setAutoReconnect(true)
             .setHttpClient(httpClient)
-
             .enableIntents(EnumSet.allOf(GatewayIntent.class))
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .enableCache(CacheFlag.ONLINE_STATUS)
             .setChunkingFilter(ChunkingFilter.ALL)
-
             .build()
             .awaitReady();
 
-        observerRegistry.observe(ExperienceChangeEvent.class, new LevelController(levelConfig, levelService, jda));
-        GuildStatisticsService guildStatisticsService = new GuildStatisticsService(config, jda);
+        observerRegistry.observe(
+            ExperienceChangeEvent.class,
+            new LevelController(levelConfig, levelService, jda)
+        );
+
+        LOGGER.info("Initializing JDA-dependent services...");
+        GuildStatisticsService guildStats = new GuildStatisticsService(appConfig, jda);
+        AutoMessageService autoMsgService = new AutoMessageService(jda, appConfig.autoMessagesConfig);
+        GitHubReviewReminderService reminderService = new GitHubReviewReminderService(
+            jda,
+            mentionRepo,
+            appConfig,
+            scheduler,
+            REMINDER_INTERVAL
+        );
+        reminderService.start();
 
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             Sentry.captureException(throwable);
-            LOGGER.error("Uncaught exception", throwable);
+            LOGGER.error("Uncaught exception in thread: {}", thread.getName(), throwable);
         });
 
-        scheduler = new VirtualThreadSchedulerImpl();
-        scheduler.schedule(new GuildStatisticsTask(guildStatisticsService), Duration.ofMinutes(5));
-        scheduler.schedule(new GitHubReviewTask(gitHubReviewService, jda), Duration.ofMinutes(5));
+        LOGGER.info("Starting scheduled tasks...");
+        scheduler.schedule(new GuildStatisticsTask(guildStats), Duration.ofMinutes(5));
+        new GitHubReviewTask(reviewService, jda, scheduler).start();
+        scheduler.scheduleRepeating(new AutoMessageTask(autoMsgService), appConfig.autoMessagesConfig.interval);
 
-        // Initialize auto message system
-        AutoMessageService autoMessageService = new AutoMessageService(jda, config);
-        scheduler.scheduleRepeating(new AutoMessageTask(autoMessageService), config.autoMessages.interval);
-        LOGGER.info("Scheduled auto messages with interval {}", config.autoMessages.interval);
+        LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);
 
-        // Initialize the reminder service
-        GitHubReviewReminderService reminderService = new GitHubReviewReminderService(jda, mentionRepository, config);
-        reminderService.start();
-
-        // Add shutdown hook to stop the reminder service
-        Runtime.getRuntime().addShutdownHook(new Thread(reminderService::stop));
+        this.scheduler = scheduler;
+        this.reminderService = reminderService;
+        this.jda = jda;
+        this.databaseManager = databaseManager;
     }
 
-    private static void shutdown() {
-        try {
-            databaseManager.close();
-        }
-        catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
+    private void shutdown() {
+        LOGGER.info("Initiating graceful shutdown...");
 
         try {
-            scheduler.shutdown();
+            if (scheduler != null) {
+                scheduler.shutdown();
+                LOGGER.info("Scheduler stopped");
+            }
+
+            if (reminderService != null) {
+                reminderService.stop();
+                LOGGER.info("GitHub review reminder service stopped");
+            }
+
+            if (jda != null) {
+                jda.shutdown();
+                LOGGER.info("JDA stopped");
+            }
+
+            if (databaseManager != null) {
+                databaseManager.close();
+                LOGGER.info("Database connections closed");
+            }
+
+            LOGGER.info("Graceful shutdown completed");
         }
-        catch (InterruptedException exception) {
-            throw new RuntimeException(exception);
+        catch (Exception exception) {
+            LOGGER.error("Error during shutdown", exception);
+            Sentry.captureException(exception);
         }
     }
 }

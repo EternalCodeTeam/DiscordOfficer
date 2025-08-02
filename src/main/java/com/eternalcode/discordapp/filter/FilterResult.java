@@ -22,5 +22,4 @@ public final class FilterResult {
     public boolean isPassed() {
         return this.passed;
     }
-
 }
