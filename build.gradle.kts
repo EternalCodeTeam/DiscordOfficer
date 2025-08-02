@@ -2,7 +2,6 @@ plugins {
     `java-library`
     application
     idea
-    checkstyle
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -26,17 +25,6 @@ checkstyle {
 
     maxErrors = 0
     maxWarnings = 0
-}
-
-// https://github.com/JabRef/jabref/pull/10812/files#diff-49a96e7eea8a94af862798a45174e6ac43eb4f8b4bd40759b5da63ba31ec3ef7R267
-configurations.named("checkstyle") {
-    resolutionStrategy {
-        capabilitiesResolution {
-            withCapability("com.google.collections:google-collections") {
-                select("com.google.guava:guava:33.4.0-jre")
-            }
-        }
-    }
 }
 
 dependencies {
@@ -106,9 +94,6 @@ java {
 
 tasks.shadowJar {
     archiveFileName.set("DiscordOfficer v${project.version}.jar")
-
-    // dependsOn("checkstyleMain")
-    // dependsOn("test")
 
     manifest {
         attributes(
