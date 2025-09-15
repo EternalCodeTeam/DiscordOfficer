@@ -40,7 +40,7 @@ public class MeetingCommand extends SlashCommand {
         long epochSeconds = event.getOption("when").getAsLong();
 
         if (epochSeconds <= 0) {
-            event.reply("Podaj poprawny discordowy timestamp (sekundy UNIX > 0).").setEphemeral(true).queue();
+            event.reply("Podaj poprawny discordowy timestamp UNIX (musi być większy od 0.)").setEphemeral(true).queue();
             return;
         }
 
