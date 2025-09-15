@@ -35,6 +35,12 @@ import com.eternalcode.discordapp.leveling.experience.listener.ExperienceReactio
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardButtonController;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardCommand;
 import com.eternalcode.discordapp.leveling.leaderboard.LeaderboardService;
+import com.eternalcode.discordapp.meeting.MeetingButtonController;
+import com.eternalcode.discordapp.meeting.MeetingCleanupTask;
+import com.eternalcode.discordapp.meeting.MeetingCommand;
+import com.eternalcode.discordapp.meeting.MeetingPollRepository;
+import com.eternalcode.discordapp.meeting.MeetingService;
+import com.eternalcode.discordapp.meeting.MeetingVoteRepository;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
 import com.eternalcode.discordapp.review.GitHubReviewReminderService;
 import com.eternalcode.discordapp.review.GitHubReviewService;
@@ -126,6 +132,10 @@ public class DiscordApp {
         GitHubReviewService reviewService = new GitHubReviewService(appConfig, configManager, mentionRepo);
         LeaderboardService leaderboardService = new LeaderboardService(levelService);
 
+        MeetingPollRepository meetingPollRepository = MeetingPollRepository.create(databaseManager);
+        MeetingVoteRepository meetingVoteRepository = MeetingVoteRepository.create(databaseManager);
+        MeetingService meetingService = new MeetingService(appConfig, meetingPollRepository, meetingVoteRepository);
+
         LOGGER.info("Building command client...");
         CommandClient commandClient = new CommandClientBuilder()
             .setOwnerId(appConfig.topOwnerId)
@@ -146,7 +156,8 @@ public class DiscordApp {
                 new XFixCommand(),
                 new GitHubReviewCommand(reviewService, appConfig),
                 new LevelCommand(levelService),
-                new LeaderboardCommand(leaderboardService)
+                new LeaderboardCommand(leaderboardService),
+                new MeetingCommand(meetingService)
             )
             .build();
 
@@ -158,7 +169,8 @@ public class DiscordApp {
                 new ExperienceMessageListener(experienceConfig, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
                 new FilterMessageEmbedController(filterService),
-                new LeaderboardButtonController(leaderboardService)
+                new LeaderboardButtonController(leaderboardService),
+                new MeetingButtonController(meetingService)
             )
             .setAutoReconnect(true)
             .setHttpClient(httpClient)
@@ -197,6 +209,8 @@ public class DiscordApp {
         scheduler.scheduleRepeating(new AutoMessageTask(autoMsgService), appConfig.autoMessagesConfig.interval);
 
         LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);
+
+        scheduler.scheduleRepeating(new MeetingCleanupTask(meetingService, jda), Duration.ofHours(1));
 
         this.scheduler = scheduler;
         this.reminderService = reminderService;
