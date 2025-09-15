@@ -25,7 +25,7 @@ dependencies {
     }
 
     // configs
-    implementation("net.dzikoysk:cdn:1.14.6")
+    implementation("net.dzikoysk:cdn:1.14.9")
 
     // slf4j setup
     implementation("ch.qos.logback:logback-classic:1.5.18")
