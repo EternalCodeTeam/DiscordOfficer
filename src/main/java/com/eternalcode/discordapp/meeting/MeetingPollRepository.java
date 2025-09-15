@@ -7,6 +7,7 @@ import io.sentry.Sentry;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.time.Instant;
 
 public class MeetingPollRepository extends AbstractRepository<MeetingPollWrapper, Long> {
 
@@ -37,5 +38,13 @@ public class MeetingPollRepository extends AbstractRepository<MeetingPollWrapper
 
     public CompletableFuture<List<MeetingPollWrapper>> selectAllPolls() {
         return this.selectAll();
+    }
+
+    public CompletableFuture<List<MeetingPollWrapper>> findExpiredPolls(Instant expirationTime) {
+        long cutoffEpoch = expirationTime.getEpochSecond();
+        return this.action(dao -> dao.queryBuilder()
+            .where()
+            .le("meeting_at", cutoffEpoch)
+            .query());
     }
 }

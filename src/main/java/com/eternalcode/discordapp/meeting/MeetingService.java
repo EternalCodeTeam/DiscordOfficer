@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -14,8 +15,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MeetingService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeetingService.class);
 
     private final AppConfig appConfig;
     private final MeetingPollRepository pollRepository;
@@ -43,8 +48,8 @@ public class MeetingService {
 
         channel.sendMessageEmbeds(embed)
             .setActionRow(
-                Button.primary("meeting_yes", "✅ Będę"),
-                Button.danger("meeting_no", "❌ Nie będę"),
+                Button.secondary("meeting_yes", "✅ Będę"),
+                Button.secondary("meeting_no", "❌ Nie będę"),
                 Button.secondary("meeting_maybe", "🤷 Jeszcze nie wiem")
             )
             .queue(message -> {
@@ -84,47 +89,45 @@ public class MeetingService {
                 return;
             }
 
-            String msg = "Masz już zaznaczoną opcję: " + humanize(currentStatus) + ".\n"
-                + "Aby zmienić głos na: " + humanize(status) + ", najpierw kliknij ponownie przycisk: " + humanize(
-                currentStatus) + " (to wycofa Twój aktualny głos),\n"
-                + "a następnie wybierz: " + humanize(status) + ".";
-            updater.replyEphemeral(msg);
+            MeetingVoteWrapper updated = new MeetingVoteWrapper(messageId, userId, status);
+            this.voteRepository.saveVote(updated).thenRun(() -> this.refreshMessage(messageId, updater));
         });
     }
 
     private void refreshMessage(long messageId, MeetingButtonUpdater updater) {
-        this.voteRepository.findByMessageId(messageId).thenAccept(votes -> {
-            int yes = (int) votes.stream().filter(v -> v.getStatus() == MeetingStatus.YES).count();
-            int no = (int) votes.stream().filter(v -> v.getStatus() == MeetingStatus.NO).count();
-            int maybe = (int) votes.stream().filter(v -> v.getStatus() == MeetingStatus.MAYBE).count();
+        this.voteRepository.findByMessageId(messageId)
+            .thenCombine(
+                this.pollRepository.select(messageId), (votes, pollOpt) -> {
+                    if (pollOpt.isEmpty()) {
+                        return null;
+                    }
 
-            List<String> yesMentions = votes.stream()
-                .filter(v -> v.getStatus() == MeetingStatus.YES)
-                .map(v -> "<@" + v.getUserId() + ">")
-                .toList();
+                    Map<MeetingStatus, List<String>> mentionsByStatus = votes.stream()
+                        .collect(Collectors.groupingBy(
+                            MeetingVoteWrapper::getStatus,
+                            Collectors.mapping(vote -> "<@" + vote.getUserId() + ">", Collectors.toList())
+                        ));
 
-            List<String> noMentions = votes.stream()
-                .filter(v -> v.getStatus() == MeetingStatus.NO)
-                .map(v -> "<@" + v.getUserId() + ">")
-                .toList();
+                    List<String> yesMentions = mentionsByStatus.getOrDefault(MeetingStatus.YES, List.of());
+                    List<String> noMentions = mentionsByStatus.getOrDefault(MeetingStatus.NO, List.of());
+                    List<String> maybeMentions = mentionsByStatus.getOrDefault(MeetingStatus.MAYBE, List.of());
 
-            List<String> maybeMentions = votes.stream()
-                .filter(v -> v.getStatus() == MeetingStatus.MAYBE)
-                .map(v -> "<@" + v.getUserId() + ">")
-                .toList();
+                    MeetingPollWrapper poll = pollOpt.get();
+                    MessageEmbed updated = this.buildMeetingEmbed(
+                        poll.getTopic(),
+                        Instant.ofEpochSecond(poll.getMeetingAt()),
+                        yesMentions.size(),
+                        noMentions.size(),
+                        maybeMentions.size(),
+                        yesMentions,
+                        noMentions,
+                        maybeMentions
+                    );
 
-            this.pollRepository.select(messageId).thenAccept(pollOpt -> {
-                String topic = pollOpt.map(MeetingPollWrapper::getTopic).orElse("Spotkanie");
-                Instant meetingAt = pollOpt.map(p -> Instant.ofEpochSecond(p.getMeetingAt())).orElse(Instant.now());
-
-                MessageEmbed updated = this.buildMeetingEmbed(
-                    topic, meetingAt, yes, no, maybe, yesMentions, noMentions, maybeMentions
-                );
-
-                updater.editMessage(new MessageEditBuilder().setEmbeds(updated).build());
-                updater.acknowledgeEphemeral("Głos zaktualizowany. Dzięki!");
-            });
-        });
+                    updater.editMessage(new MessageEditBuilder().setEmbeds(updated).build());
+                    updater.acknowledgeEphemeral("Głos zaktualizowany. Dzięki!");
+                    return null;
+                });
     }
 
     private MessageEmbed buildMeetingEmbed(
@@ -158,14 +161,12 @@ public class MeetingService {
             .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
             .setDescription("Zagłosuj poniżej, aby potwierdzić obecność.")
             .addField("🗓 Kiedy", when, false)
-            .addField("✅ Będzie", String.valueOf(yes), true)
-            .addField("❌ Nie będzie", String.valueOf(no), true)
-            .addField("🤷 Nie wiem", String.valueOf(maybe), true)
+            .addField("✅ Obecnych", String.valueOf(yes), true)
+            .addField("❌ Nieobecnych", String.valueOf(no), true)
+            .addField("🤷 Niezdecydowanych", String.valueOf(maybe), true)
             .addField("Lista obecnych", yesList, false)
             .addField("Lista nieobecnych", noList, false)
             .addField("Lista niezdecydowanych", maybeList, false)
-            .setFooter(
-                "Kliknij tę samą opcję ponownie, aby wycofać głos. Zmiana opcji wymaga najpierw wycofania obecnego głosu.")
             .setTimestamp(Instant.now())
             .build();
     }
@@ -179,21 +180,40 @@ public class MeetingService {
     }
 
     public void cleanupExpired(JDA jda, Instant now) {
-        this.pollRepository.selectAllPolls().thenAccept(polls -> {
+        Instant cutoff = now.minus(Duration.ofDays(1));
+
+        this.pollRepository.findExpiredPolls(cutoff).thenAccept(polls -> {
             for (MeetingPollWrapper poll : polls) {
-                Instant meetingAt = Instant.ofEpochSecond(poll.getMeetingAt());
-                if (now.isAfter(meetingAt.plus(Duration.ofDays(1)))) {
-                    TextChannel channel = jda.getTextChannelById(poll.getChannelId());
-                    if (channel != null) {
-                        channel.deleteMessageById(poll.getMessageId()).queue(
-                            success -> {},
-                            failure -> {}
-                        );
-                    }
+                TextChannel channel = jda.getTextChannelById(poll.getChannelId());
+                if (channel != null) {
+                    channel.deleteMessageById(poll.getMessageId()).queue(
+                        success -> {
+                            this.voteRepository.deleteByMessageId(poll.getMessageId());
+                            this.pollRepository.deleteByMessageId(poll.getMessageId());
+                            LOGGER.debug(
+                                "Deleted expired meeting message and cleaned DB for messageId={}",
+                                poll.getMessageId());
+                        },
+                        failure -> {
+                            LOGGER.warn(
+                                "Failed to delete meeting messageId={} in channelId={}. Cleaning DB anyway.",
+                                poll.getMessageId(), poll.getChannelId(), failure);
+                            this.voteRepository.deleteByMessageId(poll.getMessageId());
+                            this.pollRepository.deleteByMessageId(poll.getMessageId());
+                        }
+                    );
+                }
+                else {
+                    LOGGER.info(
+                        "Channel not found for expired meeting messageId={}, channelId={}. Cleaning DB.",
+                        poll.getMessageId(), poll.getChannelId());
                     this.voteRepository.deleteByMessageId(poll.getMessageId());
                     this.pollRepository.deleteByMessageId(poll.getMessageId());
                 }
             }
+        }).exceptionally(ex -> {
+            LOGGER.error("Failed to fetch expired polls", ex);
+            return null;
         });
     }
 
