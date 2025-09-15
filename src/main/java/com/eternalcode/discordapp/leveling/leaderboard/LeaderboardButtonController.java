@@ -28,6 +28,11 @@ public class LeaderboardButtonController extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String componentId = event.getComponentId();
+
+        if (!componentId.startsWith("leaderboard_")) {
+            return;
+        }
+
         long messageId = event.getMessage().getIdLong();
 
         int totalRecords = this.leaderboardService.getTotalRecords();
