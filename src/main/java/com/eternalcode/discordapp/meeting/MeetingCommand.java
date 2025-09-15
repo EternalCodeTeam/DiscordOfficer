@@ -23,7 +23,7 @@ public class MeetingCommand extends SlashCommand {
             new OptionData(OptionType.STRING, "topic", "Temat/Opis spotkania (np. Poniedziałek 19:00 — weekly sync)")
                 .setRequired(true),
             new OptionData(
-                OptionType.INTEGER, "when", "Discordowy timestamp (sekundy UNIX), np. 1758394800 "
+                OptionType.INTEGER, "when", "Timestamp (milisekundy UNIX), np. 1758394800 "
                 + "(Generator - https://www.hammertime.cyou/pl)")
                 .setRequired(true)
         );
