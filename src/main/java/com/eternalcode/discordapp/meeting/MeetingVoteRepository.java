@@ -23,7 +23,8 @@ public class MeetingVoteRepository extends AbstractRepository<MeetingVoteWrapper
             Sentry.captureException(sqlException);
             throw new com.eternalcode.discordapp.database.DataAccessException(
                 "Failed to create meeting_vote table",
-                sqlException);
+                sqlException
+            );
         }
         return new MeetingVoteRepository(databaseManager);
     }
