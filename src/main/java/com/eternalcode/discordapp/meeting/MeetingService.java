@@ -31,10 +31,11 @@ public class MeetingService {
     }
 
     private static String trimTo(String string) {
-        if (string.length() <= 1000) {
+        final int EMBED_FIELD_VALUE_LIMIT = 1024;
+        if (string.length() <= EMBED_FIELD_VALUE_LIMIT) {
             return string;
         }
-        return string.substring(0, Math.max(0, 1000 - 3)) + "...";
+        return string.substring(0, Math.max(0, EMBED_FIELD_VALUE_LIMIT - 3)) + "...";
     }
 
     public void createMeeting(MessageChannel channel, long guildId, String topic, Instant meetingAt) {
