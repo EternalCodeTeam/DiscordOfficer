@@ -59,8 +59,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // mockito
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.18.0")
