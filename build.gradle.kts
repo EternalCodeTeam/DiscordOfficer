@@ -44,7 +44,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.3.3")
 
     // Database drivers
-    implementation("com.h2database:h2:2.3.232")
+    implementation("com.h2database:h2:2.4.240")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.6")
 
     // Gson
