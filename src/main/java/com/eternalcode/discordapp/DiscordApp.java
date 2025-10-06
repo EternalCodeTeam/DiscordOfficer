@@ -15,6 +15,8 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.command.XFixCommand;
 import com.eternalcode.discordapp.config.AppConfig;
+import com.eternalcode.discordapp.ticket.TicketConfig;
+import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
@@ -50,6 +52,7 @@ import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepository;
 import com.eternalcode.discordapp.review.database.GitHubReviewMentionRepositoryImpl;
 import com.eternalcode.discordapp.scheduler.Scheduler;
 import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
+import com.eternalcode.discordapp.ticket.TicketConfigurer;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import io.sentry.Sentry;
@@ -136,11 +139,13 @@ public class DiscordApp {
         MeetingVoteRepository meetingVoteRepository = MeetingVoteRepository.create(databaseManager);
         MeetingService meetingService = new MeetingService(appConfig, meetingPollRepository, meetingVoteRepository);
 
+
         LOGGER.info("Building command client...");
-        CommandClient commandClient = new CommandClientBuilder()
+        CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
             .setOwnerId(appConfig.topOwnerId)
             .setActivity(Activity.playing("IntelliJ IDEA"))
             .useHelpBuilder(false)
+            .forceGuildOnly(appConfig.guildId)
             .addSlashCommands(
                 new AvatarCommand(appConfig),
                 new BanCommand(appConfig),
@@ -158,14 +163,13 @@ public class DiscordApp {
                 new LevelCommand(levelService),
                 new LeaderboardCommand(leaderboardService),
                 new MeetingCommand(meetingService)
-            )
-            .build();
+            );
 
         LOGGER.info("Initializing Discord bot...");
         FilterService filterService = new FilterService().register(new RenovateForcedPushFilter());
+
         JDA jda = JDABuilder.createDefault(appConfig.token)
             .addEventListeners(
-                commandClient,
                 new ExperienceMessageListener(experienceConfig, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
                 new FilterMessageEmbedController(filterService),
@@ -189,6 +193,20 @@ public class DiscordApp {
         LOGGER.info("Initializing JDA-dependent services...");
         GuildStatisticsService guildStats = new GuildStatisticsService(appConfig, jda);
         AutoMessageService autoMsgService = new AutoMessageService(jda, appConfig.autoMessagesConfig);
+
+        TicketConfigurer ticketConfigurer = new TicketConfigurer(
+            jda,
+            configManager,
+            databaseManager,
+            commandClientBuilder,
+            scheduler
+        );
+        ticketConfigurer.initialize();
+
+        CommandClient commandClient = commandClientBuilder.build();
+        jda.addEventListener(commandClient);
+
+
         GitHubReviewReminderService reminderService = new GitHubReviewReminderService(
             jda,
             mentionRepo,
@@ -211,6 +229,7 @@ public class DiscordApp {
         LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);
 
         scheduler.scheduleRepeating(new MeetingCleanupTask(meetingService, jda), Duration.ofHours(1));
+
 
         this.scheduler = scheduler;
         this.reminderService = reminderService;

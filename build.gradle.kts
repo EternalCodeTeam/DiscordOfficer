@@ -66,6 +66,8 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.17.0")
 
     implementation("com.eternalcode:eternalcode-commons-shared:1.2.0")
+
+    implementation("dev.skywolfxp:discord-channel-html-transcript:3.0.0")
 }
 
 tasks.getByName<Test>("test") {
