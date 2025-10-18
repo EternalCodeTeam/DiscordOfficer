@@ -7,7 +7,7 @@ import java.time.Instant;
 @DatabaseTable(tableName = "tickets")
 public class TicketWrapper {
 
-    @DatabaseField(id = true, columnName = "id")
+    @DatabaseField(generatedId = true, columnName = "id")
     private long id;
 
     @DatabaseField(columnName = "user_id", index = true)

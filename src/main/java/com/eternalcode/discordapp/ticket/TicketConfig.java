@@ -22,7 +22,7 @@ public class TicketConfig implements CdnConfig {
     public int maxTicketsPerUser = 3;
 
     @Description("# Po jakim czasie nieaktywne tickety mają być automatycznie zamknięte (w godzinach)")
-    public int autoCloseAfterHours = 168; // 7 dni
+    public Duration autoCloseAfterHours = Duration.ofDays(7);
 
     @Description("# ID kanału gdzie będą wysyłane transkrypty")
     public long transcriptChannelId = 1144038937996824779L;
@@ -55,7 +55,7 @@ public class TicketConfig implements CdnConfig {
     );
 
     public Duration getAutoCloseDuration() {
-        return Duration.ofHours(autoCloseAfterHours);
+        return this.autoCloseAfterHours;
     }
 
     public List<TicketCategoryConfig> getEnabledCategories() {
