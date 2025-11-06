@@ -59,7 +59,7 @@ public class TicketChannelService {
                 return CompletableFuture.supplyAsync(() -> {
                     try {
                         long ticketId = Instant.now().toEpochMilli() + ThreadLocalRandom.current().nextInt(1000, 9999);
-                        TextChannel channel = this.createChannel(userId, category, ticketId);
+                        TextChannel channel = this.createChannel(userId, category);
 
                         TicketWrapper ticket = new TicketWrapper(userId, channel.getIdLong(), categoryId);
                         this.ticketService.saveTicket(ticket).join();
@@ -176,56 +176,34 @@ public class TicketChannelService {
         return builder.build();
     }
 
-    private TextChannel createChannel(long userId, TicketConfig.TicketCategoryConfig category, long ticketId) {
+    private TextChannel createChannel(long userId, TicketConfig.TicketCategoryConfig category) {
         Category cat = this.jda.getCategoryById(this.config.categoryId);
         if (cat == null) {
             throw new IllegalStateException("Category not found: " + this.config.categoryId);
         }
 
+        Guild guild = cat.getGuild();
         User user = this.jda.getUserById(userId);
         String userName = user != null ? user.getName() : "user" + userId;
         long count = this.ticketService.countTicketsByUser(userId).join();
         String channelName = count == 0 ? "ticket-" + userName : "ticket-" + userName + "-" + (count + 1);
 
-        TextChannel channel = cat.createTextChannel(channelName)
-            .setTopic("Ticket " + category.displayName)
-            .complete();
-
-        this.setupPermissions(channel, userId);
-        return channel;
-    }
-
-    private void setupPermissions(TextChannel channel, long userId) {
-        Guild guild = channel.getGuild();
-
-        channel.getManager()
-            .putPermissionOverride(guild.getPublicRole(), null, List.of(Permission.VIEW_CHANNEL))
-            .queue();
-
         Member member = guild.getMemberById(userId);
-        if (member != null) {
-            channel.getManager()
-                .putPermissionOverride(
-                    member,
-                    List.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_HISTORY),
-                    null)
-                .queue();
-        }
+        Role staffRole = this.config.staffRoleId != 0L ? guild.getRoleById(this.config.staffRoleId) : null;
 
-        if (this.config.staffRoleId != 0L) {
-            Role staffRole = guild.getRoleById(this.config.staffRoleId);
-            if (staffRole != null) {
-                channel.getManager()
-                    .putPermissionOverride(
-                        staffRole,
-                        List.of(
-                            Permission.VIEW_CHANNEL,
-                            Permission.MESSAGE_SEND,
-                            Permission.MESSAGE_HISTORY,
-                            Permission.MESSAGE_MANAGE),
-                        null)
-                    .queue();
-            }
-        }
+        return cat.createTextChannel(channelName)
+            .setTopic("Ticket " + category.displayName)
+            .addPermissionOverride(guild.getPublicRole(), null, List.of(Permission.VIEW_CHANNEL))
+            .addPermissionOverride(member,
+                List.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_HISTORY),
+                null)
+            .addPermissionOverride(staffRole,
+                List.of(
+                    Permission.VIEW_CHANNEL,
+                    Permission.MESSAGE_SEND,
+                    Permission.MESSAGE_HISTORY,
+                    Permission.MESSAGE_MANAGE),
+                null)
+            .complete();
     }
 }
