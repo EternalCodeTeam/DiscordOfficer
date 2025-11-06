@@ -15,8 +15,6 @@ import com.eternalcode.discordapp.command.SayCommand;
 import com.eternalcode.discordapp.command.ServerCommand;
 import com.eternalcode.discordapp.command.XFixCommand;
 import com.eternalcode.discordapp.config.AppConfig;
-import com.eternalcode.discordapp.ticket.TicketConfig;
-import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.config.DatabaseConfig;
 import com.eternalcode.discordapp.database.DatabaseManager;
@@ -62,9 +60,6 @@ import java.util.EnumSet;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -142,7 +137,6 @@ public class DiscordApp {
         MeetingVoteRepository meetingVoteRepository = MeetingVoteRepository.create(databaseManager);
         MeetingService meetingService = new MeetingService(appConfig, meetingPollRepository, meetingVoteRepository);
 
-
         LOGGER.info("Building command client...");
         CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
             .setOwnerId(appConfig.topOwnerId)
@@ -211,7 +205,6 @@ public class DiscordApp {
         LOGGER.info("CommandClient built and registered");
         jda.addEventListener(commandClient);
 
-
         GitHubReviewReminderService reminderService = new GitHubReviewReminderService(
             jda,
             mentionRepo,
@@ -234,7 +227,6 @@ public class DiscordApp {
         LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);
 
         scheduler.scheduleRepeating(new MeetingCleanupTask(meetingService, jda), Duration.ofHours(1));
-
 
         this.scheduler = scheduler;
         this.reminderService = reminderService;

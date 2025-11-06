@@ -12,50 +12,73 @@ import net.dzikoysk.cdn.source.Source;
 @Contextual
 public class TicketConfig implements CdnConfig {
 
-    @Description("# ID roli staff (może zarządzać ticketami)")
+    public static final TicketCategoryConfig SUPPORT_TICKET_CATEGORY = new TicketCategoryConfig(
+        "SUPPORT",
+        "🩺",
+        "Support",
+        "Need help? Open a support ticket!",
+        true,
+        1
+    );
+
+    public static final TicketCategoryConfig BUG_REPORT_CATEGORY = new TicketCategoryConfig(
+        "BUG_REPORT",
+        "🐛",
+        "Bug Report",
+        "Found a bug? Report it here!",
+        true,
+        1
+    );
+
+    public static final TicketCategoryConfig FEATURE_REQUEST_CATEGORY = new TicketCategoryConfig(
+        "FEATURE_REQUEST",
+        "💡",
+        "Feature Request",
+        "Have an idea for a new feature?",
+        true,
+        1
+    );
+
+    public static final TicketCategoryConfig GENERAL_TICKET_CATEGORY = new TicketCategoryConfig(
+        "GENERAL",
+        "💬",
+        "General",
+        "General questions and conversations",
+        true,
+        1
+    );
+
+    @Description("# Staff role ID (can manage tickets)")
     public long staffRoleId = 1144038849211793599L;
 
-    @Description("# ID kategorii gdzie będą tworzone kanały ticketów")
+    @Description("# Category ID where ticket channels will be created")
     public long categoryId = 1144038885320572938L;
 
-    @Description("# Maksymalna liczba aktywnych ticketów na użytkownika")
+    @Description("# Maximum number of active tickets per user")
     public int maxTicketsPerUser = 3;
 
-    @Description("# Po jakim czasie nieaktywne tickety mają być automatycznie zamknięte (w godzinach)")
-    public Duration autoCloseAfterHours = Duration.ofDays(7);
+    @Description("# After what time inactive tickets should be automatically closed (in hours)")
+    public Duration autoCloseDuration = Duration.ofDays(7);
 
-    @Description("# ID kanału gdzie będą wysyłane transkrypty")
+    @Description("# Channel ID where transcripts will be sent")
     public long transcriptChannelId = 1144038937996824779L;
 
-    @Description("# Konfiguracja wiadomości")
+    @Description("# Message configuration")
     public MessageConfig messages = new MessageConfig();
 
-    @Description("# Konfiguracja embedów")
+    @Description("# Embed configuration")
     public EmbedConfig embeds = new EmbedConfig();
 
-    @Description("# Domyślne kategorie ticketów")
+    @Description("# Default ticket categories")
     public List<TicketCategoryConfig> defaultCategories = List.of(
-        new TicketCategoryConfig(
-            "SUPPORT",
-            "🩺",
-            "Support",
-            "Potrzebujesz pomocy? Otwórz ticket support!",
-            true,
-            1),
-        new TicketCategoryConfig("BUG_REPORT", "🐛", "Bug Report", "Znalazłeś błąd? Zgłoś go tutaj!", true, 1),
-        new TicketCategoryConfig(
-            "FEATURE_REQUEST",
-            "💡",
-            "Feature Request",
-            "Masz pomysł na nową funkcję?",
-            true,
-            1),
-        new TicketCategoryConfig("GENERAL", "💬", "General", "Ogólne pytania i rozmowy", true, 1),
-        new TicketCategoryConfig("COMPLAINT", "⚠️", "Complaint", "Chcesz zgłosić skargę?", true, 1)
+        SUPPORT_TICKET_CATEGORY,
+        BUG_REPORT_CATEGORY,
+        FEATURE_REQUEST_CATEGORY,
+        GENERAL_TICKET_CATEGORY
     );
 
     public Duration getAutoCloseDuration() {
-        return this.autoCloseAfterHours;
+        return this.autoCloseDuration;
     }
 
     public List<TicketCategoryConfig> getEnabledCategories() {
@@ -78,50 +101,79 @@ public class TicketConfig implements CdnConfig {
 
     @Contextual
     public static class MessageConfig {
-        @Description("# Wiadomość wysyłana przy tworzeniu ticketu")
-        public String ticketCreated = "🎫 Twój ticket został utworzony! Opisz swój problem, a nasz zespół Ci pomoże.";
+        @Description("# Message sent when creating a ticket")
+        public String ticketCreated = "🎫 Your ticket has been created! Describe your problem and our team will help you.";
 
-        @Description("# Wiadomość wysyłana gdy użytkownik ma za dużo ticketów")
-        public String tooManyTickets =
-            "❌ Masz już zbyt wiele aktywnych ticketów. Zamknij jeden z istniejących przed utworzeniem nowego.";
+        @Description("# Message sent when user has too many tickets")
+        public String tooManyTickets = "❌ You already have too many active tickets. Close one of the existing ones before creating a new one.";
     }
 
     @Contextual
     public static class EmbedConfig {
-        @Description("# Kolor embedów (hex)")
-        public String color = "#00ff77";
+        @Description("# Embed color (hex)")
+        public String color = "#ffffff";
 
-        @Description("# URL thumbnail dla embedów")
-        public String thumbnail = "https://i.imgur.com/QkNxIL3.png";
+        @Description("# Embed thumbnail URL")
+        public String thumbnail = "";
 
-        @Description("# URL footer icon")
+        @Description("# Footer icon URL")
         public String footerIcon = "";
 
-        @Description("# Tekst footer")
-        public String footerText = "DiscordOfficer Ticket System";
+        @Description("# Footer text")
+        public String footerText = "EternalCodeTeam Support Center";
 
-        @Description("# Czy pokazywać timestamp")
+        @Description("# Show timestamp")
         public boolean showTimestamp = true;
     }
 
     @Contextual
+    public static class TicketPanelEmbedConfig {
+        @Description("# Ticket panel embed title")
+        public String title = "EternalCode.pl - Support Center";
+
+        @Description("# Ticket panel embed description")
+        public String description = "Select a category to create a ticket. Our team will help you resolve your issue!";
+
+        @Description("# Panel embed color (hex)")
+        public String color = "#ffffff";
+
+        @Description("# Banner URL (image at the top of the embed)")
+        public String bannerUrl = "https://raw.githubusercontent.com/EternalCodeTeam/.github/refs/heads/master/assets/Ticket%20Channel.png";
+
+        @Description("# Panel thumbnail URL")
+        public String thumbnail = "";
+
+        @Description("# Panel footer icon URL")
+        public String footerIcon = "";
+
+        @Description("# Panel footer text")
+        public String footerText = "EternalCodeTeam Support Center";
+
+        @Description("# Show timestamp in panel")
+        public boolean showTimestamp = true;
+    }
+
+    @Description("# Ticket panel embed configuration")
+    public TicketPanelEmbedConfig panelEmbed = new TicketPanelEmbedConfig();
+
+    @Contextual
     public static class TicketCategoryConfig {
-        @Description("# ID kategorii (unikalny identyfikator)")
+        @Description("# Category ID (unique identifier)")
         public String id = "TICKET";
 
-        @Description("# Emoji dla kategorii")
+        @Description("# Category emoji")
         public String emoji = "🎫";
 
-        @Description("# Nazwa wyświetlana")
+        @Description("# Display name")
         public String displayName = "Ticket";
 
-        @Description("# Opis kategorii")
-        public String description = "Otwórz ticket w tej kategorii";
+        @Description("# Category description")
+        public String description = "Open a ticket in this category";
 
-        @Description("# Czy kategoria jest aktywna")
+        @Description("# Whether the category is active")
         public boolean enabled = true;
 
-        @Description("# Maksymalna liczba ticketów w tej kategorii na użytkownika")
+        @Description("# Maximum number of tickets in this category per user")
         public int maxPerUser = 1;
 
         public TicketCategoryConfig() {}

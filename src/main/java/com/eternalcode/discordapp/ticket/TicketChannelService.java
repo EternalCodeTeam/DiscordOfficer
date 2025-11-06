@@ -1,5 +1,6 @@
 package com.eternalcode.discordapp.ticket;
 
+import com.eternalcode.discordapp.util.UrlValidator;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
@@ -35,7 +36,8 @@ public class TicketChannelService {
         JDA jda,
         TicketConfig config,
         TicketService ticketService,
-        TranscriptGeneratorService transcriptGeneratorService) {
+        TranscriptGeneratorService transcriptGeneratorService
+    ) {
         this.jda = jda;
         this.config = config;
         this.ticketService = ticketService;
@@ -157,14 +159,14 @@ public class TicketChannelService {
             .setDescription(description)
             .setColor(Color.decode(this.config.embeds.color));
 
-        if (this.isValidUrl(this.config.embeds.thumbnail)) {
+        if (UrlValidator.isValid(this.config.embeds.thumbnail)) {
             builder.setThumbnail(this.config.embeds.thumbnail);
         }
 
         if (this.config.embeds.footerText != null && !this.config.embeds.footerText.trim().isEmpty()) {
             builder.setFooter(
                 this.config.embeds.footerText,
-                this.isValidUrl(this.config.embeds.footerIcon) ? this.config.embeds.footerIcon : null);
+                UrlValidator.isValid(this.config.embeds.footerIcon) ? this.config.embeds.footerIcon : null);
         }
 
         if (this.config.embeds.showTimestamp) {
@@ -225,10 +227,5 @@ public class TicketChannelService {
                     .queue();
             }
         }
-    }
-
-    private boolean isValidUrl(String url) {
-        return url != null && !url.trim().isEmpty() &&
-            (url.startsWith("http://") || url.startsWith("https://"));
     }
 }

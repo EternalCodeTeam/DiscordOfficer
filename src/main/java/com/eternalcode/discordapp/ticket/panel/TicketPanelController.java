@@ -41,7 +41,7 @@ public class TicketPanelController extends ListenerAdapter {
         switch (buttonId) {
             case "ticket_close" -> this.handleCloseButton(event);
             case "ticket_confirm_delete" -> this.handleConfirmDeleteButton(event);
-            case "ticket_cancel" -> event.reply("❌ Ticket deletion cancelled.").setEphemeral(true).queue();
+            case "ticket_cancel" -> event.getMessage().delete().queue();
             default -> this.handleCategoryButton(event);
         }
     }

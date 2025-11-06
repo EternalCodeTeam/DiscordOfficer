@@ -1,11 +1,17 @@
 package com.eternalcode.discordapp.ticket.panel;
 
+import static com.eternalcode.discordapp.util.UrlValidator.isValid;
+
 import com.eternalcode.discordapp.ticket.TicketChannelService;
 import com.eternalcode.discordapp.ticket.TicketConfig;
+import java.awt.Color;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -26,9 +32,7 @@ public class TicketPanelService {
     public CompletableFuture<MessageCreateData> createTicketPanel() {
         return CompletableFuture.supplyAsync(() -> {
             MessageCreateBuilder builder = new MessageCreateBuilder()
-                .setEmbeds(channelService.createEmbed(
-                    "🎫 Ticket System",
-                    "Select a category to create a ticket. Our team will help you resolve your issue!"));
+                .setEmbeds(this.createPanelEmbed());
 
             List<Button> buttons = config.getEnabledCategories().stream()
                 .map(cat -> Button.secondary(cat.getButtonId(), cat.emoji + " " + cat.displayName))
@@ -50,5 +54,32 @@ public class TicketPanelService {
 
     public CompletableFuture<Boolean> closeTicketFromPanel(long channelId, long staffId, String reason) {
         return channelService.closeTicket(channelId, staffId, reason);
+    }
+
+    public MessageEmbed createPanelEmbed() {
+        EmbedBuilder builder = new EmbedBuilder()
+            .setTitle(this.config.panelEmbed.title)
+            .setDescription(this.config.panelEmbed.description)
+            .setColor(Color.decode(this.config.panelEmbed.color));
+
+        if (isValid(this.config.panelEmbed.bannerUrl)) {
+            builder.setImage(this.config.panelEmbed.bannerUrl);
+        }
+
+        if (isValid(this.config.panelEmbed.thumbnail)) {
+            builder.setThumbnail(this.config.panelEmbed.thumbnail);
+        }
+
+        if (this.config.panelEmbed.footerText != null && !this.config.panelEmbed.footerText.trim().isEmpty()) {
+            builder.setFooter(
+                this.config.panelEmbed.footerText,
+                isValid(this.config.panelEmbed.footerIcon) ? this.config.panelEmbed.footerIcon : null);
+        }
+
+        if (this.config.panelEmbed.showTimestamp) {
+            builder.setTimestamp(Instant.now());
+        }
+
+        return builder.build();
     }
 }
