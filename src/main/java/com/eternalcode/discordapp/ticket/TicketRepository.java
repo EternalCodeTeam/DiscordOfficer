@@ -1,5 +1,10 @@
 package com.eternalcode.discordapp.ticket;
 
+import static com.eternalcode.discordapp.ticket.TicketWrapper.COLUMN_CATEGORY;
+import static com.eternalcode.discordapp.ticket.TicketWrapper.COLUMN_CHANNEL_ID;
+import static com.eternalcode.discordapp.ticket.TicketWrapper.COLUMN_CREATED_AT;
+import static com.eternalcode.discordapp.ticket.TicketWrapper.COLUMN_USER_ID;
+
 import com.eternalcode.discordapp.database.DataAccessException;
 import com.eternalcode.discordapp.database.DatabaseManager;
 import com.eternalcode.discordapp.database.repository.AbstractRepository;
@@ -35,7 +40,7 @@ public class TicketRepository extends AbstractRepository<TicketWrapper, Long> {
     public CompletableFuture<Optional<TicketWrapper>> findByChannelId(long channelId) {
         return this.action(dao -> dao.queryBuilder()
                 .where()
-                .eq("channel_id", channelId)
+                .eq(COLUMN_CHANNEL_ID, channelId)
                 .queryForFirst())
             .thenApply(Optional::ofNullable);
     }
@@ -43,30 +48,30 @@ public class TicketRepository extends AbstractRepository<TicketWrapper, Long> {
     public CompletableFuture<List<TicketWrapper>> findByUserId(long userId) {
         return this.action(dao -> dao.queryBuilder()
             .where()
-            .eq("user_id", userId)
+            .eq(COLUMN_USER_ID, userId)
             .query());
     }
 
-    public CompletableFuture<List<TicketWrapper>> findInactiveTickets(Instant cutoffTime) {
+    public CompletableFuture<List<TicketWrapper>> findTicketsOlderThan(Instant cutoffTime) {
         return this.action(dao -> dao.queryBuilder()
             .where()
-            .le("created_at", cutoffTime.getEpochSecond())
+            .le(COLUMN_CREATED_AT, cutoffTime.getEpochSecond())
             .query());
     }
 
-    public CompletableFuture<Integer> countTicketsByUser(long userId) {
-        return this.action(dao -> (int) dao.queryBuilder()
+    public CompletableFuture<Long> countTicketsByUser(long userId) {
+        return this.action(dao -> dao.queryBuilder()
             .where()
-            .eq("user_id", userId)
+            .eq(COLUMN_USER_ID, userId)
             .countOf());
     }
 
-    public CompletableFuture<Integer> countTicketsByUserAndCategory(long userId, String category) {
-        return this.action(dao -> (int) dao.queryBuilder()
+    public CompletableFuture<Long> countTicketsByUserAndCategory(long userId, String category) {
+        return this.action(dao -> dao.queryBuilder()
             .where()
-            .eq("user_id", userId)
+            .eq(COLUMN_USER_ID, userId)
             .and()
-            .eq("category", category)
+            .eq(COLUMN_CATEGORY, category)
             .countOf());
     }
 

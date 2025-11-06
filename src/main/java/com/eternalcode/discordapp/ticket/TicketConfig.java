@@ -37,7 +37,7 @@ public class TicketConfig implements CdnConfig {
     public List<TicketCategoryConfig> defaultCategories = List.of(
         new TicketCategoryConfig(
             "SUPPORT",
-            "🎧",
+            "🩺",
             "Support",
             "Potrzebujesz pomocy? Otwórz ticket support!",
             true,

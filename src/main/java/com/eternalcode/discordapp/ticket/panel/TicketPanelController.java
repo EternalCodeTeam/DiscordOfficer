@@ -39,16 +39,16 @@ public class TicketPanelController extends ListenerAdapter {
         }
 
         switch (buttonId) {
-            case "ticket_close" -> handleCloseButton(event);
-            case "ticket_confirm_delete" -> handleConfirmDeleteButton(event);
+            case "ticket_close" -> this.handleCloseButton(event);
+            case "ticket_confirm_delete" -> this.handleConfirmDeleteButton(event);
             case "ticket_cancel" -> event.reply("❌ Ticket deletion cancelled.").setEphemeral(true).queue();
-            default -> handleCategoryButton(event);
+            default -> this.handleCategoryButton(event);
         }
     }
 
     private void handleCategoryButton(ButtonInteractionEvent event) {
         long userId = event.getUser().getIdLong();
-        TicketConfig.TicketCategoryConfig category = config.getEnabledCategories().stream()
+        TicketConfig.TicketCategoryConfig category = this.config.getEnabledCategories().stream()
             .filter(cat -> cat.getButtonId().equals(event.getComponentId()))
             .findFirst()
             .orElse(null);
@@ -58,24 +58,27 @@ public class TicketPanelController extends ListenerAdapter {
             return;
         }
 
-        if (ticketService.canUserCreateTicket(userId, category.id)) {
-            event.reply(config.messages.tooManyTickets).setEphemeral(true).queue();
-            return;
-        }
-
         event.deferReply(true).queue();
         event.getHook().editOriginal("🔄 Creating ticket...").queue();
 
-        panelService.createTicketFromPanel(userId, category.id)
-            .thenAccept(channelOpt -> {
-                String message = channelOpt
-                    .map(textChannel -> "✅ Your ticket has been created: " + textChannel.getAsMention())
-                    .orElse("❌ Failed to create ticket. Please try again later.");
-                event.getHook().editOriginal(message).queue();
+        this.ticketService.canUserCreateTicket(userId, category.id)
+            .thenCompose(canCreate -> {
+                if (!canCreate) {
+                    event.getHook().editOriginal(this.config.messages.tooManyTickets).queue();
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                return this.panelService.createTicketFromPanel(userId, category.id)
+                    .thenAccept(channelOpt -> {
+                        String message = channelOpt
+                            .map(textChannel -> "✅ Your ticket has been created: " + textChannel.getAsMention())
+                            .orElse("❌ Failed to create ticket. Please try again later.");
+                        event.getHook().editOriginal(message).queue();
+                    });
             })
-            .exceptionally(throwable -> {
-                LOGGER.error("Error creating ticket: {}", throwable.getMessage(), throwable);
-                safeEditHook(event, "❌ An error occurred. Please try again later.");
+            .exceptionally(exception -> {
+                LOGGER.error("Error creating ticket for user {}", userId, exception);
+                this.safeEditHook(event, "❌ An error occurred. Please try again later.");
                 return null;
             });
     }
@@ -106,26 +109,30 @@ public class TicketPanelController extends ListenerAdapter {
     private void handleConfirmDeleteButton(ButtonInteractionEvent event) {
         event.deferReply(true).queue();
 
+        Channel channel = event.getChannel();
+        long channelId = channel.getIdLong();
+        long userId = event.getUser().getIdLong();
+
         for (int i = DELETE_DELAY_SECONDS; i >= 1; i--) {
             final int count = i;
             CompletableFuture.delayedExecutor(DELETE_DELAY_SECONDS - i, TimeUnit.SECONDS)
-                .execute(() -> safeEditHook(
+                .execute(() -> this.safeEditHook(
                     event,
                     "🗑️ Deleting ticket in " + count + " second" + (count > 1 ? "s" : "") + "..."));
         }
 
         CompletableFuture.delayedExecutor(DELETE_DELAY_SECONDS, TimeUnit.SECONDS)
             .execute(() -> {
-                Channel channel = event.getChannel();
-                long channelId = channel.getIdLong();
-
-                panelService.closeTicketFromPanel(channelId, event.getUser().getIdLong(), "Closed by user")
-                    .thenAccept(success -> safeEditHook(
-                        event,
-                        success ? "✅ Ticket has been deleted." : "❌ Failed to delete ticket."))
-                    .exceptionally(throwable -> {
-                        LOGGER.error("Error deleting ticket: {}", throwable.getMessage(), throwable);
-                        safeEditHook(event, "❌ An error occurred. Please try again later.");
+                this.panelService.closeTicketFromPanel(channelId, userId, "Closed by user")
+                    .thenAccept(success -> {
+                        if (!success) {
+                            this.safeEditHook(event, "❌ Failed to delete ticket.");
+                            LOGGER.warn("Failed to close ticket {} for user {}", channelId, userId);
+                        }
+                    })
+                    .exceptionally(exception -> {
+                        LOGGER.error("Error deleting ticket {} for user {}", channelId, userId, exception);
+                        this.safeEditHook(event, "❌ An error occurred. Please try again later.");
                         return null;
                     });
             });
@@ -136,7 +143,7 @@ public class TicketPanelController extends ListenerAdapter {
             event.getHook().editOriginal(message).queue();
         }
         catch (Exception exception) {
-            LOGGER.debug("Failed to update hook: {}", exception.getMessage());
+            LOGGER.debug("Failed to update hook", exception);
         }
     }
 }

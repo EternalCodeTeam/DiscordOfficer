@@ -31,40 +31,40 @@ public class TicketService {
         return this.repository.findByUserId(userId);
     }
 
-    public CompletableFuture<List<TicketWrapper>> findInactiveTickets(Instant cutoffTime) {
-        return this.repository.findInactiveTickets(cutoffTime);
+    public CompletableFuture<List<TicketWrapper>> findTicketsOlderThan(Instant cutoffTime) {
+        return this.repository.findTicketsOlderThan(cutoffTime);
     }
 
     public CompletableFuture<Integer> deleteTicket(long ticketId) {
         return this.repository.deleteTicket(ticketId);
     }
 
-    public CompletableFuture<Integer> countTicketsByUser(long userId) {
+    public CompletableFuture<Long> countTicketsByUser(long userId) {
         return this.repository.countTicketsByUser(userId);
     }
 
-    public CompletableFuture<Integer> countTicketsByUserAndCategory(long userId, String categoryId) {
+    public CompletableFuture<Long> countTicketsByUserAndCategory(long userId, String categoryId) {
         return this.repository.countTicketsByUserAndCategory(userId, categoryId);
     }
 
-    public boolean canUserCreateTicket(long userId, String categoryId) {
-        try {
-            int totalCount = this.countTicketsByUser(userId).join();
-            if (totalCount >= this.config.maxTicketsPerUser) {
-                return true;
-            }
+    public CompletableFuture<Boolean> canUserCreateTicket(long userId, String categoryId) {
+        return this.countTicketsByUser(userId)
+            .thenCompose(totalCount -> {
+                if (totalCount >= this.config.maxTicketsPerUser) {
+                    return CompletableFuture.completedFuture(false);
+                }
 
-            TicketConfig.TicketCategoryConfig cat = this.config.getCategoryById(categoryId);
-            if (cat == null) {
-                return true;
-            }
+                TicketConfig.TicketCategoryConfig categoryConfig = this.config.getCategoryById(categoryId);
+                if (categoryConfig == null) {
+                    return CompletableFuture.completedFuture(false);
+                }
 
-            int categoryCount = this.countTicketsByUserAndCategory(userId, categoryId).join();
-            return categoryCount >= cat.maxPerUser;
-        }
-        catch (Exception exception) {
-            LOGGER.error("Error checking ticket limits for user {}", userId, exception);
-            return true;
-        }
+                return this.countTicketsByUserAndCategory(userId, categoryId)
+                    .thenApply(categoryCount -> categoryCount < categoryConfig.maxPerUser);
+            })
+            .exceptionally(exception -> {
+                LOGGER.error("Error checking ticket limits for user {}", userId, exception);
+                return false;
+            });
     }
 }

@@ -7,29 +7,34 @@ import java.time.Instant;
 @DatabaseTable(tableName = "tickets")
 public class TicketWrapper {
 
-    @DatabaseField(generatedId = true, columnName = "id")
+    static final String COLUMN_ID = "id";
+    static final String COLUMN_USER_ID = "user_id";
+    static final String COLUMN_CHANNEL_ID = "channel_id";
+    static final String COLUMN_CATEGORY = "category";
+    static final String COLUMN_CREATED_AT = "created_at";
+
+    @DatabaseField(generatedId = true, columnName = COLUMN_ID)
     private long id;
 
-    @DatabaseField(columnName = "user_id", index = true)
+    @DatabaseField(columnName = COLUMN_USER_ID, index = true)
     private long userId;
 
-    @DatabaseField(columnName = "channel_id", index = true)
+    @DatabaseField(columnName = COLUMN_CHANNEL_ID, index = true)
     private long channelId;
 
-    @DatabaseField(columnName = "category")
+    @DatabaseField(columnName = COLUMN_CATEGORY)
     private String category;
 
-    @DatabaseField(columnName = "created_at")
+    @DatabaseField(columnName = COLUMN_CREATED_AT)
     private long createdAt;
 
     public TicketWrapper() {
     }
 
-    public TicketWrapper(long id, long userId, long channelId, String categoryId) {
-        this.id = id;
+    public TicketWrapper(long userId, long channelId, String category) {
         this.userId = userId;
         this.channelId = channelId;
-        this.category = categoryId;
+        this.category = category;
         this.createdAt = Instant.now().getEpochSecond();
     }
 
