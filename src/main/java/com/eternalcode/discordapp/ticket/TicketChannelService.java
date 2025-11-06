@@ -56,7 +56,7 @@ public class TicketChannelService {
 
                 return CompletableFuture.supplyAsync(() -> {
                     try {
-                        long ticketId = System.currentTimeMillis() + ThreadLocalRandom.current().nextInt(1000, 9999);
+                        long ticketId = Instant.now().toEpochMilli() + ThreadLocalRandom.current().nextInt(1000, 9999);
                         TextChannel channel = this.createChannel(userId, category, ticketId);
 
                         TicketWrapper ticket = new TicketWrapper(userId, channel.getIdLong(), categoryId);
