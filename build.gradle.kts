@@ -51,8 +51,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.1")
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
