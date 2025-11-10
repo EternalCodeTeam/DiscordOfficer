@@ -41,7 +41,7 @@ dependencies {
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
     // HikariCP
-    implementation("com.zaxxer:HikariCP:6.3.3")
+    implementation("com.zaxxer:HikariCP:7.0.2")
 
     // Database drivers
     implementation("com.h2database:h2:2.4.240")
