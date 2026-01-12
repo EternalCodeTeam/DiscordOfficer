@@ -228,14 +228,28 @@ public class GitHubReviewService {
     private Result<GitHubPullRequest, IllegalArgumentException> getPullRequestFromThread(ThreadChannel threadChannel) {
         try {
             // Try to get the first message in the thread which should contain the PR URL
-            String firstMessageContent = threadChannel.retrieveMessageById(threadChannel.getIdLong())
-                .complete()
-                .getContentRaw();
+            List<net.dv8tion.jda.api.entities.Message> messages = threadChannel.getHistory()
+                .retrievePast(1)
+                .complete();
             
+            if (messages.isEmpty()) {
+                LOGGER.log(Level.WARNING, "No messages found in thread: " + threadChannel.getId());
+                return Result.error(new IllegalArgumentException("No messages in thread"));
+            }
+            
+            String firstMessageContent = messages.get(0).getContentRaw();
             return GitHubPullRequest.fromUrl(firstMessageContent);
         }
+        catch (net.dv8tion.jda.api.exceptions.ErrorResponseException exception) {
+            LOGGER.log(Level.WARNING, "Discord API error retrieving message from thread: " + threadChannel.getId(), exception);
+            return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
+        }
+        catch (RateLimitedException exception) {
+            LOGGER.log(Level.WARNING, "Rate limited when retrieving message from thread: " + threadChannel.getId(), exception);
+            return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
+        }
         catch (Exception exception) {
-            LOGGER.log(Level.WARNING, "Failed to retrieve first message from thread: " + threadChannel.getId(), exception);
+            LOGGER.log(Level.WARNING, "Unexpected error retrieving message from thread: " + threadChannel.getId(), exception);
             return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
         }
     }
