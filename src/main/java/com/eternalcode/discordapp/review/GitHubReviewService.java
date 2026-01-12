@@ -103,7 +103,6 @@ public class GitHubReviewService {
         MessageCreateData createData = MessageCreateData.fromContent(pullRequest.toUrl());
 
         return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
-            .setName(pullRequestTitleFromUrl)
             .setTags(ForumTagSnowflake.fromId(this.appConfig.reviewSystem.inReviewForumTagId))
             .complete()
             .getThreadChannel()
