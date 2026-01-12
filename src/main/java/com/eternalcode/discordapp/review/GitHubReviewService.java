@@ -92,7 +92,7 @@ public class GitHubReviewService {
 
     public long createReviewForumPost(Guild guild, GitHubPullRequest pullRequest) throws IOException {
         this.waitForRateLimit();
-        String pullRequestTitleFromUrl =
+        String pullRequestTitle =
             GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.appConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(this.appConfig.reviewSystem.reviewForumId);
 
@@ -102,7 +102,7 @@ public class GitHubReviewService {
 
         MessageCreateData createData = MessageCreateData.fromContent(pullRequest.toUrl());
 
-        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
+        return forumChannel.createForumPost(pullRequestTitle, createData)
             .setTags(ForumTagSnowflake.fromId(this.appConfig.reviewSystem.inReviewForumTagId))
             .complete()
             .getThreadChannel()
@@ -241,15 +241,15 @@ public class GitHubReviewService {
         }
         catch (net.dv8tion.jda.api.exceptions.ErrorResponseException exception) {
             LOGGER.log(Level.WARNING, "Discord API error retrieving message from thread: " + threadChannel.getId(), exception);
-            return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
+            return Result.error(new IllegalArgumentException("Discord API error: " + exception.getMeaning()));
         }
         catch (RateLimitedException exception) {
             LOGGER.log(Level.WARNING, "Rate limited when retrieving message from thread: " + threadChannel.getId(), exception);
-            return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
+            return Result.error(new IllegalArgumentException("Rate limited by Discord API"));
         }
         catch (Exception exception) {
             LOGGER.log(Level.WARNING, "Unexpected error retrieving message from thread: " + threadChannel.getId(), exception);
-            return Result.error(new IllegalArgumentException("Failed to retrieve PR URL from thread"));
+            return Result.error(new IllegalArgumentException("Unexpected error: " + exception.getMessage()));
         }
     }
 
