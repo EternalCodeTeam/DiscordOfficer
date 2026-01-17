@@ -65,7 +65,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.20.0")
 
-    implementation("com.eternalcode:eternalcode-commons-shared:1.3.1")
+    implementation("com.eternalcode:eternalcode-commons-shared:1.3.2")
 
     implementation("dev.skywolfxp:discord-channel-html-transcript:3.0.0")
 }
