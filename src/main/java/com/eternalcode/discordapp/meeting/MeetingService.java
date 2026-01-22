@@ -1,22 +1,24 @@
 package com.eternalcode.discordapp.meeting;
 
 import com.eternalcode.discordapp.config.AppConfig;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MeetingService {
 
@@ -47,10 +49,12 @@ public class MeetingService {
         MessageEmbed embed = this.buildMeetingEmbed(topic, meetingAt, 0, 0, 0, List.of(), List.of(), List.of());
 
         channel.sendMessageEmbeds(embed)
-            .setActionRow(
-                Button.secondary("meeting_yes", "✅ Będę"),
-                Button.secondary("meeting_no", "❌ Nie będę"),
-                Button.secondary("meeting_maybe", "🤷 Jeszcze nie wiem")
+            .setComponents(
+                ActionRow.of(
+                    Button.secondary("meeting_yes", "✅ Będę"),
+                    Button.secondary("meeting_no", "❌ Nie będę"),
+                    Button.secondary("meeting_maybe", "🤷 Jeszcze nie wiem")
+                )
             )
             .queue(message -> {
                 MeetingPollWrapper poll = new MeetingPollWrapper(

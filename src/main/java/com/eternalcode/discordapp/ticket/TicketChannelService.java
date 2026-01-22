@@ -1,15 +1,11 @@
 package com.eternalcode.discordapp.ticket;
 
 import com.eternalcode.discordapp.util.UrlValidator;
-import java.awt.Color;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadLocalRandom;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -17,11 +13,17 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Color;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TicketChannelService {
 
@@ -149,7 +151,7 @@ public class TicketChannelService {
                 .setColor(Color.decode(this.config.embeds.color))
                 .setTimestamp(this.config.embeds.showTimestamp ? now : null)
                 .build())
-            .addActionRow(Button.danger("ticket_close", "🔒 Close"))
+            .addComponents(ActionRow.of(Button.danger("ticket_close", "🔒 Close")))
             .build();
     }
 

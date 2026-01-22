@@ -2,18 +2,20 @@ package com.eternalcode.discordapp.ticket.panel;
 
 import com.eternalcode.discordapp.ticket.TicketConfig;
 import com.eternalcode.discordapp.ticket.TicketService;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Color;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TicketPanelController extends ListenerAdapter {
 
@@ -98,9 +100,11 @@ public class TicketPanelController extends ListenerAdapter {
 
         event.reply(new MessageCreateBuilder()
                 .setEmbeds(embed.build())
-                .addActionRow(
-                    Button.danger("ticket_confirm_delete", "🗑️ Yes, delete ticket"),
-                    Button.secondary("ticket_cancel", "❌ Cancel")
+                .setComponents(
+                    ActionRow.of(
+                        Button.danger("ticket_confirm_delete", "🗑️ Yes, delete ticket"),
+                        Button.secondary("ticket_cancel", "❌ Cancel")
+                    )
                 ).build())
             .setEphemeral(true)
             .queue();
