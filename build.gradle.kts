@@ -2,7 +2,7 @@ plugins {
     `java-library`
     application
     idea
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
 }
 
 group = "com.eternalcode"
@@ -34,7 +34,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:8.30.0")
+    implementation("io.sentry:sentry:8.31.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
