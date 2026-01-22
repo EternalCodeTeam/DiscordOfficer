@@ -2,7 +2,7 @@ plugins {
     `java-library`
     application
     idea
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
 }
 
 group = "com.eternalcode"
@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.6.1")  {
+    implementation("net.dv8tion:JDA:6.3.0")  {
         exclude("opus-java", "opus-java")
     }
 
@@ -28,13 +28,13 @@ dependencies {
     implementation("net.dzikoysk:cdn:1.14.9")
 
     // slf4j setup
-    implementation("ch.qos.logback:logback-classic:1.5.24")
+    implementation("ch.qos.logback:logback-classic:1.5.25")
 
     // new modern fork of jda-utilities
     implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:8.29.0")
+    implementation("io.sentry:sentry:8.31.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
@@ -65,7 +65,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.20.0")
 
-    implementation("com.eternalcode:eternalcode-commons-shared:1.3.1")
+    implementation("com.eternalcode:eternalcode-commons-shared:1.3.2")
 
     implementation("dev.skywolfxp:discord-channel-html-transcript:3.0.0")
 }
