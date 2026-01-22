@@ -1,21 +1,23 @@
 package com.eternalcode.discordapp.ticket.panel;
 
-import static com.eternalcode.discordapp.util.UrlValidator.isValid;
-
 import com.eternalcode.discordapp.ticket.TicketChannelService;
 import com.eternalcode.discordapp.ticket.TicketConfig;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+
+import static com.eternalcode.discordapp.util.UrlValidator.isValid;
 
 public class TicketPanelService {
 
@@ -39,7 +41,7 @@ public class TicketPanelService {
                 .collect(Collectors.toList());
 
             for (int i = 0; i < buttons.size(); i += MAX_BUTTONS_PER_ROW) {
-                builder.addActionRow(buttons.subList(i, Math.min(i + MAX_BUTTONS_PER_ROW, buttons.size())));
+                builder.setComponents(ActionRow.of(buttons.subList(i, Math.min(i + MAX_BUTTONS_PER_ROW, buttons.size()))));
             }
 
             return builder.build();

@@ -4,9 +4,10 @@ import com.eternalcode.discordapp.leveling.Level;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.util.List;
@@ -82,7 +83,7 @@ public class LeaderboardCommand extends SlashCommand {
                 .withDisabled(page == totalPages);
 
         event.replyEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-                .addActionRow(firstButton, prevButton, nextButton, lastButton)
+                .setComponents(ActionRow.of(firstButton, prevButton, nextButton, lastButton))
                 .queue();
     }
 }

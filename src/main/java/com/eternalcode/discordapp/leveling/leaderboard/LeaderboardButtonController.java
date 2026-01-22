@@ -2,12 +2,13 @@ package com.eternalcode.discordapp.leveling.leaderboard;
 
 import com.eternalcode.discordapp.leveling.Level;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,7 +113,7 @@ public class LeaderboardButtonController extends ListenerAdapter {
                 .withDisabled(currentPage == totalPages);
 
         event.editMessageEmbeds(embedBuilder.setDescription(leaderboardContent.toString()).build())
-                .setActionRow(firstButton, prevButton, nextButton, lastButton)
+                .setComponents(ActionRow.of(firstButton, prevButton, nextButton, lastButton))
                 .queue();
     }
 }
