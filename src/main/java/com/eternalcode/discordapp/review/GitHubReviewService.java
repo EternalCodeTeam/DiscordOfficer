@@ -92,7 +92,7 @@ public class GitHubReviewService {
 
     public long createReviewForumPost(Guild guild, GitHubPullRequest pullRequest) throws IOException {
         this.waitForRateLimit();
-        String pullRequestTitleFromUrl =
+        String pullRequestTitle =
             GitHubReviewUtil.getPullRequestTitleFromUrl(pullRequest, this.appConfig.githubToken);
         ForumChannel forumChannel = guild.getForumChannelById(this.appConfig.reviewSystem.reviewForumId);
 
@@ -100,10 +100,9 @@ public class GitHubReviewService {
             throw new IOException("Forum channel not found with ID: " + this.appConfig.reviewSystem.reviewForumId);
         }
 
-        MessageCreateData createData = MessageCreateData.fromContent(pullRequestTitleFromUrl);
+        MessageCreateData createData = MessageCreateData.fromContent(pullRequest.toUrl());
 
-        return forumChannel.createForumPost(pullRequestTitleFromUrl, createData)
-            .setName(pullRequest.toUrl())
+        return forumChannel.createForumPost(pullRequestTitle, createData)
             .setTags(ForumTagSnowflake.fromId(this.appConfig.reviewSystem.inReviewForumTagId))
             .complete()
             .getThreadChannel()
@@ -225,6 +224,35 @@ public class GitHubReviewService {
         );
     }
 
+    private Result<GitHubPullRequest, IllegalArgumentException> getPullRequestFromThread(ThreadChannel threadChannel) {
+        try {
+            // Try to get the first message in the thread which should contain the PR URL
+            List<net.dv8tion.jda.api.entities.Message> messages = threadChannel.getHistory()
+                .retrievePast(1)
+                .complete();
+            
+            if (messages.isEmpty()) {
+                LOGGER.log(Level.WARNING, "No messages found in thread: " + threadChannel.getId());
+                return Result.error(new IllegalArgumentException("No messages in thread"));
+            }
+            
+            String firstMessageContent = messages.get(0).getContentRaw();
+            return GitHubPullRequest.fromUrl(firstMessageContent);
+        }
+        catch (net.dv8tion.jda.api.exceptions.ErrorResponseException exception) {
+            LOGGER.log(Level.WARNING, "Discord API error retrieving message from thread: " + threadChannel.getId(), exception);
+            return Result.error(new IllegalArgumentException("Discord API error: " + exception.getMeaning()));
+        }
+        catch (RateLimitedException exception) {
+            LOGGER.log(Level.WARNING, "Rate limited when retrieving message from thread: " + threadChannel.getId(), exception);
+            return Result.error(new IllegalArgumentException("Rate limited by Discord API"));
+        }
+        catch (Exception exception) {
+            LOGGER.log(Level.WARNING, "Unexpected error retrieving message from thread: " + threadChannel.getId(), exception);
+            return Result.error(new IllegalArgumentException("Unexpected error: " + exception.getMessage()));
+        }
+    }
+
     public CompletableFuture<Void> mentionReviewersOnAllReviewChannels(JDA jda) {
         return CompletableFuture.runAsync(() -> {
             Guild guild = jda.getGuildById(this.appConfig.guildId);
@@ -239,7 +267,7 @@ public class GitHubReviewService {
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
                     Result<GitHubPullRequest, IllegalArgumentException> result =
-                        GitHubPullRequest.fromUrl(threadChannel.getName());
+                        this.getPullRequestFromThread(threadChannel);
 
                     if (result.isErr()) {
                         continue;
@@ -268,7 +296,10 @@ public class GitHubReviewService {
         try {
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                    if (url.equals(threadChannel.getName())) {
+                    Result<GitHubPullRequest, IllegalArgumentException> result =
+                        this.getPullRequestFromThread(threadChannel);
+                    
+                    if (result.isOk() && url.equals(result.get().toUrl())) {
                         return true;
                     }
                 }
@@ -295,8 +326,7 @@ public class GitHubReviewService {
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {
                 for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
-                    String name = threadChannel.getName();
-                    Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(name);
+                    Result<GitHubPullRequest, IllegalArgumentException> result = this.getPullRequestFromThread(threadChannel);
 
                     if (result.isErr()) {
                         continue;
