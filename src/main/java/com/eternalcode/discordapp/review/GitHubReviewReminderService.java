@@ -196,6 +196,17 @@ public class GitHubReviewReminderService {
                         return;
                     }
 
+                    this.jda.retrieveUserById(reminder.userId()).queue(
+                        user -> this.handleUserRetrieved(
+                            user,
+                            reminder.threadId(),
+                            reminder.pullRequestUrl(),
+                            pullRequest),
+                        throwable -> {
+                            Sentry.captureException(throwable);
+                            LOGGER.log(Level.SEVERE, "Error retrieving user: " + reminder.userId(), throwable);
+                        }
+                    );
                 }
                 catch (Exception exception) {
                     Sentry.captureException(exception);
@@ -230,4 +241,42 @@ public class GitHubReviewReminderService {
             .orElse(null);
     }
 
+    private void handleUserRetrieved(User user, long threadId, String pullRequestUrl, GitHubPullRequest pullRequest) {
+        if (user == null) {
+            LOGGER.warning("User is null for thread: " + threadId);
+            return;
+        }
+
+        ThreadChannel thread = this.jda.getThreadChannelById(threadId);
+        if (thread == null) {
+            LOGGER.warning("Could not find thread with ID " + threadId);
+            return;
+        }
+
+        this.sendReminderMessage(user, thread, pullRequestUrl, pullRequest);
+    }
+
+    private void sendReminderMessage(
+        User user,
+        ThreadChannel thread,
+        String pullRequestUrl,
+        GitHubPullRequest pullRequest) {
+        String message = String.format(
+            "Hey %s! you have been assigned as a reviewer for this pull request: <%s>.",
+            user.getAsMention(),
+            pullRequestUrl
+        );
+
+        thread.sendMessage(message).queue(
+            success -> {
+                LOGGER.info("Reminder sent to " + user.getName() + " for PR: " + pullRequestUrl);
+                this.mentionRepository.recordReminderSent(pullRequest, user.getIdLong())
+                    .exceptionally(FutureHandler::handleException);
+            },
+            throwable -> {
+                Sentry.captureException(throwable);
+                LOGGER.log(Level.SEVERE, "Error sending reminder message to " + user.getName(), throwable);
+            }
+        );
+    }
 }
