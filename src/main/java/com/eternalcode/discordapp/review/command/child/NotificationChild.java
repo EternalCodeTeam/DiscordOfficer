@@ -21,6 +21,7 @@ public class NotificationChild extends SlashCommand {
                 .addChoice("DM", GitHubReviewNotificationType.DM.toString())
                 .addChoice("SERVER", GitHubReviewNotificationType.SERVER.toString())
                 .addChoice("BOTH", GitHubReviewNotificationType.BOTH.toString())
+                .addChoice("NONE", GitHubReviewNotificationType.NONE.toString())
                 .setRequired(true)
         );
 
