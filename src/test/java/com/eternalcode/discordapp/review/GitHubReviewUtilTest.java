@@ -1,5 +1,7 @@
 package com.eternalcode.discordapp.review;
 
+import com.eternalcode.discordapp.feature.review.GitHubPullRequest;
+import com.eternalcode.discordapp.feature.review.GitHubReviewUtil;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
