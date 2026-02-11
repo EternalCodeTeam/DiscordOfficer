@@ -1,26 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/logs-%d{yyyy-MM-dd}.log</fileNamePattern>
 
-            <maxHistory>90</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
+    <contextName>DiscordOfficer</contextName>
+
+    <property name="APP_NAME" value="${APP_NAME:-discord-officer}" />
+    <property name="LOG_DIR" value="${LOG_DIR:-logs}" />
+    <property name="ROOT_LOG_LEVEL" value="${ROOT_LOG_LEVEL:-INFO}" />
+    <property name="JDA_LOG_LEVEL" value="${JDA_LOG_LEVEL:-INFO}" />
+    <property name="JDA_INTERNAL_LOG_LEVEL" value="${JDA_INTERNAL_LOG_LEVEL:-WARN}" />
+
+    <property name="CONSOLE_PATTERN"
+              value="%blue(╭ %d{HH:mm:ss.SSS}) %magenta(${APP_NAME}) %white(| %thread |) %highlight(%-5level) %cyan(%-40.40logger{40}) %white(→) %msg%n%ex" />
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] ${APP_NAME} %logger{50} - %msg%n%ex" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>UTF-8</charset>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/app.log</file>
+        <append>true</append>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
 
-        <encoder>
-            <pattern>[%d{dd-MM-yyyy HH:mm:ss}] %boldGreen(%-15.-15logger{0}) %highlight(%-6level) %msg%n</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>UTF-8</charset>
+            <pattern>${FILE_PATTERN}</pattern>
         </encoder>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%d{dd-MM-yyyy HH:mm:ss}] %boldGreen(%-15.-15logger{0}) %highlight(%-6level) %msg%n</pattern>
-        </encoder>
+    <!-- Async wrappers reduce blocking in JDA event/network threads -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>2048</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE" />
     </appender>
 
-    <root level="info">
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
         <appender-ref ref="FILE" />
-        <appender-ref ref="STDOUT" />
+    </appender>
+
+    <!-- JDA and related HTTP/WebSocket dependencies -->
+    <logger name="net.dv8tion.jda" level="${JDA_LOG_LEVEL}" />
+    <logger name="net.dv8tion.jda.internal" level="${JDA_INTERNAL_LOG_LEVEL}" />
+    <logger name="com.neovisionaries.ws.client" level="WARN" />
+    <logger name="okhttp3" level="WARN" />
+    <logger name="okio" level="WARN" />
+
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="ASYNC_CONSOLE" />
+        <appender-ref ref="ASYNC_FILE" />
     </root>
+
 </configuration>
