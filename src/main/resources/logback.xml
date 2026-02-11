@@ -42,14 +42,12 @@
     <!-- Async wrappers reduce blocking in JDA event/network threads -->
     <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>2048</queueSize>
-        <discardingThreshold>0</discardingThreshold>
         <neverBlock>true</neverBlock>
         <appender-ref ref="CONSOLE" />
     </appender>
 
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>8192</queueSize>
-        <discardingThreshold>0</discardingThreshold>
         <neverBlock>true</neverBlock>
         <appender-ref ref="FILE" />
     </appender>
