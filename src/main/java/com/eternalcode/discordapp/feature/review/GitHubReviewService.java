@@ -51,6 +51,10 @@ public class GitHubReviewService {
     public CompletableFuture<String> createReview(Guild guild, String url, JDA jda) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                if (guild == null) {
+                    return "This command can only be used in a guild";
+                }
+
                 if (this.isReviewPostCreatedInGuild(guild, url)) {
                     return "Review already exists";
                 }
@@ -314,6 +318,9 @@ public class GitHubReviewService {
                                 GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken);
 
                             if (isMerged) {
+                                this.mentionRepository.updateReviewStatus(pullRequest, GitHubReviewStatus.MERGED)
+                                    .exceptionally(FutureHandler::handleException);
+
                                 threadChannel.getManager()
                                     .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.mergedTagId))
                                     .setLocked(true)
@@ -327,6 +334,9 @@ public class GitHubReviewService {
                                     );
                             }
                             else if (isClosed) {
+                                this.mentionRepository.updateReviewStatus(pullRequest, GitHubReviewStatus.CLOSED)
+                                    .exceptionally(FutureHandler::handleException);
+
                                 threadChannel.getManager()
                                     .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.closedTagId))
                                     .setLocked(true)
@@ -361,7 +371,18 @@ public class GitHubReviewService {
             return false;
         }
 
-        this.appConfig.reviewSystem.reviewers.add(gitHubReviewUser);
+        String githubUsername = gitHubReviewUser.getGithubUsername();
+        if (githubUsername == null || githubUsername.trim().isEmpty()) {
+            return false;
+        }
+
+        GitHubReviewUser normalizedUser = new GitHubReviewUser(
+            gitHubReviewUser.getDiscordId(),
+            githubUsername.trim(),
+            gitHubReviewUser.getNotificationType()
+        );
+
+        this.appConfig.reviewSystem.reviewers.add(normalizedUser);
         this.configManager.save(this.appConfig);
 
         return true;
@@ -378,14 +399,15 @@ public class GitHubReviewService {
         return true;
     }
 
-    public void updateUserNotificationType(Long discordId, GitHubReviewNotificationType newNotificationType) {
+    public boolean updateUserNotificationType(Long discordId, GitHubReviewNotificationType newNotificationType) {
         for (GitHubReviewUser user : this.appConfig.reviewSystem.reviewers) {
             if (user.getDiscordId().equals(discordId)) {
                 user.setNotificationType(newNotificationType);
                 this.configManager.save(this.appConfig);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     private boolean isUserExist(Long discordId) {
@@ -394,8 +416,20 @@ public class GitHubReviewService {
     }
 
     private boolean isUserExist(GitHubReviewUser gitHubReviewUser) {
+        if (gitHubReviewUser == null || gitHubReviewUser.getDiscordId() == null) {
+            return false;
+        }
+
+        String githubUsername = gitHubReviewUser.getGithubUsername();
+        if (githubUsername == null) {
+            return this.isUserExist(gitHubReviewUser.getDiscordId());
+        }
+
         return this.appConfig.reviewSystem.reviewers.stream()
-            .anyMatch(user -> user.getDiscordId().equals(gitHubReviewUser.getDiscordId()));
+            .anyMatch(user ->
+                user.getDiscordId().equals(gitHubReviewUser.getDiscordId()) ||
+                    (user.getGithubUsername() != null &&
+                        user.getGithubUsername().equalsIgnoreCase(githubUsername.trim())));
     }
 
     public List<GitHubReviewUser> getListOfUsers() {
@@ -403,8 +437,13 @@ public class GitHubReviewService {
     }
 
     public GitHubReviewUser getReviewUserByUsername(String githubUsername) {
+        if (githubUsername == null || githubUsername.trim().isEmpty()) {
+            return null;
+        }
+
         return this.appConfig.reviewSystem.reviewers.stream()
-            .filter(user -> user.getGithubUsername().equals(githubUsername))
+            .filter(user -> user.getGithubUsername() != null &&
+                user.getGithubUsername().equalsIgnoreCase(githubUsername.trim()))
             .findFirst()
             .orElse(null);
     }

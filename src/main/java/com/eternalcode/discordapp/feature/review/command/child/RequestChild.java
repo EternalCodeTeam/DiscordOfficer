@@ -5,7 +5,6 @@ import com.eternalcode.discordapp.feature.review.GitHubReviewService;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import java.util.List;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -17,8 +16,6 @@ public class RequestChild extends SlashCommand {
         this.name = "request";
         this.help = "Request a review";
 
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-
         this.options = List.of(
             new OptionData(OptionType.STRING, "url", "The URL of the pull request")
                 .setRequired(true)
@@ -29,6 +26,11 @@ public class RequestChild extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
+        if (event.getOption("url") == null) {
+            event.reply("Missing required option: url").setEphemeral(true).queue();
+            return;
+        }
+
         String url = event.getOption("url").getAsString();
 
         this.gitHubReviewService.createReview(event.getGuild(), url, event.getJDA())

@@ -29,11 +29,23 @@ public class NotificationChild extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
+        if (event.getOption("notification-type") == null) {
+            event.reply("Missing required option: notification-type").setEphemeral(true).queue();
+            return;
+        }
+
         String notificationTypeString = event.getOption("notification-type").getAsString();
         GitHubReviewNotificationType notificationType = GitHubReviewNotificationType.valueOf(notificationTypeString);
 
-        this.gitHubReviewService.updateUserNotificationType(event.getUser().getIdLong(), notificationType);
-        event.reply("Notification type updated").setEphemeral(true).queue();
+        boolean updated = this.gitHubReviewService.updateUserNotificationType(event.getUser().getIdLong(), notificationType);
+        if (updated) {
+            event.reply("Notification type updated").setEphemeral(true).queue();
+            return;
+        }
+
+        event.reply("You are not registered in the review system. Ask an administrator to add you first.")
+            .setEphemeral(true)
+            .queue();
     }
 }
 

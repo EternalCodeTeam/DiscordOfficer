@@ -7,7 +7,6 @@ import com.eternalcode.discordapp.scheduler.Scheduler;
 import io.sentry.Sentry;
 import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +27,6 @@ public class GitHubReviewReminderService {
     private final Duration reminderInterval;
     private final AppConfig appConfig;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
-    private volatile Instant lastGitHubApiCall = Instant.MIN;
 
     public GitHubReviewReminderService(
         JDA jda,
@@ -98,11 +96,14 @@ public class GitHubReviewReminderService {
 
         LOGGER.info("Processing " + reminders.size() + " reminders");
 
-        List<CompletableFuture<Void>> reminderFutures = reminders.stream()
-            .map(this::sendReminderAsync)
-            .toList();
+        CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
+        for (GitHubReviewMentionRepository.ReviewerReminder reminder : reminders) {
+            chain = chain
+                .thenRun(() -> this.sendReminder(reminder))
+                .thenCompose(unused -> this.delay(GITHUB_API_RATE_LIMIT));
+        }
 
-        return CompletableFuture.allOf(reminderFutures.toArray(new CompletableFuture[0]))
+        return chain
             .thenRun(() -> LOGGER.info("Completed processing all reminders"))
             .exceptionally(throwable -> {
                 Sentry.captureException(throwable);
@@ -111,32 +112,14 @@ public class GitHubReviewReminderService {
             });
     }
 
-    private CompletableFuture<Void> sendReminderAsync(GitHubReviewMentionRepository.ReviewerReminder reminder) {
-        return CompletableFuture.runAsync(() -> this.scheduler.schedule(
-            () -> {
-                try {
-                    this.sendReminder(reminder);
-                }
-                catch (Exception exception) {
-                    Sentry.captureException(exception);
-                    LOGGER.error("Error sending individual reminder", exception);
-                }
-            }, this.calculateDelayForRateLimit()));
-    }
-
-    private Duration calculateDelayForRateLimit() {
-        Instant now = Instant.now();
-        Instant nextAllowed = this.lastGitHubApiCall.plus(GITHUB_API_RATE_LIMIT);
-
-        if (now.isBefore(nextAllowed)) {
-            return Duration.between(now, nextAllowed);
-        }
-
-        return Duration.ZERO;
+    private CompletableFuture<Void> delay(Duration delay) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        this.scheduler.schedule(() -> future.complete(null), delay);
+        return future;
     }
 
     private void sendReminder(GitHubReviewMentionRepository.ReviewerReminder reminder) {
-        if (!isRunning.get()) {
+        if (!this.isRunning.get()) {
             return;
         }
 
@@ -147,22 +130,12 @@ public class GitHubReviewReminderService {
             return;
         }
 
-        lastGitHubApiCall = Instant.now();
-
         try {
-            boolean isMerged = GitHubReviewUtil.isPullRequestMerged(pullRequest, appConfig.githubToken);
+            boolean isMerged = GitHubReviewUtil.isPullRequestMerged(pullRequest, this.appConfig.githubToken);
+            boolean isClosed = !isMerged &&
+                GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken);
 
-            scheduler.schedule(
-                () -> {
-                    try {
-                        boolean isClosed = GitHubReviewUtil.isPullRequestClosed(pullRequest, appConfig.githubToken);
-                        handlePRStatusCheck(reminder, pullRequest, isMerged, isClosed);
-                    }
-                    catch (IOException exception) {
-                        Sentry.captureException(exception);
-                        LOGGER.error("Error checking PR closed status: {}", reviewUrl, exception);
-                    }
-                }, GITHUB_API_RATE_LIMIT);
+            this.handlePRStatusCheck(reminder, pullRequest, isMerged, isClosed);
         }
         catch (IOException exception) {
             Sentry.captureException(exception);
@@ -174,7 +147,7 @@ public class GitHubReviewReminderService {
         GitHubReviewMentionRepository.ReviewerReminder reminder,
         GitHubPullRequest pullRequest, boolean isMerged, boolean isClosed) {
         if (isMerged || isClosed) {
-            this.handleClosedOrMergedPR(reminder.threadId(), isMerged);
+            this.handleClosedOrMergedPR(reminder.threadId(), pullRequest, isMerged);
             LOGGER.info(
                 "PR is {}, skipping reminder for thread: {}",
                 isMerged ? "merged" : "closed",
@@ -188,36 +161,37 @@ public class GitHubReviewReminderService {
             return;
         }
 
-        this.scheduler.schedule(
-            () -> {
-                try {
-                    boolean alreadyReviewed =
-                        GitHubReviewUtil.hasUserReviewed(pullRequest, this.appConfig.githubToken, githubUsername);
-                    if (alreadyReviewed) {
-                        LOGGER.info("User " + githubUsername + " already reviewed PR, skipping reminder.");
-                        return;
-                    }
+        try {
+            boolean alreadyReviewed =
+                GitHubReviewUtil.hasUserReviewed(pullRequest, this.appConfig.githubToken, githubUsername);
+            if (alreadyReviewed) {
+                LOGGER.info("User {} already reviewed PR, skipping reminder.", githubUsername);
+                return;
+            }
 
-                    this.jda.retrieveUserById(reminder.userId()).queue(
-                        user -> this.handleUserRetrieved(
-                            user,
-                            reminder.threadId(),
-                            reminder.pullRequestUrl(),
-                            pullRequest),
-                        throwable -> {
-                            Sentry.captureException(throwable);
-                            LOGGER.error("Error retrieving user: {}", reminder.userId(), throwable);
-                        }
-                    );
+            this.jda.retrieveUserById(reminder.userId()).queue(
+                user -> this.handleUserRetrieved(
+                    user,
+                    reminder.threadId(),
+                    reminder.pullRequestUrl(),
+                    pullRequest),
+                throwable -> {
+                    Sentry.captureException(throwable);
+                    LOGGER.error("Error retrieving user: {}", reminder.userId(), throwable);
                 }
-                catch (Exception exception) {
-                    Sentry.captureException(exception);
-                    LOGGER.warn("Error checking if user reviewed PR: {}", reminder.pullRequestUrl(), exception);
-                }
-            }, GITHUB_API_RATE_LIMIT);
+            );
+        }
+        catch (Exception exception) {
+            Sentry.captureException(exception);
+            LOGGER.warn("Error checking if user reviewed PR: {}", reminder.pullRequestUrl(), exception);
+        }
     }
 
-    private void handleClosedOrMergedPR(long threadId, boolean isMerged) {
+    private void handleClosedOrMergedPR(long threadId, GitHubPullRequest pullRequest, boolean isMerged) {
+        GitHubReviewStatus status = isMerged ? GitHubReviewStatus.MERGED : GitHubReviewStatus.CLOSED;
+        this.mentionRepository.updateReviewStatus(pullRequest, status)
+            .exceptionally(FutureHandler::handleException);
+
         ThreadChannel thread = this.jda.getThreadChannelById(threadId);
         if (thread != null) {
             AppConfig.ReviewSystem reviewSystem = this.appConfig.reviewSystem;

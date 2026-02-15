@@ -3,7 +3,7 @@
 
 .gradle
 build/
-database/
+/database/
 data/
 logs/
 config/
