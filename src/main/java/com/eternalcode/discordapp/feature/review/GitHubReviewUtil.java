@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class GitHubReviewUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(GitHubReviewUtil.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubReviewUtil.class);
 
     private static final String GITHUB_PULL_REQUEST_TITLE_CONVENTION = "^(GH)-\\d+ .+$";
     private static final int MAX_TITLE_LENGTH = 100;
@@ -56,7 +56,7 @@ public final class GitHubReviewUtil {
 
     public static List<String> getReviewers(GitHubPullRequest pullRequest, String githubToken) {
         if (pullRequest == null || githubToken == null || githubToken.trim().isEmpty()) {
-            LOGGER.warning("Invalid parameters for getReviewers");
+            LOGGER.warn("Invalid parameters for getReviewers");
             return Collections.emptyList();
         }
 
@@ -71,13 +71,13 @@ public final class GitHubReviewUtil {
             if (!response.isSuccessful()) {
                 String errorMsg = HTTP_ERROR + response.code() + " for URL: " + pullRequest.toApiUrl();
                 if (response.code() == 404) {
-                    LOGGER.warning("Pull request not found: " + pullRequest.toApiUrl());
+                    LOGGER.warn("Pull request not found: {}", pullRequest.toApiUrl());
                 }
                 else if (response.code() == 403) {
-                    LOGGER.warning("GitHub API rate limit exceeded or access denied");
+                    LOGGER.warn("GitHub API rate limit exceeded or access denied");
                 }
                 else {
-                    LOGGER.warning(errorMsg);
+                    LOGGER.warn("{}", errorMsg);
                     Sentry.captureException(new IOException(errorMsg));
                 }
                 return Collections.emptyList();
@@ -85,7 +85,7 @@ public final class GitHubReviewUtil {
 
             String responseBody = response.body() != null ? response.body().string() : "";
             if (responseBody.isEmpty()) {
-                LOGGER.warning("Empty response body from GitHub API");
+                LOGGER.warn("Empty response body from GitHub API");
                 return Collections.emptyList();
             }
 
@@ -94,7 +94,7 @@ public final class GitHubReviewUtil {
                 json = GSON.fromJson(responseBody, JsonObject.class);
             }
             catch (JsonSyntaxException exception) {
-                LOGGER.log(Level.WARNING, "Invalid JSON response from GitHub API", exception);
+                LOGGER.warn("Invalid JSON response from GitHub API", exception);
                 return Collections.emptyList();
             }
 
@@ -116,7 +116,7 @@ public final class GitHubReviewUtil {
                     }
                 }
                 catch (Exception exception) {
-                    LOGGER.log(Level.WARNING, "Error parsing reviewer at index " + i, exception);
+                    LOGGER.warn("Error parsing reviewer at index {}", i, exception);
                 }
             }
 
@@ -124,7 +124,7 @@ public final class GitHubReviewUtil {
         }
         catch (IOException exception) {
             Sentry.captureException(exception);
-            LOGGER.log(Level.SEVERE, "IOException in getReviewers for " + pullRequest.toApiUrl(), exception);
+            LOGGER.error("IOException in getReviewers for {}", pullRequest.toApiUrl(), exception);
             return Collections.emptyList();
         }
     }
@@ -248,7 +248,7 @@ public final class GitHubReviewUtil {
     public static boolean hasUserReviewed(GitHubPullRequest pullRequest, String githubToken, String githubUsername) {
         if (pullRequest == null || githubToken == null || githubToken.trim().isEmpty() ||
             githubUsername == null || githubUsername.trim().isEmpty()) {
-            LOGGER.warning("Invalid parameters for hasUserReviewed");
+            LOGGER.warn("Invalid parameters for hasUserReviewed");
             return false;
         }
 
@@ -264,10 +264,10 @@ public final class GitHubReviewUtil {
             if (!response.isSuccessful()) {
                 String errorMsg = HTTP_ERROR + response.code() + " for URL: " + reviewsUrl;
                 if (response.code() == 404) {
-                    LOGGER.warning("Reviews not found for PR: " + pullRequest.toUrl());
+                    LOGGER.warn("Reviews not found for PR: {}", pullRequest.toUrl());
                 }
                 else {
-                    LOGGER.warning(errorMsg);
+                    LOGGER.warn("{}", errorMsg);
                     Sentry.captureException(new IOException(errorMsg));
                 }
                 return false;
@@ -275,7 +275,7 @@ public final class GitHubReviewUtil {
 
             String responseBody = response.body() != null ? response.body().string() : "";
             if (responseBody.isEmpty()) {
-                LOGGER.warning("Empty response body for reviews");
+                LOGGER.warn("Empty response body for reviews");
                 return false;
             }
 
@@ -284,7 +284,7 @@ public final class GitHubReviewUtil {
                 reviews = JsonParser.parseString(responseBody).getAsJsonArray();
             }
             catch (JsonSyntaxException exception) {
-                LOGGER.log(Level.WARNING, "Invalid JSON response for reviews", exception);
+                LOGGER.warn("Invalid JSON response for reviews", exception);
                 return false;
             }
 
@@ -309,14 +309,14 @@ public final class GitHubReviewUtil {
                     }
                 }
                 catch (Exception exception) {
-                    LOGGER.log(Level.WARNING, "Error parsing review at index " + i, exception);
+                    LOGGER.warn("Error parsing review at index {}", i, exception);
                 }
             }
             return false;
         }
         catch (IOException exception) {
             Sentry.captureException(exception);
-            LOGGER.log(Level.SEVERE, "IOException in hasUserReviewed", exception);
+            LOGGER.error("IOException in hasUserReviewed", exception);
             return false;
         }
     }

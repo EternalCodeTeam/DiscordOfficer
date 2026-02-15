@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -23,10 +21,12 @@ import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import panda.std.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitHubReviewService {
 
-    private final static Logger LOGGER = Logger.getLogger(GitHubReviewService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubReviewService.class);
 
     private static final String DM_REVIEW_MESSAGE = "You have been assigned as a reviewer for this pull request: %s";
     private static final String SERVER_REVIEW_MESSAGE =
@@ -72,12 +72,12 @@ public class GitHubReviewService {
             }
             catch (IOException exception) {
                 Sentry.captureException(exception);
-                LOGGER.log(Level.SEVERE, "Error creating review", exception);
+                LOGGER.error("Error creating review", exception);
                 throw new CompletionException(exception);
             }
         }).exceptionally(throwable -> {
             Sentry.captureException(throwable);
-            LOGGER.log(Level.SEVERE, "Failed to create review", throwable);
+            LOGGER.error("Failed to create review", throwable);
             return "Something went wrong while creating review";
         });
     }
@@ -116,7 +116,7 @@ public class GitHubReviewService {
                 return GitHubReviewUtil.getReviewers(pullRequest, this.appConfig.githubToken);
             }
             catch (Exception exception) {
-                LOGGER.log(Level.WARNING, "Failed to get reviewers for PR: " + pullRequest.toUrl(), exception);
+                LOGGER.warn("Failed to get reviewers for PR: {}", pullRequest.toUrl(), exception);
                 return new ArrayList<String>();
             }
         })).thenCompose(assignedReviewers -> {
@@ -146,7 +146,7 @@ public class GitHubReviewService {
                             try {
                                 User user = jda.getUserById(discordId);
                                 if (user == null) {
-                                    LOGGER.warning("User not found with ID: " + discordId);
+                                    LOGGER.warn("User not found with ID: {}", discordId);
                                     return;
                                 }
 
@@ -168,7 +168,7 @@ public class GitHubReviewService {
                             }
                             catch (Exception exception) {
                                 Sentry.captureException(exception);
-                                LOGGER.log(Level.SEVERE, "Error mentioning reviewer: " + discordId, exception);
+                                LOGGER.error("Error mentioning reviewer: {}", discordId, exception);
                             }
                         });
                     })
@@ -191,18 +191,18 @@ public class GitHubReviewService {
                                 success -> LOGGER.info("Server mention sent for PR: " + pullRequest.toUrl()),
                                 failure -> {
                                     Sentry.captureException(failure);
-                                    LOGGER.log(Level.WARNING, "Failed to send server mention", failure);
+                                    LOGGER.warn("Failed to send server mention", failure);
                                 }
                             );
                         }
                         else {
-                            LOGGER.warning("Thread channel not found with ID: " + forumId);
+                            LOGGER.warn("Thread channel not found with ID: {}", forumId);
                         }
                     }
                 });
         }).exceptionally(throwable -> {
             Sentry.captureException(throwable);
-            LOGGER.log(Level.SEVERE, "Error in mentionReviewers", throwable);
+            LOGGER.error("Error in mentionReviewers", throwable);
             return null;
         });
     }
@@ -213,15 +213,15 @@ public class GitHubReviewService {
                 success -> LOGGER.info("DM sent to: " + user.getName()),
                 failure -> {
                     if (failure instanceof RateLimitedException) {
-                        LOGGER.warning("Rate limited when sending DM to: " + user.getName());
+                        LOGGER.warn("Rate limited when sending DM to: {}", user.getName());
                     }
                     else {
-                        LOGGER.warning("Cannot send DM to: " + user.getName() + " - " + failure.getMessage());
+                        LOGGER.warn("Cannot send DM to: {} - {}", user.getName(), failure.getMessage());
                     }
                 }
             ),
-            throwable -> LOGGER.warning(
-                "Cannot open private channel with: " + user.getName() + " - " + throwable.getMessage())
+            throwable -> LOGGER.warn(
+                "Cannot open private channel with: {} - {}", user.getName(), throwable.getMessage())
         );
     }
 
@@ -230,7 +230,7 @@ public class GitHubReviewService {
             Guild guild = jda.getGuildById(this.appConfig.guildId);
 
             if (guild == null) {
-                LOGGER.warning("Guild not found with ID: " + this.appConfig.guildId);
+                LOGGER.warn("Guild not found with ID: {}", this.appConfig.guildId);
                 return;
             }
 
@@ -261,7 +261,7 @@ public class GitHubReviewService {
 
     public boolean isReviewPostCreatedInGuild(Guild guild, String url) {
         if (guild == null) {
-            LOGGER.warning("Guild is null when checking for existing review post");
+            LOGGER.warn("Guild is null when checking for existing review post");
             return false;
         }
 
@@ -275,7 +275,7 @@ public class GitHubReviewService {
             }
         }
         catch (Exception exception) {
-            LOGGER.log(Level.WARNING, "Error checking if review post exists", exception);
+            LOGGER.warn("Error checking if review post exists", exception);
         }
 
         return false;
@@ -286,7 +286,7 @@ public class GitHubReviewService {
             Guild guild = jda.getGuildById(this.appConfig.guildId);
 
             if (guild == null) {
-                LOGGER.warning("Guild not found with ID: " + this.appConfig.guildId);
+                LOGGER.warn("Guild not found with ID: {}", this.appConfig.guildId);
                 return;
             }
 
@@ -320,9 +320,9 @@ public class GitHubReviewService {
                                     .setArchived(true)
                                     .queue(
                                         success -> LOGGER.info("Archived merged PR: " + pullRequest.toUrl()),
-                                        failure -> LOGGER.log(
-                                            Level.WARNING,
-                                            "Failed to archive merged PR: " + pullRequest.toUrl(),
+                                        failure -> LOGGER.warn(
+                                            "Failed to archive merged PR: {}",
+                                            pullRequest.toUrl(),
                                             failure)
                                     );
                             }
@@ -333,19 +333,16 @@ public class GitHubReviewService {
                                     .setArchived(true)
                                     .queue(
                                         success -> LOGGER.info("Archived closed PR: " + pullRequest.toUrl()),
-                                        failure -> LOGGER.log(
-                                            Level.WARNING,
-                                            "Failed to archive closed PR: " + pullRequest.toUrl(),
+                                        failure -> LOGGER.warn(
+                                            "Failed to archive closed PR: {}",
+                                            pullRequest.toUrl(),
                                             failure)
                                     );
                             }
                         }
                         catch (IOException exception) {
                             Sentry.captureException(exception);
-                            LOGGER.log(
-                                Level.WARNING,
-                                "Error checking PR status for archival: " + pullRequest.toUrl(),
-                                exception);
+                            LOGGER.warn("Error checking PR status for archival: {}", pullRequest.toUrl(), exception);
                         }
                     });
 
@@ -423,7 +420,7 @@ public class GitHubReviewService {
             }
             catch (InterruptedException exception) {
                 Thread.currentThread().interrupt();
-                LOGGER.warning("Interrupted while waiting for rate limit");
+                LOGGER.warn("Interrupted while waiting for rate limit");
             }
         }
 

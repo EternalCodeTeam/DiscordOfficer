@@ -11,16 +11,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitHubReviewReminderService {
 
-    private static final Logger LOGGER = Logger.getLogger(GitHubReviewReminderService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubReviewReminderService.class);
     private static final Duration GITHUB_API_RATE_LIMIT = Duration.ofSeconds(1);
     private final JDA jda;
     private final GitHubReviewMentionRepository mentionRepository;
@@ -57,7 +57,7 @@ public class GitHubReviewReminderService {
             LOGGER.info("GitHub review reminder service started");
         }
         else {
-            LOGGER.warning("GitHub review reminder service is already running");
+            LOGGER.warn("GitHub review reminder service is already running");
         }
     }
 
@@ -77,7 +77,7 @@ public class GitHubReviewReminderService {
         }
         catch (Exception exception) {
             Sentry.captureException(exception);
-            LOGGER.log(Level.SEVERE, "Unexpected error in reminder scheduling", exception);
+            LOGGER.error("Unexpected error in reminder scheduling", exception);
         }
     }
 
@@ -86,7 +86,7 @@ public class GitHubReviewReminderService {
             .thenCompose(this::processReminders)
             .exceptionally(throwable -> {
                 Sentry.captureException(throwable);
-                LOGGER.log(Level.SEVERE, "Error sending reminders", throwable);
+                LOGGER.error("Error sending reminders", throwable);
                 return null;
             });
     }
@@ -106,7 +106,7 @@ public class GitHubReviewReminderService {
             .thenRun(() -> LOGGER.info("Completed processing all reminders"))
             .exceptionally(throwable -> {
                 Sentry.captureException(throwable);
-                LOGGER.log(Level.SEVERE, "Error processing reminders", throwable);
+                LOGGER.error("Error processing reminders", throwable);
                 return null;
             });
     }
@@ -119,7 +119,7 @@ public class GitHubReviewReminderService {
                 }
                 catch (Exception exception) {
                     Sentry.captureException(exception);
-                    LOGGER.log(Level.SEVERE, "Error sending individual reminder", exception);
+                    LOGGER.error("Error sending individual reminder", exception);
                 }
             }, this.calculateDelayForRateLimit()));
     }
@@ -143,7 +143,7 @@ public class GitHubReviewReminderService {
         String reviewUrl = reminder.pullRequestUrl();
         GitHubPullRequest pullRequest = GitHubPullRequest.fromUrl(reviewUrl).orNull();
         if (pullRequest == null) {
-            LOGGER.warning("Invalid pull request URL: " + reviewUrl);
+            LOGGER.warn("Invalid pull request URL: {}", reviewUrl);
             return;
         }
 
@@ -160,13 +160,13 @@ public class GitHubReviewReminderService {
                     }
                     catch (IOException exception) {
                         Sentry.captureException(exception);
-                        LOGGER.log(Level.SEVERE, "Error checking PR closed status: " + reviewUrl, exception);
+                        LOGGER.error("Error checking PR closed status: {}", reviewUrl, exception);
                     }
                 }, GITHUB_API_RATE_LIMIT);
         }
         catch (IOException exception) {
             Sentry.captureException(exception);
-            LOGGER.log(Level.SEVERE, "Error checking PR merged status: " + reviewUrl, exception);
+            LOGGER.error("Error checking PR merged status: {}", reviewUrl, exception);
         }
     }
 
@@ -176,13 +176,15 @@ public class GitHubReviewReminderService {
         if (isMerged || isClosed) {
             this.handleClosedOrMergedPR(reminder.threadId(), isMerged);
             LOGGER.info(
-                "PR is " + (isMerged ? "merged" : "closed") + ", skipping reminder for thread: " + reminder.threadId());
+                "PR is {}, skipping reminder for thread: {}",
+                isMerged ? "merged" : "closed",
+                reminder.threadId());
             return;
         }
 
         String githubUsername = this.findGithubUsernameByDiscordId(reminder.userId());
         if (githubUsername == null) {
-            LOGGER.warning("Could not find GitHub username for Discord userId " + reminder.userId());
+            LOGGER.warn("Could not find GitHub username for Discord userId {}", reminder.userId());
             return;
         }
 
@@ -204,13 +206,13 @@ public class GitHubReviewReminderService {
                             pullRequest),
                         throwable -> {
                             Sentry.captureException(throwable);
-                            LOGGER.log(Level.SEVERE, "Error retrieving user: " + reminder.userId(), throwable);
+                            LOGGER.error("Error retrieving user: {}", reminder.userId(), throwable);
                         }
                     );
                 }
                 catch (Exception exception) {
                     Sentry.captureException(exception);
-                    LOGGER.log(Level.WARNING, "Error checking if user reviewed PR: " + reminder.pullRequestUrl(), exception);
+                    LOGGER.warn("Error checking if user reviewed PR: {}", reminder.pullRequestUrl(), exception);
                 }
             }, GITHUB_API_RATE_LIMIT);
     }
@@ -227,8 +229,10 @@ public class GitHubReviewReminderService {
                 .setArchived(true)
                 .queue(
                     success -> LOGGER.info(
-                        "Successfully archived " + (isMerged ? "merged" : "closed") + " thread: " + threadId),
-                    failure -> LOGGER.log(Level.WARNING, "Failed to archive thread: " + threadId, failure)
+                        "Successfully archived {} thread: {}",
+                        isMerged ? "merged" : "closed",
+                        threadId),
+                    failure -> LOGGER.warn("Failed to archive thread: {}", threadId, failure)
                 );
         }
     }
@@ -243,13 +247,13 @@ public class GitHubReviewReminderService {
 
     private void handleUserRetrieved(User user, long threadId, String pullRequestUrl, GitHubPullRequest pullRequest) {
         if (user == null) {
-            LOGGER.warning("User is null for thread: " + threadId);
+            LOGGER.warn("User is null for thread: {}", threadId);
             return;
         }
 
         ThreadChannel thread = this.jda.getThreadChannelById(threadId);
         if (thread == null) {
-            LOGGER.warning("Could not find thread with ID " + threadId);
+            LOGGER.warn("Could not find thread with ID {}", threadId);
             return;
         }
 
@@ -269,13 +273,13 @@ public class GitHubReviewReminderService {
 
         thread.sendMessage(message).queue(
             success -> {
-                LOGGER.info("Reminder sent to " + user.getName() + " for PR: " + pullRequestUrl);
+                LOGGER.info("Reminder sent to {} for PR: {}", user.getName(), pullRequestUrl);
                 this.mentionRepository.recordReminderSent(pullRequest, user.getIdLong())
                     .exceptionally(FutureHandler::handleException);
             },
             throwable -> {
                 Sentry.captureException(throwable);
-                LOGGER.log(Level.SEVERE, "Error sending reminder message to " + user.getName(), throwable);
+                LOGGER.error("Error sending reminder message to {}", user.getName(), throwable);
             }
         );
     }

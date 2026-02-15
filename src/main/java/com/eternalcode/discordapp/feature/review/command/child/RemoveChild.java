@@ -5,13 +5,16 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import io.sentry.Sentry;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemoveChild extends SlashCommand {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoveChild.class);
     private final GitHubReviewService gitHubReviewService;
 
     public RemoveChild(GitHubReviewService gitHubReviewService) {
@@ -31,20 +34,22 @@ public class RemoveChild extends SlashCommand {
     @Override
     public void execute(SlashCommandEvent event) {
         try {
-            Long discordId = event.getOption("user").getAsUser().getIdLong();
-
-            boolean userFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
-
-            if (userFromSystem) {
-                event.reply("User does not exist, nothing to remove").setEphemeral(true).queue();
+            OptionMapping userOption = event.getOption("user");
+            if (userOption == null) {
+                event.reply("Missing required option: user").setEphemeral(true).queue();
+                return;
             }
 
-            event.reply("User removed").setEphemeral(true).queue();
+            long discordId = userOption.getAsUser().getIdLong();
+
+            boolean userFromSystem = this.gitHubReviewService.removeUserFromSystem(discordId);
+            String message = userFromSystem ? "User removed" : "User does not exist, nothing to remove";
+            event.reply(message).setEphemeral(true).queue();
         }
         catch (Exception exception) {
             event.reply("An error occurred while removing the user from the system").setEphemeral(true).queue();
             Sentry.captureException(exception);
-            exception.printStackTrace();
+            LOGGER.error("Failed to remove user from review system", exception);
         }
     }
 
