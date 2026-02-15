@@ -89,12 +89,11 @@ public class DiscordApp {
 
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
             LOGGER.info("Discord Application started successfully!");
-            Thread.sleep(Long.MAX_VALUE);
         }
         catch (Exception exception) {
             LOGGER.error("Failed to start Discord Application", exception);
             Sentry.captureException(exception);
-            System.exit(1);
+            throw new IllegalStateException("Discord Application startup failed", exception);
         }
     }
 
