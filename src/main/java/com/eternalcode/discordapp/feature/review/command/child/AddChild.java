@@ -46,7 +46,11 @@ public class AddChild extends SlashCommand {
             }
 
             long discordUsername = userOption.getAsUser().getIdLong();
-            String githubUsername = githubOption.getAsString();
+            String githubUsername = githubOption.getAsString().trim();
+            if (githubUsername.isEmpty()) {
+                event.reply("GitHub username cannot be empty").setEphemeral(true).queue();
+                return;
+            }
 
             GitHubReviewUser gitHubReviewUser = new GitHubReviewUser(discordUsername, githubUsername, GitHubReviewNotificationType.BOTH);
 
