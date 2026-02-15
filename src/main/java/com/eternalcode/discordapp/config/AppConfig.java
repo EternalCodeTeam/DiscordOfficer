@@ -1,9 +1,9 @@
 package com.eternalcode.discordapp.config;
 
-import com.eternalcode.discordapp.automessages.AutoMessagesConfig;
-import com.eternalcode.discordapp.review.GitHubReviewNotificationType;
-import com.eternalcode.discordapp.review.GitHubReviewUser;
-import com.eternalcode.discordapp.ticket.TicketConfig;
+import com.eternalcode.discordapp.feature.automessages.AutoMessagesConfig;
+import com.eternalcode.discordapp.feature.review.GitHubReviewNotificationType;
+import com.eternalcode.discordapp.feature.review.GitHubReviewUser;
+import com.eternalcode.discordapp.feature.ticket.TicketConfig;
 import net.dzikoysk.cdn.entity.Contextual;
 import net.dzikoysk.cdn.entity.Description;
 import net.dzikoysk.cdn.source.Resource;
@@ -119,3 +119,4 @@ public class AppConfig implements CdnConfig {
         ));
     }
 }
+
