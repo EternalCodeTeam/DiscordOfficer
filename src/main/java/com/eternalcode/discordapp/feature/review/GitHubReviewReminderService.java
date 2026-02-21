@@ -99,7 +99,7 @@ public class GitHubReviewReminderService {
         CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
         for (GitHubReviewMentionRepository.ReviewerReminder reminder : reminders) {
             chain = chain
-                .thenRun(() -> this.sendReminder(reminder))
+                .thenCompose(unused -> this.sendReminder(reminder))
                 .thenCompose(unused -> this.delay(GITHUB_API_RATE_LIMIT));
         }
 
@@ -118,32 +118,32 @@ public class GitHubReviewReminderService {
         return future;
     }
 
-    private void sendReminder(GitHubReviewMentionRepository.ReviewerReminder reminder) {
+    private CompletableFuture<Void> sendReminder(GitHubReviewMentionRepository.ReviewerReminder reminder) {
         if (!this.isRunning.get()) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         String reviewUrl = reminder.pullRequestUrl();
         GitHubPullRequest pullRequest = GitHubPullRequest.fromUrl(reviewUrl).orNull();
         if (pullRequest == null) {
             LOGGER.warn("Invalid pull request URL: {}", reviewUrl);
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         try {
-            boolean isMerged = GitHubReviewUtil.isPullRequestMerged(pullRequest, this.appConfig.githubToken);
-            boolean isClosed = !isMerged &&
-                GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken);
+            GitHubReviewUtil.PullRequestState pullRequestState =
+                GitHubReviewUtil.getPullRequestState(pullRequest, this.appConfig.githubToken);
 
-            this.handlePRStatusCheck(reminder, pullRequest, isMerged, isClosed);
+            return this.handlePRStatusCheck(reminder, pullRequest, pullRequestState.merged(), pullRequestState.closed());
         }
         catch (IOException exception) {
             Sentry.captureException(exception);
             LOGGER.error("Error checking PR merged status: {}", reviewUrl, exception);
+            return CompletableFuture.completedFuture(null);
         }
     }
 
-    private void handlePRStatusCheck(
+    private CompletableFuture<Void> handlePRStatusCheck(
         GitHubReviewMentionRepository.ReviewerReminder reminder,
         GitHubPullRequest pullRequest, boolean isMerged, boolean isClosed) {
         if (isMerged || isClosed) {
@@ -152,13 +152,23 @@ public class GitHubReviewReminderService {
                 "PR is {}, skipping reminder for thread: {}",
                 isMerged ? "merged" : "closed",
                 reminder.threadId());
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         String githubUsername = this.findGithubUsernameByDiscordId(reminder.userId());
         if (githubUsername == null) {
             LOGGER.warn("Could not find GitHub username for Discord userId {}", reminder.userId());
-            return;
+            return CompletableFuture.completedFuture(null);
+        }
+
+        List<String> requestedReviewers = GitHubReviewUtil.getReviewers(pullRequest, this.appConfig.githubToken);
+        if (!this.isStillRequestedReviewer(requestedReviewers, githubUsername)) {
+            LOGGER.info(
+                "Skipping reminder for {} on PR {} because user is no longer in requested reviewers",
+                githubUsername,
+                pullRequest.toUrl()
+            );
+            return CompletableFuture.completedFuture(null);
         }
 
         try {
@@ -166,25 +176,50 @@ public class GitHubReviewReminderService {
                 GitHubReviewUtil.hasUserReviewed(pullRequest, this.appConfig.githubToken, githubUsername);
             if (alreadyReviewed) {
                 LOGGER.info("User {} already reviewed PR, skipping reminder.", githubUsername);
-                return;
+                return CompletableFuture.completedFuture(null);
             }
 
+            CompletableFuture<Void> reminderFuture = new CompletableFuture<>();
             this.jda.retrieveUserById(reminder.userId()).queue(
                 user -> this.handleUserRetrieved(
                     user,
                     reminder.threadId(),
                     reminder.pullRequestUrl(),
-                    pullRequest),
+                    pullRequest
+                ).whenComplete((unused, throwable) -> {
+                    if (throwable != null) {
+                        reminderFuture.completeExceptionally(throwable);
+                        return;
+                    }
+                    reminderFuture.complete(null);
+                }),
                 throwable -> {
                     Sentry.captureException(throwable);
                     LOGGER.error("Error retrieving user: {}", reminder.userId(), throwable);
+                    reminderFuture.completeExceptionally(throwable);
                 }
             );
+            return reminderFuture.exceptionally(throwable -> null);
         }
         catch (Exception exception) {
             Sentry.captureException(exception);
             LOGGER.warn("Error checking if user reviewed PR: {}", reminder.pullRequestUrl(), exception);
+            return CompletableFuture.completedFuture(null);
         }
+    }
+
+    private boolean isStillRequestedReviewer(List<String> requestedReviewers, String githubUsername) {
+        if (githubUsername == null || githubUsername.trim().isEmpty()) {
+            return false;
+        }
+
+        if (requestedReviewers == null || requestedReviewers.isEmpty()) {
+            return false;
+        }
+
+        return requestedReviewers.stream()
+            .anyMatch(requestedReviewer -> requestedReviewer != null &&
+                requestedReviewer.equalsIgnoreCase(githubUsername));
     }
 
     private void handleClosedOrMergedPR(long threadId, GitHubPullRequest pullRequest, boolean isMerged) {
@@ -219,22 +254,24 @@ public class GitHubReviewReminderService {
             .orElse(null);
     }
 
-    private void handleUserRetrieved(User user, long threadId, String pullRequestUrl, GitHubPullRequest pullRequest) {
+    private CompletableFuture<Void> handleUserRetrieved(
+        User user, long threadId, String pullRequestUrl, GitHubPullRequest pullRequest
+    ) {
         if (user == null) {
             LOGGER.warn("User is null for thread: {}", threadId);
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         ThreadChannel thread = this.jda.getThreadChannelById(threadId);
         if (thread == null) {
             LOGGER.warn("Could not find thread with ID {}", threadId);
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
-        this.sendReminderMessage(user, thread, pullRequestUrl, pullRequest);
+        return this.sendReminderMessage(user, thread, pullRequestUrl, pullRequest);
     }
 
-    private void sendReminderMessage(
+    private CompletableFuture<Void> sendReminderMessage(
         User user,
         ThreadChannel thread,
         String pullRequestUrl,
@@ -245,17 +282,25 @@ public class GitHubReviewReminderService {
             pullRequestUrl
         );
 
+        CompletableFuture<Void> messageFuture = new CompletableFuture<>();
         thread.sendMessage(message).queue(
             success -> {
                 LOGGER.info("Reminder sent to {} for PR: {}", user.getName(), pullRequestUrl);
                 this.mentionRepository.recordReminderSent(pullRequest, user.getIdLong())
-                    .exceptionally(FutureHandler::handleException);
+                    .thenRun(() -> messageFuture.complete(null))
+                    .exceptionally(throwable -> {
+                        FutureHandler.handleException(throwable);
+                        messageFuture.complete(null);
+                        return null;
+                    });
             },
             throwable -> {
                 Sentry.captureException(throwable);
                 LOGGER.error("Error sending reminder message to {}", user.getName(), throwable);
+                messageFuture.completeExceptionally(throwable);
             }
         );
+        return messageFuture.exceptionally(throwable -> null);
     }
 }
 

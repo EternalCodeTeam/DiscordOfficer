@@ -118,6 +118,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 return false;
             }
         }).exceptionally(throwable -> {
+            Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in isMentioned", throwable);
             return false;
         });
@@ -198,6 +199,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
 
             return reminders;
         }).exceptionally(throwable -> {
+            Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in getReviewersNeedingReminders", throwable);
             return new ArrayList<>();
         });
@@ -221,6 +223,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 throw new DataAccessException("Failed to find review mention", exception);
             }
         }).exceptionally(throwable -> {
+            Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in find", throwable);
             return null;
         });
@@ -248,6 +251,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 throw new DataAccessException("Failed to update review status", exception);
             }
         }).exceptionally(throwable -> {
+            Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in updateReviewStatus", throwable);
             return 0;
         });
@@ -289,6 +293,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 throw new DataAccessException("Failed to cleanup old mentions", exception);
             }
         }).exceptionally(throwable -> {
+            Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in cleanupOldMentions", throwable);
             return 0;
         });

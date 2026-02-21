@@ -170,12 +170,46 @@ public final class GitHubReviewUtil {
     }
 
     public static boolean isPullRequestMerged(GitHubPullRequest pullRequest, String githubToken) throws IOException {
-        return checkPullRequestBooleanField(pullRequest, githubToken, "merged");
+        JsonObject json = fetchPullRequestJson(pullRequest, githubToken);
+        if (!json.has("merged")) {
+            throw new IOException("Missing 'merged' in API response for URL: " + pullRequest.toApiUrl());
+        }
+        return json.get("merged").getAsBoolean();
     }
 
     public static boolean isPullRequestClosed(GitHubPullRequest pullRequest, String githubToken) throws IOException {
+        JsonObject json = fetchPullRequestJson(pullRequest, githubToken);
+        if (!json.has("state")) {
+            throw new IOException("Missing 'state' in API response for URL: " + pullRequest.toApiUrl());
+        }
+        String state = json.get("state").getAsString();
+        return "closed".equalsIgnoreCase(state);
+    }
+
+    public static PullRequestState getPullRequestState(GitHubPullRequest pullRequest, String githubToken)
+        throws IOException {
+        JsonObject json = fetchPullRequestJson(pullRequest, githubToken);
+
+        if (!json.has("merged")) {
+            throw new IOException("Missing 'merged' in API response for URL: " + pullRequest.toApiUrl());
+        }
+        if (!json.has("state")) {
+            throw new IOException("Missing 'state' in API response for URL: " + pullRequest.toApiUrl());
+        }
+
+        boolean merged = json.get("merged").getAsBoolean();
+        String state = json.get("state").getAsString();
+        boolean closed = "closed".equalsIgnoreCase(state);
+
+        return new PullRequestState(merged, closed);
+    }
+
+    public record PullRequestState(boolean merged, boolean closed) {
+    }
+
+    private static JsonObject fetchPullRequestJson(GitHubPullRequest pullRequest, String githubToken) throws IOException {
         if (pullRequest == null || githubToken == null || githubToken.trim().isEmpty()) {
-            throw new IOException("Invalid parameters for isPullRequestClosed");
+            throw new IOException("Invalid parameters for fetchPullRequestJson");
         }
 
         Request request = new Request.Builder()
@@ -191,6 +225,10 @@ public final class GitHubReviewUtil {
             }
 
             String responseBody = response.body() != null ? response.body().string() : "";
+            if (responseBody.isEmpty()) {
+                throw new IOException("Empty response body from GitHub API for URL: " + pullRequest.toApiUrl());
+            }
+
             JsonObject json;
             try {
                 json = GSON.fromJson(responseBody, JsonObject.class);
@@ -199,12 +237,10 @@ public final class GitHubReviewUtil {
                 throw new IOException("Invalid JSON response from GitHub API", exception);
             }
 
-            if (json == null || !json.has("state")) {
-                throw new IOException("Missing 'state' in API response for URL: " + pullRequest.toApiUrl());
+            if (json == null) {
+                throw new IOException("Missing JSON body in API response for URL: " + pullRequest.toApiUrl());
             }
-
-            String state = json.get("state").getAsString();
-            return "closed".equalsIgnoreCase(state);
+            return json;
         }
     }
 
