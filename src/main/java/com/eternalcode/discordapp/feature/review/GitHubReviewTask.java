@@ -58,37 +58,31 @@ public class GitHubReviewTask {
                 return;
             }
 
-            CompletableFuture<Void> archiveTask =
-                CompletableFuture.runAsync(() -> this.scheduler.schedule(() -> this.gitHubReviewService.archiveMergedPullRequest(
-                        this.jda)
-                    .orTimeout(OPERATION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
-                    .exceptionally(throwable -> {
-                        if (throwable instanceof TimeoutException) {
-                            LOGGER.warn("Archive task timed out after {}", OPERATION_TIMEOUT);
-                        }
-                        else {
-                            LOGGER.error("Error in archiveMergedPullRequest", throwable);
-                        }
-                        Sentry.captureException(throwable);
-                        return null;
-                    })
-                    .join()));
+            CompletableFuture<Void> archiveTask = this.gitHubReviewService.archiveMergedPullRequest(this.jda)
+                .orTimeout(OPERATION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
+                .exceptionally(throwable -> {
+                    if (throwable instanceof TimeoutException) {
+                        LOGGER.warn("Archive task timed out after {}", OPERATION_TIMEOUT);
+                    }
+                    else {
+                        LOGGER.error("Error in archiveMergedPullRequest", throwable);
+                    }
+                    Sentry.captureException(throwable);
+                    return null;
+                });
 
-            CompletableFuture<Void> mentionTask = CompletableFuture.runAsync(() -> this.scheduler.schedule(() -> {
-                this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda)
-                    .orTimeout(OPERATION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
-                    .exceptionally(throwable -> {
-                        if (throwable instanceof TimeoutException) {
-                            LOGGER.warn("Mention task timed out after {}", OPERATION_TIMEOUT);
-                        }
-                        else {
-                            LOGGER.error("Error in mentionReviewersOnAllReviewChannels", throwable);
-                        }
-                        Sentry.captureException(throwable);
-                        return null;
-                    })
-                    .join();
-            }));
+            CompletableFuture<Void> mentionTask = this.gitHubReviewService.mentionReviewersOnAllReviewChannels(this.jda)
+                .orTimeout(OPERATION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
+                .exceptionally(throwable -> {
+                    if (throwable instanceof TimeoutException) {
+                        LOGGER.warn("Mention task timed out after {}", OPERATION_TIMEOUT);
+                    }
+                    else {
+                        LOGGER.error("Error in mentionReviewersOnAllReviewChannels", throwable);
+                    }
+                    Sentry.captureException(throwable);
+                    return null;
+                });
 
             CompletableFuture.allOf(archiveTask, mentionTask)
                 .whenComplete(FutureHandler.whenSuccess(result ->

@@ -4,6 +4,7 @@ import com.eternalcode.discordapp.config.AppConfig;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 
 import java.util.List;
@@ -24,8 +25,15 @@ public class ForumTagsIdChild extends SlashCommand {
     @Override
     public void execute(SlashCommandEvent event) {
         long reviewForumId = this.appConfig.reviewSystem.reviewForumId;
+        ForumChannel forumChannel = event.getJDA().getForumChannelById(reviewForumId);
+        if (forumChannel == null) {
+            event.reply("Forum channel not found for configured id: " + reviewForumId)
+                .setEphemeral(true)
+                .queue();
+            return;
+        }
 
-        List<ForumTag> forumTags = event.getJDA().getForumChannelById(reviewForumId).getAvailableTags();
+        List<ForumTag> forumTags = forumChannel.getAvailableTags();
 
         event.reply("Forum Tags Id: " + forumTags).setEphemeral(true).queue();
     }

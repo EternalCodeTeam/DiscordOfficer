@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 public class ListChild extends SlashCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ListChild.class);
+    private static final int EMBED_FIELD_LIMIT = 25;
     private final GitHubReviewService gitHubReviewService;
 
     public ListChild(GitHubReviewService gitHubReviewService) {
@@ -26,14 +27,24 @@ public class ListChild extends SlashCommand {
     public void execute(SlashCommandEvent event) {
         try {
             List<GitHubReviewUser> listOfUsers = this.gitHubReviewService.getListOfUsers();
+            if (listOfUsers.isEmpty()) {
+                event.reply("No users are registered in the review system yet.").setEphemeral(true).queue();
+                return;
+            }
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            for (GitHubReviewUser user : listOfUsers) {
+            int displayedUsers = Math.min(listOfUsers.size(), EMBED_FIELD_LIMIT);
+            for (int i = 0; i < displayedUsers; i++) {
+                GitHubReviewUser user = listOfUsers.get(i);
                 embedBuilder.addField(
                     user.getGithubUsername(),
                     "Discord ID: " + user.getDiscordId() + "\nNotification Type: " + user.getNotificationType(),
                     false
                 );
+            }
+
+            if (listOfUsers.size() > EMBED_FIELD_LIMIT) {
+                embedBuilder.setFooter("Showing first " + EMBED_FIELD_LIMIT + " users out of " + listOfUsers.size());
             }
 
             event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
