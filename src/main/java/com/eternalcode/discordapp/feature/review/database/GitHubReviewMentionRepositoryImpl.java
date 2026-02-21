@@ -169,6 +169,8 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                         .where()
                         .eq("reviewStatus", GitHubReviewStatus.PENDING.name())
                         .and()
+                        .raw("lastMention < " + cutoffTimeMillis)
+                        .and()
                         .raw("(lastReminderSent IS NULL OR lastReminderSent = 0 OR lastReminderSent < "
                             + cutoffTimeMillis + ")")
                         .query();
