@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,19 +228,13 @@ public class GitHubReviewReminderService {
 
         ThreadChannel thread = this.jda.getThreadChannelById(threadId);
         if (thread != null) {
-            AppConfig.ReviewSystem reviewSystem = this.appConfig.reviewSystem;
-            long tagId = isMerged ? reviewSystem.mergedTagId : reviewSystem.closedTagId;
-
-            thread.getManager()
-                .setAppliedTags(ForumTagSnowflake.fromId(tagId))
-                .setLocked(true)
-                .setArchived(true)
+            thread.delete()
                 .queue(
                     success -> LOGGER.info(
-                        "Successfully archived {} thread: {}",
+                        "Successfully deleted {} thread: {}",
                         isMerged ? "merged" : "closed",
                         threadId),
-                    failure -> LOGGER.warn("Failed to archive thread: {}", threadId, failure)
+                    failure -> LOGGER.warn("Failed to delete thread: {}", threadId, failure)
                 );
         }
     }

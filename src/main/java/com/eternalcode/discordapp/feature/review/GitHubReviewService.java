@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import net.dv8tion.jda.api.JDA;
@@ -241,7 +243,7 @@ public class GitHubReviewService {
             List<CompletableFuture<Void>> channelFutures = new ArrayList<>();
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {
-                for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
+                for (ThreadChannel threadChannel : this.getReviewThreads(forumChannel, false)) {
                     Result<GitHubPullRequest, IllegalArgumentException> result =
                         GitHubPullRequest.fromUrl(threadChannel.getName());
 
@@ -294,11 +296,10 @@ public class GitHubReviewService {
                 return;
             }
 
-            AppConfig.ReviewSystem reviewSystem = this.appConfig.reviewSystem;
             List<CompletableFuture<Void>> archiveFutures = new ArrayList<>();
 
             for (ForumChannel forumChannel : guild.getForumChannels()) {
-                for (ThreadChannel threadChannel : forumChannel.getThreadChannels()) {
+                for (ThreadChannel threadChannel : this.getReviewThreads(forumChannel, true)) {
                     String name = threadChannel.getName();
                     Result<GitHubPullRequest, IllegalArgumentException> result = GitHubPullRequest.fromUrl(name);
 
@@ -317,37 +318,8 @@ public class GitHubReviewService {
                             boolean isClosed =
                                 GitHubReviewUtil.isPullRequestClosed(pullRequest, this.appConfig.githubToken);
 
-                            if (isMerged) {
-                                this.mentionRepository.updateReviewStatus(pullRequest, GitHubReviewStatus.MERGED)
-                                    .exceptionally(FutureHandler::handleException);
-
-                                threadChannel.getManager()
-                                    .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.mergedTagId))
-                                    .setLocked(true)
-                                    .setArchived(true)
-                                    .queue(
-                                        success -> LOGGER.info("Archived merged PR: " + pullRequest.toUrl()),
-                                        failure -> LOGGER.warn(
-                                            "Failed to archive merged PR: {}",
-                                            pullRequest.toUrl(),
-                                            failure)
-                                    );
-                            }
-                            else if (isClosed) {
-                                this.mentionRepository.updateReviewStatus(pullRequest, GitHubReviewStatus.CLOSED)
-                                    .exceptionally(FutureHandler::handleException);
-
-                                threadChannel.getManager()
-                                    .setAppliedTags(ForumTagSnowflake.fromId(reviewSystem.closedTagId))
-                                    .setLocked(true)
-                                    .setArchived(true)
-                                    .queue(
-                                        success -> LOGGER.info("Archived closed PR: " + pullRequest.toUrl()),
-                                        failure -> LOGGER.warn(
-                                            "Failed to archive closed PR: {}",
-                                            pullRequest.toUrl(),
-                                            failure)
-                                    );
+                            if (isMerged || isClosed) {
+                                this.cleanupClosedOrMergedPullRequest(threadChannel, pullRequest, isMerged);
                             }
                         }
                         catch (IOException exception) {
@@ -464,6 +436,46 @@ public class GitHubReviewService {
         }
 
         this.lastGitHubApiCall = Instant.now();
+    }
+
+    private void cleanupClosedOrMergedPullRequest(
+        ThreadChannel threadChannel,
+        GitHubPullRequest pullRequest,
+        boolean isMerged
+    ) {
+        GitHubReviewStatus reviewStatus = isMerged ? GitHubReviewStatus.MERGED : GitHubReviewStatus.CLOSED;
+        this.mentionRepository.updateReviewStatus(pullRequest, reviewStatus)
+            .exceptionally(FutureHandler::handleException);
+
+        String state = isMerged ? "merged" : "closed";
+        threadChannel.delete()
+            .queue(
+                success -> LOGGER.info("Deleted {} PR thread: {}", state, pullRequest.toUrl()),
+                failure -> LOGGER.warn("Failed to delete {} PR thread: {}", state, pullRequest.toUrl(), failure)
+            );
+    }
+
+    private List<ThreadChannel> getReviewThreads(ForumChannel forumChannel, boolean includeArchived) {
+        Map<Long, ThreadChannel> threadsById = new LinkedHashMap<>();
+
+        for (ThreadChannel activeThread : forumChannel.getThreadChannels()) {
+            threadsById.put(activeThread.getIdLong(), activeThread);
+        }
+
+        if (!includeArchived) {
+            return new ArrayList<>(threadsById.values());
+        }
+
+        try {
+            for (ThreadChannel archivedThread : forumChannel.retrieveArchivedPublicThreadChannels().complete()) {
+                threadsById.put(archivedThread.getIdLong(), archivedThread);
+            }
+        }
+        catch (Exception exception) {
+            LOGGER.warn("Failed to retrieve archived threads for forum: {}", forumChannel.getId(), exception);
+        }
+
+        return new ArrayList<>(threadsById.values());
     }
 }
 
