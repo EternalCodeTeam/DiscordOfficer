@@ -1,7 +1,7 @@
 package com.eternalcode.discordapp.feature.review;
 
 import com.eternalcode.commons.concurrent.FutureHandler;
-import com.eternalcode.discordapp.scheduler.Scheduler;
+import com.eternalcode.commons.scheduler.loom.LoomScheduler;
 import io.sentry.Sentry;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -20,10 +20,10 @@ public class GitHubReviewTask {
 
     private final GitHubReviewService gitHubReviewService;
     private final JDA jda;
-    private final Scheduler scheduler;
+    private final LoomScheduler scheduler;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
-    public GitHubReviewTask(GitHubReviewService gitHubReviewService, JDA jda, Scheduler scheduler) {
+    public GitHubReviewTask(GitHubReviewService gitHubReviewService, JDA jda, LoomScheduler scheduler) {
         this.gitHubReviewService = gitHubReviewService;
         this.jda = jda;
         this.scheduler = scheduler;
@@ -32,7 +32,7 @@ public class GitHubReviewTask {
     public void start() {
         if (this.isRunning.compareAndSet(false, true)) {
             LOGGER.info("Starting GitHub review task with interval: {}", TASK_INTERVAL);
-            this.scheduler.scheduleRepeating(this::executeTask, Duration.ofMinutes(1), TASK_INTERVAL);
+            this.scheduler.runAsyncTimer(this::executeTask, Duration.ofMinutes(1), TASK_INTERVAL);
         }
         else {
             LOGGER.warn("GitHub review task is already running");

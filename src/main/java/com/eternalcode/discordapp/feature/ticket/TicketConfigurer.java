@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.feature.ticket;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.config.ConfigManager;
 import com.eternalcode.discordapp.database.DatabaseManager;
-import com.eternalcode.discordapp.scheduler.Scheduler;
+import com.eternalcode.commons.scheduler.loom.LoomScheduler;
 import com.eternalcode.discordapp.feature.ticket.command.TicketCommand;
 import com.eternalcode.discordapp.feature.ticket.panel.TicketPanelController;
 import com.eternalcode.discordapp.feature.ticket.panel.TicketPanelService;
@@ -24,7 +24,7 @@ public class TicketConfigurer {
     private final JDA jda;
     private final ConfigManager configManager;
     private final DatabaseManager databaseManager;
-    private final Scheduler scheduler;
+    private final LoomScheduler scheduler;
     private final CommandClientBuilder commandClientBuilder;
     private final AppConfig appConfig;
 
@@ -32,7 +32,7 @@ public class TicketConfigurer {
         JDA jda,
         ConfigManager configManager,
         DatabaseManager databaseManager,
-        Scheduler scheduler,
+        LoomScheduler scheduler,
         CommandClientBuilder commandClientBuilder,
         AppConfig appConfig
     ) {
@@ -99,7 +99,7 @@ public class TicketConfigurer {
             // Schedules a task that periodically cleans up inactive tickets.
             // If an administrator deletes a ticket channel manually instead of clicking "Close ticket",
             // the record may remain in the database — this task removes such leftovers.
-            this.scheduler.scheduleRepeating(
+            this.scheduler.runAsyncTimer(
                 () -> {
                     try {
                         ticketChannelService.cleanupInactiveTickets().join();
@@ -107,7 +107,7 @@ public class TicketConfigurer {
                     catch (Exception exception) {
                         LOGGER.error("Error during ticket cleanup", exception);
                     }
-                }, TICKET_CLEANUP_FREQUENCY);
+                }, Duration.ZERO, TICKET_CLEANUP_FREQUENCY);
         }
         catch (Exception exception) {
             LOGGER.error("Failed to initialize ticket system", exception);

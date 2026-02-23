@@ -48,8 +48,9 @@ import com.eternalcode.discordapp.feature.review.GitHubReviewTask;
 import com.eternalcode.discordapp.feature.review.command.GitHubReviewCommand;
 import com.eternalcode.discordapp.feature.review.database.GitHubReviewMentionRepository;
 import com.eternalcode.discordapp.feature.review.database.GitHubReviewMentionRepositoryImpl;
-import com.eternalcode.discordapp.scheduler.Scheduler;
-import com.eternalcode.discordapp.scheduler.VirtualThreadSchedulerImpl;
+import com.eternalcode.commons.scheduler.loom.LoomScheduler;
+import com.eternalcode.commons.scheduler.loom.LoomSchedulerImpl;
+import com.eternalcode.commons.scheduler.loom.MainThreadDispatcher;
 import com.eternalcode.discordapp.feature.ticket.TicketConfigurer;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -72,7 +73,7 @@ public class DiscordApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordApp.class);
     private static final Duration REMINDER_INTERVAL = Duration.ofHours(24);
-    private Scheduler scheduler;
+    private LoomScheduler scheduler;
     private GitHubReviewReminderService reminderService;
     private JDA jda;
     private DatabaseManager databaseManager;
@@ -117,7 +118,7 @@ public class DiscordApp {
 
         LOGGER.info("Initializing core components...");
         OkHttpClient httpClient = new OkHttpClient();
-        Scheduler scheduler = new VirtualThreadSchedulerImpl();
+        LoomScheduler scheduler = new LoomSchedulerImpl(MainThreadDispatcher.synchronous());
         DatabaseManager databaseManager = new DatabaseManager(databaseConfig, new File("database"));
         databaseManager.connect();
         ObserverRegistry observerRegistry = new ObserverRegistry();
@@ -219,13 +220,13 @@ public class DiscordApp {
         });
 
         LOGGER.info("Starting scheduled tasks...");
-        scheduler.schedule(new GuildStatisticsTask(guildStats), Duration.ofMinutes(5));
+        scheduler.runAsyncLater(new GuildStatisticsTask(guildStats), Duration.ofMinutes(5));
         new GitHubReviewTask(reviewService, jda, scheduler).start();
-        scheduler.scheduleRepeating(new AutoMessageTask(autoMsgService), appConfig.autoMessagesConfig.interval);
+        scheduler.runAsyncTimer(new AutoMessageTask(autoMsgService), Duration.ZERO, appConfig.autoMessagesConfig.interval);
 
         LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);
 
-        scheduler.scheduleRepeating(new MeetingCleanupTask(meetingService, jda), Duration.ofHours(1));
+        scheduler.runAsyncTimer(new MeetingCleanupTask(meetingService, jda), Duration.ZERO, Duration.ofHours(1));
 
         this.scheduler = scheduler;
         this.reminderService = reminderService;
@@ -238,7 +239,7 @@ public class DiscordApp {
 
         try {
             if (scheduler != null) {
-                scheduler.shutdown();
+                scheduler.shutdown(Duration.ofSeconds(30));
                 LOGGER.info("Scheduler stopped");
             }
 
