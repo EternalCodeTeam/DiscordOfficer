@@ -3,7 +3,7 @@ package com.eternalcode.discordapp.feature.review;
 import com.eternalcode.commons.concurrent.FutureHandler;
 import com.eternalcode.discordapp.config.AppConfig;
 import com.eternalcode.discordapp.feature.review.database.GitHubReviewMentionRepository;
-import com.eternalcode.discordapp.scheduler.Scheduler;
+import com.eternalcode.commons.scheduler.loom.LoomScheduler;
 import io.sentry.Sentry;
 import java.io.IOException;
 import java.time.Duration;
@@ -22,7 +22,7 @@ public class GitHubReviewReminderService {
     private static final Duration GITHUB_API_RATE_LIMIT = Duration.ofSeconds(1);
     private final JDA jda;
     private final GitHubReviewMentionRepository mentionRepository;
-    private final Scheduler scheduler;
+    private final LoomScheduler scheduler;
     private final Duration reminderInterval;
     private final AppConfig appConfig;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -31,7 +31,7 @@ public class GitHubReviewReminderService {
         JDA jda,
         GitHubReviewMentionRepository mentionRepository,
         AppConfig appConfig,
-        Scheduler scheduler,
+        LoomScheduler scheduler,
         Duration reminderInterval
     ) {
         this.jda = jda;
@@ -45,7 +45,7 @@ public class GitHubReviewReminderService {
         if (this.isRunning.compareAndSet(false, true)) {
             LOGGER.info("Starting GitHub review reminder service with interval: " + this.reminderInterval);
 
-            this.scheduler.scheduleRepeating(
+            this.scheduler.runAsyncTimer(
                 this::sendRemindersWithErrorHandling,
                 Duration.ofMinutes(1),
                 this.reminderInterval
@@ -112,9 +112,7 @@ public class GitHubReviewReminderService {
     }
 
     private CompletableFuture<Void> delay(Duration delay) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        this.scheduler.schedule(() -> future.complete(null), delay);
-        return future;
+        return this.scheduler.delay(delay).toCompletableFuture();
     }
 
     private CompletableFuture<Void> sendReminder(GitHubReviewMentionRepository.ReviewerReminder reminder) {

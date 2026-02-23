@@ -7,7 +7,7 @@ import com.eternalcode.discordapp.database.repository.AbstractRepository;
 import com.eternalcode.discordapp.feature.review.GitHubPullRequest;
 import com.eternalcode.discordapp.feature.review.GitHubReviewMention;
 import com.eternalcode.discordapp.feature.review.GitHubReviewStatus;
-import com.eternalcode.discordapp.scheduler.Scheduler;
+import com.eternalcode.commons.scheduler.loom.LoomScheduler;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.table.TableUtils;
@@ -28,20 +28,20 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     private static final Duration MENTION_INTERVAL = Duration.ofHours(12);
     private static final Duration CLEANUP_INTERVAL = Duration.ofDays(7);
 
-    private final Scheduler scheduler;
+    private final LoomScheduler scheduler;
 
-    public GitHubReviewMentionRepositoryImpl(DatabaseManager databaseManager, Scheduler scheduler) {
+    public GitHubReviewMentionRepositoryImpl(DatabaseManager databaseManager, LoomScheduler scheduler) {
         super(databaseManager, GitHubReviewMentionWrapper.class);
         this.scheduler = scheduler;
 
-        this.scheduler.scheduleRepeating(
+        this.scheduler.runAsyncTimer(
             this::performCleanup,
             Duration.ofHours(1),
             Duration.ofHours(24)
         );
     }
 
-    public static GitHubReviewMentionRepository create(DatabaseManager databaseManager, Scheduler scheduler) {
+    public static GitHubReviewMentionRepository create(DatabaseManager databaseManager, LoomScheduler scheduler) {
         try {
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), GitHubReviewMentionWrapper.class);
             LOGGER.info("GitHubReviewMentionRepository initialized successfully");
@@ -60,7 +60,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             return CompletableFuture.failedFuture(new IllegalArgumentException("PullRequest cannot be null"));
         }
 
-        return CompletableFuture.runAsync(() -> {
+        return this.scheduler.<Void>supplyAsync(() -> {
             try {
                 String mentionKey = this.createMentionKey(pullRequest, userId);
                 GitHubReviewMentionWrapper mention = this.select(mentionKey).join()
@@ -80,13 +80,14 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
 
                 this.save(mention).join();
                 LOGGER.info("Marked reviewer as mentioned: userId=" + userId + ", PR=" + pullRequest.toUrl());
+                return null;
             }
             catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error marking reviewer as mentioned", exception);
                 throw new DataAccessException("Failed to mark reviewer as mentioned", exception);
             }
-        }).exceptionally(FutureHandler::handleException);
+        }).toCompletableFuture().exceptionally(FutureHandler::handleException);
     }
 
     @Override
@@ -95,7 +96,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             return CompletableFuture.completedFuture(false);
         }
 
-        return CompletableFuture.supplyAsync(() -> {
+        return this.scheduler.supplyAsync(() -> {
             try {
                 String mentionKey = this.createMentionKey(pullRequest, userId);
                 GitHubReviewMentionWrapper mention = this.select(mentionKey).join().orElse(null);
@@ -117,7 +118,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 LOGGER.log(Level.SEVERE, "Error checking if user is mentioned", exception);
                 return false;
             }
-        }).exceptionally(throwable -> {
+        }).toCompletableFuture().exceptionally(throwable -> {
             Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in isMentioned", throwable);
             return false;
@@ -130,7 +131,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             return CompletableFuture.failedFuture(new IllegalArgumentException("PullRequest cannot be null"));
         }
 
-        return CompletableFuture.runAsync(() -> {
+        return this.scheduler.<Void>supplyAsync(() -> {
             try {
                 String mentionKey = this.createMentionKey(pullRequest, userId);
                 GitHubReviewMentionWrapper mention = this.select(mentionKey).join().orElse(null);
@@ -144,18 +145,19 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                     LOGGER.warning("Mention not found when recording reminder: userId=" + userId + ", PR="
                         + pullRequest.toUrl());
                 }
+                return null;
             }
             catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error recording reminder sent", exception);
                 throw new DataAccessException("Failed to record reminder sent", exception);
             }
-        }).exceptionally(FutureHandler::handleException);
+        }).toCompletableFuture().exceptionally(FutureHandler::handleException);
     }
 
     @Override
     public CompletableFuture<List<ReviewerReminder>> getReviewersNeedingReminders(Duration reminderInterval) {
-        return CompletableFuture.supplyAsync(() -> {
+        return this.scheduler.supplyAsync(() -> {
             List<ReviewerReminder> reminders = new ArrayList<>();
 
             try {
@@ -200,7 +202,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             }
 
             return reminders;
-        }).exceptionally(throwable -> {
+        }).toCompletableFuture().exceptionally(throwable -> {
             Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in getReviewersNeedingReminders", throwable);
             return new ArrayList<>();
@@ -213,7 +215,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             return CompletableFuture.completedFuture(null);
         }
 
-        return CompletableFuture.supplyAsync(() -> {
+        return this.scheduler.supplyAsync(() -> {
             try {
                 String mentionKey = this.createMentionKey(pullRequest, userId);
                 GitHubReviewMentionWrapper wrapper = this.select(mentionKey).join().orElse(null);
@@ -224,7 +226,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 LOGGER.log(Level.SEVERE, "Database error finding review mention", exception);
                 throw new DataAccessException("Failed to find review mention", exception);
             }
-        }).exceptionally(throwable -> {
+        }).toCompletableFuture().exceptionally(throwable -> {
             Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in find", throwable);
             return null;
@@ -237,7 +239,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
             return CompletableFuture.completedFuture(0);
         }
 
-        return CompletableFuture.supplyAsync(() -> {
+        return this.scheduler.supplyAsync(() -> {
             try {
                 UpdateBuilder<GitHubReviewMentionWrapper, Object> updateBuilder =
                     this.databaseManager.getDao(GitHubReviewMentionWrapper.class).updateBuilder();
@@ -252,7 +254,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 LOGGER.log(Level.SEVERE, "Error updating review status", exception);
                 throw new DataAccessException("Failed to update review status", exception);
             }
-        }).exceptionally(throwable -> {
+        }).toCompletableFuture().exceptionally(throwable -> {
             Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in updateReviewStatus", throwable);
             return 0;
@@ -268,7 +270,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     }
 
     public CompletableFuture<Integer> cleanupOldMentions(Duration maxAge) {
-        return CompletableFuture.supplyAsync(() -> {
+        return this.scheduler.supplyAsync(() -> {
             try {
                 Instant cutoffTime = Instant.now().minus(maxAge);
                 long cutoffTimeMillis = cutoffTime.toEpochMilli();
@@ -294,7 +296,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 LOGGER.log(Level.SEVERE, "Error cleaning up old mentions", exception);
                 throw new DataAccessException("Failed to cleanup old mentions", exception);
             }
-        }).exceptionally(throwable -> {
+        }).toCompletableFuture().exceptionally(throwable -> {
             Sentry.captureException(throwable);
             LOGGER.log(Level.SEVERE, "Exception in cleanupOldMentions", throwable);
             return 0;
