@@ -15,11 +15,11 @@ public interface GitHubReviewMentionRepository {
 
     CompletableFuture<Void> recordReminderSent(GitHubPullRequest pullRequest, long userId);
 
-    CompletableFuture<List<ReviewerReminder>> getReviewersNeedingReminders(java.time.Duration reminderInterval);
+    List<ReviewerReminder> getReviewersNeedingReminders(java.time.Duration reminderInterval);
 
     CompletableFuture<GitHubReviewMention> find(String pullRequest, long userId);
 
-    CompletableFuture<Integer> updateReviewStatus(GitHubPullRequest pullRequest, GitHubReviewStatus status);
+    void updateReviewStatus(GitHubPullRequest pullRequest, GitHubReviewStatus status);
 
     record ReviewerReminder(long userId, String pullRequestUrl, long threadId) {
     }

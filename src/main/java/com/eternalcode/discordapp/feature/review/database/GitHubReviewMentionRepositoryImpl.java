@@ -45,8 +45,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
         try {
             TableUtils.createTableIfNotExists(databaseManager.getConnectionSource(), GitHubReviewMentionWrapper.class);
             LOGGER.info("GitHubReviewMentionRepository initialized successfully");
-        }
-        catch (SQLException sqlException) {
+        } catch (SQLException sqlException) {
             Sentry.captureException(sqlException);
             throw new DataAccessException("Failed to create github_review_mentions table", sqlException);
         }
@@ -81,8 +80,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 this.save(mention).join();
                 LOGGER.info("Marked reviewer as mentioned: userId=" + userId + ", PR=" + pullRequest.toUrl());
                 return null;
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error marking reviewer as mentioned", exception);
                 throw new DataAccessException("Failed to mark reviewer as mentioned", exception);
@@ -112,8 +110,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 LOGGER.fine("Checked mention status: userId=" + userId + ", PR=" + pullRequest.toUrl() + ", mentioned="
                     + isMentioned);
                 return isMentioned;
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error checking if user is mentioned", exception);
                 return false;
@@ -140,14 +137,12 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                     mention.setLastReminderSent(Instant.now());
                     this.save(mention).join();
                     LOGGER.info("Recorded reminder sent: userId=" + userId + ", PR=" + pullRequest.toUrl());
-                }
-                else {
+                } else {
                     LOGGER.warning("Mention not found when recording reminder: userId=" + userId + ", PR="
                         + pullRequest.toUrl());
                 }
                 return null;
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error recording reminder sent", exception);
                 throw new DataAccessException("Failed to record reminder sent", exception);
@@ -156,57 +151,49 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     }
 
     @Override
-    public CompletableFuture<List<ReviewerReminder>> getReviewersNeedingReminders(Duration reminderInterval) {
-        return this.scheduler.supplyAsync(() -> {
-            List<ReviewerReminder> reminders = new ArrayList<>();
+    public List<ReviewerReminder> getReviewersNeedingReminders(Duration reminderInterval) {
+        List<ReviewerReminder> reminders = new ArrayList<>();
 
-            try {
-                Instant now = Instant.now();
-                Instant cutoffTime = now.minus(reminderInterval);
-                long cutoffTimeMillis = cutoffTime.toEpochMilli();
+        try {
+            Instant now = Instant.now();
+            Instant cutoffTime = now.minus(reminderInterval);
+            long cutoffTimeMillis = cutoffTime.toEpochMilli();
 
-                List<GitHubReviewMentionWrapper> filteredMentions =
-                    this.databaseManager.getDao(GitHubReviewMentionWrapper.class)
-                        .queryBuilder()
-                        .where()
-                        .eq("reviewStatus", GitHubReviewStatus.PENDING.name())
-                        .and()
-                        .raw("lastMention < " + cutoffTimeMillis)
-                        .and()
-                        .raw("(lastReminderSent IS NULL OR lastReminderSent = 0 OR lastReminderSent < "
-                            + cutoffTimeMillis + ")")
-                        .query();
+            List<GitHubReviewMentionWrapper> filteredMentions =
+                this.databaseManager.getDao(GitHubReviewMentionWrapper.class)
+                    .queryBuilder()
+                    .where()
+                    .eq("reviewStatus", GitHubReviewStatus.PENDING.name())
+                    .and()
+                    .raw("lastMention < " + cutoffTimeMillis)
+                    .and()
+                    .raw("(lastReminderSent IS NULL OR lastReminderSent = 0 OR lastReminderSent < "
+                        + cutoffTimeMillis + ")")
+                    .query();
 
-                for (GitHubReviewMentionWrapper mention : filteredMentions) {
-                    try {
-                        reminders.add(new ReviewerReminder(
-                            mention.getUserId(),
-                            mention.getPullRequestUrl(),
-                            mention.getThreadId()
-                        ));
-                    }
-                    catch (Exception exception) {
-                        LOGGER.log(
-                            Level.WARNING,
-                            "Error creating reminder for mention: " + mention.getPullRequestUrl(),
-                            exception);
-                    }
+            for (GitHubReviewMentionWrapper mention : filteredMentions) {
+                try {
+                    reminders.add(new ReviewerReminder(
+                        mention.getUserId(),
+                        mention.getPullRequestUrl(),
+                        mention.getThreadId()
+                    ));
+                } catch (Exception exception) {
+                    LOGGER.log(
+                        Level.WARNING,
+                        "Error creating reminder for mention: " + mention.getPullRequestUrl(),
+                        exception);
                 }
-
-                LOGGER.info("Found " + reminders.size() + " reviewers needing reminders");
-            }
-            catch (SQLException exception) {
-                Sentry.captureException(exception);
-                LOGGER.log(Level.SEVERE, "Database error getting reviewers needing reminders", exception);
-                throw new DataAccessException("Failed to get reviewers needing reminders", exception);
             }
 
-            return reminders;
-        }).toCompletableFuture().exceptionally(throwable -> {
-            Sentry.captureException(throwable);
-            LOGGER.log(Level.SEVERE, "Exception in getReviewersNeedingReminders", throwable);
-            return new ArrayList<>();
-        });
+            LOGGER.info("Found " + reminders.size() + " reviewers needing reminders");
+        } catch (SQLException exception) {
+            Sentry.captureException(exception);
+            LOGGER.log(Level.SEVERE, "Database error getting reviewers needing reminders", exception);
+            throw new DataAccessException("Failed to get reviewers needing reminders", exception);
+        }
+
+        return reminders;
     }
 
     @Override
@@ -220,8 +207,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 String mentionKey = this.createMentionKey(pullRequest, userId);
                 GitHubReviewMentionWrapper wrapper = this.select(mentionKey).join().orElse(null);
                 return wrapper == null ? null : wrapper.toMention();
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Database error finding review mention", exception);
                 throw new DataAccessException("Failed to find review mention", exception);
@@ -234,31 +220,24 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
     }
 
     @Override
-    public CompletableFuture<Integer> updateReviewStatus(GitHubPullRequest pullRequest, GitHubReviewStatus status) {
+    public void updateReviewStatus(GitHubPullRequest pullRequest, GitHubReviewStatus status) {
         if (pullRequest == null || status == null) {
-            return CompletableFuture.completedFuture(0);
+            return;
         }
 
-        return this.scheduler.supplyAsync(() -> {
-            try {
-                UpdateBuilder<GitHubReviewMentionWrapper, Object> updateBuilder =
-                    this.databaseManager.getDao(GitHubReviewMentionWrapper.class).updateBuilder();
+        try {
+            UpdateBuilder<GitHubReviewMentionWrapper, Object> updateBuilder =
+                this.databaseManager.getDao(GitHubReviewMentionWrapper.class).updateBuilder();
 
-                updateBuilder.updateColumnValue("reviewStatus", status.name());
-                updateBuilder.where().like("pullRequest", pullRequest.toUrl() + "|%");
+            updateBuilder.updateColumnValue("reviewStatus", status.name());
+            updateBuilder.where().like("pullRequest", pullRequest.toUrl() + "|%");
 
-                return updateBuilder.update();
-            }
-            catch (SQLException exception) {
-                Sentry.captureException(exception);
-                LOGGER.log(Level.SEVERE, "Error updating review status", exception);
-                throw new DataAccessException("Failed to update review status", exception);
-            }
-        }).toCompletableFuture().exceptionally(throwable -> {
-            Sentry.captureException(throwable);
-            LOGGER.log(Level.SEVERE, "Exception in updateReviewStatus", throwable);
-            return 0;
-        });
+            updateBuilder.update();
+        } catch (SQLException exception) {
+            Sentry.captureException(exception);
+            LOGGER.log(Level.SEVERE, "Error updating review status", exception);
+            throw new DataAccessException("Failed to update review status", exception);
+        }
     }
 
     private String createMentionKey(GitHubPullRequest pullRequest, long userId) {
@@ -290,8 +269,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
                 }
 
                 return deletedCount;
-            }
-            catch (SQLException exception) {
+            } catch (SQLException exception) {
                 Sentry.captureException(exception);
                 LOGGER.log(Level.SEVERE, "Error cleaning up old mentions", exception);
                 throw new DataAccessException("Failed to cleanup old mentions", exception);
@@ -307,8 +285,7 @@ public class GitHubReviewMentionRepositoryImpl extends AbstractRepository<GitHub
         try {
             this.cleanupOldMentions(CLEANUP_INTERVAL)
                 .exceptionally(FutureHandler::handleException);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             LOGGER.log(Level.WARNING, "Error during periodic cleanup", exception);
         }
     }

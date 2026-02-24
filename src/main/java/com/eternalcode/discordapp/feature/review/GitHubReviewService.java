@@ -444,8 +444,7 @@ public class GitHubReviewService {
         boolean isMerged
     ) {
         GitHubReviewStatus reviewStatus = isMerged ? GitHubReviewStatus.MERGED : GitHubReviewStatus.CLOSED;
-        this.mentionRepository.updateReviewStatus(pullRequest, reviewStatus)
-            .exceptionally(FutureHandler::handleException);
+        this.mentionRepository.updateReviewStatus(pullRequest, reviewStatus);
 
         String state = isMerged ? "merged" : "closed";
         threadChannel.delete()

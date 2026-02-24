@@ -58,6 +58,8 @@ import io.sentry.Sentry;
 import java.io.File;
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -164,8 +166,10 @@ public class DiscordApp {
 
         LOGGER.info("Initializing Discord bot...");
         FilterService filterService = new FilterService().register(new RenovateForcedPushFilter());
-
+        ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
         JDA jda = JDABuilder.createDefault(appConfig.token)
+            .setEventPool(virtualThreadExecutor, true)
+            .setCallbackPool(virtualThreadExecutor, true)
             .addEventListeners(
                 new ExperienceMessageListener(experienceConfig, experienceService),
                 new ExperienceReactionListener(experienceConfig, experienceService),
@@ -209,7 +213,6 @@ public class DiscordApp {
             jda,
             mentionRepo,
             appConfig,
-            scheduler,
             REMINDER_INTERVAL
         );
         reminderService.start();
