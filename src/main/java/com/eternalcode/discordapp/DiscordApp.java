@@ -195,14 +195,15 @@ public class DiscordApp {
             configManager,
             databaseManager,
             scheduler,
-            commandClientBuilder,
-            appConfig
+            commandClientBuilder
         );
         ticketConfigurer.initialize();
 
         CommandClient commandClient = commandClientBuilder.build();
         LOGGER.info("CommandClient built and registered");
         jda.addEventListener(commandClient);
+        commandClient.upsertInteractions(jda);
+        LOGGER.info("Slash commands upsert triggered");
 
         GitHubReviewReminderService reminderService = new GitHubReviewReminderService(
             jda,

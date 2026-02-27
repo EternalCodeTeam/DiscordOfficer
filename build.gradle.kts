@@ -13,6 +13,15 @@ repositories {
     mavenLocal()
     gradlePluginPortal()
 
+    maven {
+        name = "m2-dv8tion"
+        url = uri("https://m2.dv8tion.net/releases")
+    }
+    maven {
+        name = "chew"
+        url = uri("https://m2.chew.pro/releases")
+    }
+
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://repo.eternalcode.pl/snapshots") }
     maven { url = uri("https://repo.eternalcode.pl/releases") }
@@ -31,7 +40,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.32")
 
     // new modern fork of jda-utilities
-    implementation("pw.chew:jda-chewtils-command:2.0-SNAPSHOT")
+    implementation("pw.chew:jda-chewtils-command:2.2.1")
 
     // Sentry.io integration
     implementation("io.sentry:sentry:8.33.0")
