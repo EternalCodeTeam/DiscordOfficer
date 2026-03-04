@@ -1,61 +1,57 @@
 package com.eternalcode.discordapp.feature.meeting;
 
-import com.eternalcode.discordapp.config.AppConfig;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
-import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.section.Section;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MeetingService {
 
+    public static final String DEFAULT_SEPARATOR = "-";
+    public static final String DELIMITER = ", ";
     private static final Logger LOGGER = LoggerFactory.getLogger(MeetingService.class);
-
-    private final AppConfig appConfig;
+    private static final Color MEETING_ACCENT_COLOR = Color.decode("#3B82F6");
     private final MeetingPollRepository pollRepository;
     private final MeetingVoteRepository voteRepository;
 
     public MeetingService(
-        AppConfig appConfig,
         MeetingPollRepository pollRepository,
-        MeetingVoteRepository voteRepository) {
-        this.appConfig = appConfig;
+        MeetingVoteRepository voteRepository
+    ) {
         this.pollRepository = pollRepository;
         this.voteRepository = voteRepository;
     }
 
     private static String trimTo(String string) {
-        final int EMBED_FIELD_VALUE_LIMIT = 1024;
-        if (string.length() <= EMBED_FIELD_VALUE_LIMIT) {
+        final int MAX_COMPONENT_TEXT_LENGTH = 1024;
+        if (string.length() <= MAX_COMPONENT_TEXT_LENGTH) {
             return string;
         }
-        return string.substring(0, Math.max(0, EMBED_FIELD_VALUE_LIMIT - 3)) + "...";
+        return string.substring(0, Math.max(0, MAX_COMPONENT_TEXT_LENGTH - 3)) + "...";
     }
 
     public void createMeeting(MessageChannel channel, long guildId, String topic, Instant meetingAt) {
-        MessageEmbed embed = this.buildMeetingEmbed(topic, meetingAt, 0, 0, 0, List.of(), List.of(), List.of());
+        Container container = this.buildMeetingContainer(topic, meetingAt, 0, 0, 0, List.of(), List.of(), List.of());
 
-        channel.sendMessageEmbeds(embed)
-            .setComponents(
-                ActionRow.of(
-                    Button.secondary("meeting_yes", "✅ Będę"),
-                    Button.secondary("meeting_no", "❌ Nie będę"),
-                    Button.secondary("meeting_maybe", "🤷 Jeszcze nie wiem")
-                )
-            )
+        channel.sendMessage(new MessageCreateBuilder()
+                .setComponents(container)
+                .useComponentsV2()
+                .build())
             .queue(message -> {
                 MeetingPollWrapper poll = new MeetingPollWrapper(
                     message.getIdLong(),
@@ -117,7 +113,7 @@ public class MeetingService {
                     List<String> maybeMentions = mentionsByStatus.getOrDefault(MeetingStatus.MAYBE, List.of());
 
                     MeetingPollWrapper poll = pollOpt.get();
-                    MessageEmbed updated = this.buildMeetingEmbed(
+                    Container updated = this.buildMeetingContainer(
                         poll.getTopic(),
                         Instant.ofEpochSecond(poll.getMeetingAt()),
                         yesMentions.size(),
@@ -128,13 +124,16 @@ public class MeetingService {
                         maybeMentions
                     );
 
-                    updater.editMessage(new MessageEditBuilder().setEmbeds(updated).build());
+                    updater.editMessage(new MessageEditBuilder()
+                        .setComponents(updated)
+                        .useComponentsV2()
+                        .build());
                     updater.acknowledgeEphemeral("Głos zaktualizowany. Dzięki!");
                     return null;
                 });
     }
 
-    private MessageEmbed buildMeetingEmbed(
+    private Container buildMeetingContainer(
         String topic,
         Instant meetingAt,
         int yes,
@@ -145,34 +144,43 @@ public class MeetingService {
         List<String> maybeMentions
     ) {
         String yesList = yesMentions.isEmpty()
-            ? "—"
-            : trimTo(yesMentions.stream().collect(Collectors.joining(", ")));
+            ? DEFAULT_SEPARATOR
+            : trimTo(String.join(DELIMITER, yesMentions));
 
         String noList = noMentions.isEmpty()
-            ? "—"
-            : trimTo(noMentions.stream().collect(Collectors.joining(", ")));
+            ? DEFAULT_SEPARATOR
+            : trimTo(String.join(DELIMITER, noMentions));
 
         String maybeList = maybeMentions.isEmpty()
-            ? "—"
-            : trimTo(maybeMentions.stream().collect(Collectors.joining(", ")));
+            ? DEFAULT_SEPARATOR
+            : trimTo(String.join(DELIMITER, maybeMentions));
 
         long epoch = meetingAt.getEpochSecond();
         String when = "<t:" + epoch + ":F> (" + "<t:" + epoch + ":R>)";
 
-        return new EmbedBuilder()
-            .setTitle("📅 Spotkaniomierz: " + topic)
-            .setColor(Color.decode(this.appConfig.embedSettings.successEmbed.color))
-            .setThumbnail(this.appConfig.embedSettings.successEmbed.thumbnail)
-            .setDescription("Zagłosuj poniżej, aby potwierdzić obecność.")
-            .addField("🗓 Kiedy", when, false)
-            .addField("✅ Obecnych", String.valueOf(yes), true)
-            .addField("❌ Nieobecnych", String.valueOf(no), true)
-            .addField("🤷 Niezdecydowanych", String.valueOf(maybe), true)
-            .addField("Lista obecnych", yesList, false)
-            .addField("Lista nieobecnych", noList, false)
-            .addField("Lista niezdecydowanych", maybeList, false)
-            .setTimestamp(Instant.now())
-            .build();
+        return Container.of(
+            TextDisplay.of("## 📅 Spotkaniomierz: " + topic),
+            TextDisplay.of("Zagłosuj poniżej, aby potwierdzić obecność."),
+            Separator.createDivider(Separator.Spacing.SMALL),
+            TextDisplay.of("**🗓 Kiedy:** " + when),
+            Section.of(
+                Button.success("meeting_yes", "✅ Będę"),
+                TextDisplay.of("**Obecnych:** " + yes),
+                TextDisplay.of("Lista: " + yesList)
+            ),
+            Section.of(
+                Button.danger("meeting_no", "❌ Nie będę"),
+                TextDisplay.of("**Nieobecnych:** " + no),
+                TextDisplay.of("Lista: " + noList)
+            ),
+            Section.of(
+                Button.secondary("meeting_maybe", "🤷 Jeszcze nie wiem"),
+                TextDisplay.of("**Niezdecydowanych:** " + maybe),
+                TextDisplay.of("Lista: " + maybeList)
+            ),
+            Separator.createDivider(Separator.Spacing.SMALL),
+            TextDisplay.of("-# Ostatnia aktualizacja: <t:" + Instant.now().getEpochSecond() + ":T>")
+        ).withAccentColor(MEETING_ACCENT_COLOR);
     }
 
     private String humanize(MeetingStatus status) {
@@ -190,20 +198,28 @@ public class MeetingService {
             for (MeetingPollWrapper poll : polls) {
                 TextChannel channel = jda.getTextChannelById(poll.getChannelId());
                 if (channel != null) {
-                    channel.deleteMessageById(poll.getMessageId()).queue(
-                        success -> {
-                            this.voteRepository.deleteByMessageId(poll.getMessageId());
-                            this.pollRepository.deleteByMessageId(poll.getMessageId());
-                            LOGGER.debug(
-                                "Deleted expired meeting message and cleaned DB for messageId={}",
-                                poll.getMessageId());
-                        },
+                    channel.retrieveMessageById(poll.getMessageId()).queue(
+                        message -> message.editMessageComponents(message.getComponentTree().asDisabled())
+                            .useComponentsV2(true)
+                            .queue(
+                                success -> {
+                                    this.cleanupPollData(poll);
+                                    LOGGER.debug(
+                                        "Locked expired meeting message and cleaned DB for messageId={}",
+                                        poll.getMessageId());
+                                },
+                                failure -> {
+                                    LOGGER.warn(
+                                        "Failed to lock meeting messageId={} in channelId={}. Cleaning DB anyway.",
+                                        poll.getMessageId(), poll.getChannelId(), failure);
+                                    this.cleanupPollData(poll);
+                                }
+                            ),
                         failure -> {
                             LOGGER.warn(
-                                "Failed to delete meeting messageId={} in channelId={}. Cleaning DB anyway.",
+                                "Failed to retrieve meeting messageId={} in channelId={}. Cleaning DB anyway.",
                                 poll.getMessageId(), poll.getChannelId(), failure);
-                            this.voteRepository.deleteByMessageId(poll.getMessageId());
-                            this.pollRepository.deleteByMessageId(poll.getMessageId());
+                            this.cleanupPollData(poll);
                         }
                     );
                 }
@@ -211,8 +227,7 @@ public class MeetingService {
                     LOGGER.info(
                         "Channel not found for expired meeting messageId={}, channelId={}. Cleaning DB.",
                         poll.getMessageId(), poll.getChannelId());
-                    this.voteRepository.deleteByMessageId(poll.getMessageId());
-                    this.pollRepository.deleteByMessageId(poll.getMessageId());
+                    this.cleanupPollData(poll);
                 }
             }
         }).exceptionally(ex -> {
@@ -221,10 +236,14 @@ public class MeetingService {
         });
     }
 
+    private void cleanupPollData(MeetingPollWrapper poll) {
+        this.voteRepository.deleteByMessageId(poll.getMessageId());
+        this.pollRepository.deleteByMessageId(poll.getMessageId());
+    }
+
     public interface MeetingButtonUpdater {
         void editMessage(MessageEditData newData);
         void replyEphemeral(String content);
         void acknowledgeEphemeral(String content);
     }
 }
-

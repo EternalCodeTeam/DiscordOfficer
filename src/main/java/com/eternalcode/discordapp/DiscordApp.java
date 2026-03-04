@@ -134,7 +134,7 @@ public class DiscordApp {
 
         MeetingPollRepository meetingPollRepository = MeetingPollRepository.create(databaseManager);
         MeetingVoteRepository meetingVoteRepository = MeetingVoteRepository.create(databaseManager);
-        MeetingService meetingService = new MeetingService(appConfig, meetingPollRepository, meetingVoteRepository);
+        MeetingService meetingService = new MeetingService(meetingPollRepository, meetingVoteRepository);
 
         LOGGER.info("Building command client...");
         CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
