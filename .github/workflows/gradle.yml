@@ -27,7 +27,7 @@ jobs:
         with:
           arguments: shadowJar
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'Successfully build DiscordOfficer JDK${{ matrix.jdk }}'
           path: build/libs/*.jar
