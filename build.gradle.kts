@@ -43,7 +43,7 @@ dependencies {
     implementation("pw.chew:jda-chewtils-command:2.2.1")
 
     // Sentry.io integration
-    implementation("io.sentry:sentry:8.40.0")
+    implementation("io.sentry:sentry:8.41.0")
 
     // ORMLite
     implementation("com.j256.ormlite:ormlite-core:6.1")
