@@ -65,8 +65,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // mockwebserver
-    testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
-    testImplementation("com.squareup.okhttp3:okhttp:5.3.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:5.4.0")
+    testImplementation("com.squareup.okhttp3:okhttp:5.4.0")
 
     // mockito
     testImplementation("org.mockito:mockito-core:5.23.0")
