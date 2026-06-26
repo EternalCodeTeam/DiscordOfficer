@@ -2,7 +2,7 @@ plugins {
     `java-library`
     application
     idea
-    id("com.gradleup.shadow") version "9.4.2"
+    id("com.gradleup.shadow") version "9.4.3"
 }
 
 group = "com.eternalcode"
