@@ -66,7 +66,7 @@ dependencies {
 
     // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:5.5.0")
-    testImplementation("com.squareup.okhttp3:okhttp:5.4.0")
+    testImplementation("com.squareup.okhttp3:okhttp:5.5.0")
 
     // mockito
     testImplementation("org.mockito:mockito-core:5.23.0")
