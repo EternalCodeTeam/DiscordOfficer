@@ -42,6 +42,11 @@ import com.eternalcode.discordapp.feature.meeting.MeetingPollRepository;
 import com.eternalcode.discordapp.feature.meeting.MeetingService;
 import com.eternalcode.discordapp.feature.meeting.MeetingVoteRepository;
 import com.eternalcode.discordapp.observer.ObserverRegistry;
+import com.eternalcode.discordapp.feature.releasewatch.ReleaseWatchService;
+import com.eternalcode.discordapp.feature.releasewatch.ReleaseWatchTask;
+import com.eternalcode.discordapp.feature.releasewatch.command.ReleaseCommand;
+import com.eternalcode.discordapp.feature.releasewatch.database.ReleaseWatchRepository;
+import com.eternalcode.discordapp.feature.releasewatch.database.ReleaseWatchRepositoryImpl;
 import com.eternalcode.discordapp.feature.review.GitHubReviewReminderService;
 import com.eternalcode.discordapp.feature.review.GitHubReviewService;
 import com.eternalcode.discordapp.feature.review.GitHubReviewTask;
@@ -125,11 +130,13 @@ public class DiscordApp {
         LOGGER.info("Initializing repositories...");
         GitHubReviewMentionRepository mentionRepo =
             GitHubReviewMentionRepositoryImpl.create(databaseManager, scheduler);
+        ReleaseWatchRepository releaseWatchRepository = ReleaseWatchRepositoryImpl.create(databaseManager);
 
         LOGGER.info("Initializing services...");
         ExperienceService experienceService = new ExperienceService(databaseManager, observerRegistry);
         LevelService levelService = new LevelService(databaseManager);
         GitHubReviewService reviewService = new GitHubReviewService(appConfig, configManager, mentionRepo);
+        ReleaseWatchService releaseWatchService = new ReleaseWatchService(appConfig, releaseWatchRepository);
         LeaderboardService leaderboardService = new LeaderboardService(levelService);
 
         MeetingPollRepository meetingPollRepository = MeetingPollRepository.create(databaseManager);
@@ -158,7 +165,8 @@ public class DiscordApp {
                 new GitHubReviewCommand(reviewService, appConfig),
                 new LevelCommand(levelService),
                 new LeaderboardCommand(leaderboardService),
-                new MeetingCommand(meetingService)
+                new MeetingCommand(meetingService),
+                new ReleaseCommand(releaseWatchService)
             );
 
         LOGGER.info("Initializing Discord bot...");
@@ -222,6 +230,7 @@ public class DiscordApp {
         LOGGER.info("Starting scheduled tasks...");
         scheduler.schedule(new GuildStatisticsTask(guildStats), Duration.ofMinutes(5));
         new GitHubReviewTask(reviewService, jda, scheduler).start();
+        new ReleaseWatchTask(releaseWatchService, jda, scheduler).start();
         scheduler.scheduleRepeating(new AutoMessageTask(autoMsgService), appConfig.autoMessagesConfig.interval);
 
         LOGGER.info("Auto messages scheduled with interval: {}", appConfig.autoMessagesConfig.interval);

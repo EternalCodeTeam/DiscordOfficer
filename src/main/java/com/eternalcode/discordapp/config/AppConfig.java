@@ -45,6 +45,9 @@ public class AppConfig implements CdnConfig {
     @Description("# The settings of automatic messages")
     public AutoMessagesConfig autoMessagesConfig = new AutoMessagesConfig();
 
+    @Description("# The settings of the GitHub release watch system")
+    public ReleaseWatch releaseWatch = new ReleaseWatch();
+
     @Override
     public Resource resource(File folder) {
         return Source.of(folder, "config.yml");
@@ -117,6 +120,12 @@ public class AppConfig implements CdnConfig {
         public List<GitHubReviewUser> reviewers = new ArrayList<>(Collections.singletonList(
                 new GitHubReviewUser(852920601969950760L, "vluckyyy", GitHubReviewNotificationType.SERVER)
         ));
+    }
+
+    @Contextual
+    public static class ReleaseWatch {
+        @Description("# The ID of the channel where new GitHub releases are posted")
+        public long releasesChannelId = 0L;
     }
 }
 
