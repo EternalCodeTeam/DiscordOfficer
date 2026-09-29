@@ -73,7 +73,7 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.24.0")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("org.apache.commons:commons-lang3:3.21.0")
 
     implementation("com.eternalcode:eternalcode-commons-shared:1.4.1")
 
