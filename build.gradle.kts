@@ -54,7 +54,7 @@ dependencies {
 
     // Database drivers
     implementation("com.h2database:h2:2.5.252")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.11")
+    implementation("org.mariadb.jdbc:mariadb-java-client:4.0.0")
 
     // Gson
     implementation("com.google.code.gson:gson:2.14.0")
