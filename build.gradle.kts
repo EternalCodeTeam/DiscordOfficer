@@ -57,7 +57,7 @@ dependencies {
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.11")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.14.0")
+    implementation("com.google.code.gson:gson:2.15.0")
 
     // tests
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
